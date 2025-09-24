@@ -2,14 +2,50 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
+/* Sales Predictor ML Design System - Machine Learning themed design tokens */
 
 @layer base {
   :root {
+    /* Core brand colors for ML/Data Science theme */
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
+    
+    /* ML Primary - Deep tech blue */
+    --ml-primary: 217 91% 60%;
+    --ml-primary-dark: 217 91% 50%;
+    --ml-primary-light: 217 91% 70%;
+    
+    /* ML Secondary - Data green */
+    --ml-secondary: 142 76% 36%;
+    --ml-secondary-light: 142 76% 46%;
+    
+    /* ML Accent - Neural purple */
+    --ml-accent: 262 83% 58%;
+    --ml-accent-light: 262 83% 68%;
+    
+    /* Algorithm comparison colors */
+    --arima-color: 217 91% 60%;  /* Blue for ARIMA */
+    --lstm-color: 142 76% 36%;   /* Green for LSTM */
+    
+    /* Status colors */
+    --success: 142 76% 36%;
+    --warning: 38 92% 50%;
+    --error: 0 84% 60%;
+    
+    /* Gradients for ML theme */
+    --gradient-primary: linear-gradient(135deg, hsl(217 91% 60%), hsl(262 83% 58%));
+    --gradient-data: linear-gradient(90deg, hsl(217 91% 60%), hsl(142 76% 36%));
+    --gradient-neural: linear-gradient(135deg, hsl(262 83% 58%), hsl(217 91% 60%));
+    --gradient-hero: linear-gradient(135deg, hsl(217 91% 60% / 0.1), hsl(262 83% 58% / 0.1));
+    
+    /* Shadows with ML theme */
+    --shadow-ml: 0 10px 40px -10px hsl(217 91% 60% / 0.2);
+    --shadow-neural: 0 4px 20px -4px hsl(262 83% 58% / 0.15);
+    --shadow-data: 0 2px 10px -2px hsl(142 76% 36% / 0.1);
+    
+    /* Animation variables */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 
     --card: 0 0% 100%;
     --card-foreground: 222.2 84% 4.9%;
@@ -17,17 +53,18 @@ All colors MUST be HSL.
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 222.2 47.4% 11.2%;
+    /* Updated theme colors using ML design tokens */
+    --primary: var(--ml-primary);
     --primary-foreground: 210 40% 98%;
 
     --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary-foreground: var(--ml-primary-dark);
 
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: var(--ml-accent);
+    --accent-foreground: 210 40% 98%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
@@ -56,17 +93,18 @@ All colors MUST be HSL.
   }
 
   .dark {
+    /* Dark mode with ML theme */
     --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;
 
-    --card: 222.2 84% 4.9%;
+    --card: 217.2 32.6% 17.5%;
     --card-foreground: 210 40% 98%;
 
-    --popover: 222.2 84% 4.9%;
+    --popover: 217.2 32.6% 17.5%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    --primary: var(--ml-primary-light);
+    --primary-foreground: 222.2 84% 4.9%;
 
     --secondary: 217.2 32.6% 17.5%;
     --secondary-foreground: 210 40% 98%;
@@ -74,8 +112,8 @@ All colors MUST be HSL.
     --muted: 217.2 32.6% 17.5%;
     --muted-foreground: 215 20.2% 65.1%;
 
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    --accent: var(--ml-accent-light);
+    --accent-foreground: 222.2 84% 4.9%;
 
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;

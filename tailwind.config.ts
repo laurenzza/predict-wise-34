@@ -47,6 +47,23 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        // ML-specific colors for the prediction system
+        ml: {
+          primary: "hsl(var(--ml-primary))",
+          "primary-dark": "hsl(var(--ml-primary-dark))",
+          "primary-light": "hsl(var(--ml-primary-light))",
+          secondary: "hsl(var(--ml-secondary))",
+          "secondary-light": "hsl(var(--ml-secondary-light))",
+          accent: "hsl(var(--ml-accent))",
+          "accent-light": "hsl(var(--ml-accent-light))",
+        },
+        // Algorithm-specific colors
+        arima: "hsl(var(--arima-color))",
+        lstm: "hsl(var(--lstm-color))",
+        // Status colors
+        success: "hsl(var(--success))",
+        warning: "hsl(var(--warning))",
+        error: "hsl(var(--error))",
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",
@@ -80,10 +97,56 @@ export default {
             height: "0",
           },
         },
+        // ML-themed animations
+        "ml-pulse": {
+          "0%, 100%": {
+            opacity: "1",
+            transform: "scale(1)",
+          },
+          "50%": {
+            opacity: "0.8",
+            transform: "scale(1.05)",
+          },
+        },
+        "data-flow": {
+          "0%": {
+            transform: "translateX(-100%)",
+            opacity: "0",
+          },
+          "50%": {
+            opacity: "1",
+          },
+          "100%": {
+            transform: "translateX(100%)",
+            opacity: "0",
+          },
+        },
+        "neural-glow": {
+          "0%, 100%": {
+            boxShadow: "0 0 5px hsl(var(--ml-accent))",
+          },
+          "50%": {
+            boxShadow: "0 0 20px hsl(var(--ml-accent)), 0 0 30px hsl(var(--ml-accent))",
+          },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "ml-pulse": "ml-pulse 2s ease-in-out infinite",
+        "data-flow": "data-flow 3s ease-in-out infinite",
+        "neural-glow": "neural-glow 2s ease-in-out infinite",
+      },
+      backgroundImage: {
+        "gradient-ml": "var(--gradient-primary)",
+        "gradient-data": "var(--gradient-data)",
+        "gradient-neural": "var(--gradient-neural)",
+        "gradient-hero": "var(--gradient-hero)",
+      },
+      boxShadow: {
+        "ml": "var(--shadow-ml)",
+        "neural": "var(--shadow-neural)",
+        "data": "var(--shadow-data)",
       },
     },
   },
