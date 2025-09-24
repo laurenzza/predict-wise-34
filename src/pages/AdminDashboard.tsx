@@ -16,7 +16,7 @@ import {
   Clock
 } from "lucide-react";
 
-export const Dashboard = () => {
+export const AdminDashboard = () => {
   const recentPredictions = [
     { date: "2024-09-24", arima: 220215, lstm: 218500, status: "Completed" },
     { date: "2024-09-23", arima: 219800, lstm: 218200, status: "Completed" },
@@ -47,7 +47,7 @@ export const Dashboard = () => {
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl md:text-4xl font-bold mb-2">
-            Dashboard <span className="bg-gradient-ml bg-clip-text text-transparent">Prediksi</span>
+            Dashboard <span className="bg-gradient-ml bg-clip-text text-transparent">Admin</span>
           </h1>
           <p className="text-muted-foreground text-lg">
             Monitoring dan analisis performa model ARIMA vs LSTM untuk prediksi penjualan

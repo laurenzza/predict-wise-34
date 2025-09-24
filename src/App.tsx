@@ -4,7 +4,15 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
-import { Dashboard } from "./pages/Dashboard";
+import { AdminDashboard } from "./pages/AdminDashboard";
+import { UserDashboard } from "./pages/UserDashboard";
+import { RoleSelection } from "./pages/RoleSelection";
+import { UserPredictions } from "./pages/user/UserPredictions";
+import { UserPeriod } from "./pages/user/UserPeriod";
+import { UserDataset } from "./pages/user/UserDataset";
+import { UserCategories } from "./pages/user/UserCategories";
+import { UserStatistics } from "./pages/user/UserStatistics";
+import { UserInfo } from "./pages/user/UserInfo";
 import { Dataset } from "./pages/Dataset";
 import { Predictions } from "./pages/Predictions";
 import { Login } from "./pages/Login";
@@ -21,7 +29,15 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
-          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/role-selection" element={<RoleSelection />} />
+          <Route path="/admin-dashboard" element={<AdminDashboard />} />
+          <Route path="/user-dashboard" element={<UserDashboard />} />
+          <Route path="/user/predictions" element={<UserPredictions />} />
+          <Route path="/user/period" element={<UserPeriod />} />
+          <Route path="/user/dataset" element={<UserDataset />} />
+          <Route path="/user/categories" element={<UserCategories />} />
+          <Route path="/user/statistics" element={<UserStatistics />} />
+          <Route path="/user/info" element={<UserInfo />} />
           <Route path="/dataset" element={<Dataset />} />
           <Route path="/predictions" element={<Predictions />} />
           <Route path="/login" element={<Login />} />
