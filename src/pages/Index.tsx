@@ -87,32 +87,6 @@ const Index = () => {
             </Button>
           </div>
 
-          {/* Key Metrics */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
-            <MetricCard
-              title="Akurasi Model LSTM"
-              value="96.8%"
-              change="+2.3% dari bulan lalu"
-              changeType="positive"
-              icon={<Target className="h-4 w-4 text-lstm" />}
-              gradient
-            />
-            <MetricCard
-              title="Akurasi Model ARIMA"
-              value="94.2%"
-              change="+1.8% dari bulan lalu"
-              changeType="positive"
-              icon={<TrendingUp className="h-4 w-4 text-arima" />}
-              gradient
-            />
-            <MetricCard
-              title="Data Points"
-              value="32,570"
-              description="Total transaksi yang dianalisis"
-              icon={<Database className="h-4 w-4 text-ml-accent" />}
-              gradient
-            />
-          </div>
         </div>
       </section>
 
@@ -145,20 +119,6 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Chart Preview Section */}
-      <section className="py-16 px-4">
-        <div className="container mx-auto max-w-6xl">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              Preview Prediksi
-            </h2>
-            <p className="text-lg text-muted-foreground">
-              Contoh visualisasi perbandingan prediksi antara algoritma ARIMA dan LSTM
-            </p>
-          </div>
-          <PredictionChart />
-        </div>
-      </section>
 
       {/* Advantages Section */}
       <section className="py-16 px-4 bg-background/50 backdrop-blur">
@@ -188,7 +148,7 @@ const Index = () => {
         <div className="container mx-auto max-w-4xl text-center">
           <div className="bg-gradient-ml p-12 rounded-2xl shadow-ml">
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-              Siap Memulai Prediksi?
+              Siap Meningkatkan Penjualan?
             </h2>
             <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
               Jelajahi dashboard lengkap dan mulai analisis prediksi penjualan dengan teknologi machine learning terdepan.

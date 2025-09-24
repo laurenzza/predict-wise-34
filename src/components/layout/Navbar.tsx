@@ -1,7 +1,13 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Moon, Sun, Menu, X, BarChart3, Database, BrainCircuit } from "lucide-react";
+import { Moon, Sun, Menu, X, BarChart3, Database, BrainCircuit, Settings } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export const Navbar = () => {
   const [isDark, setIsDark] = useState(false);
@@ -54,6 +60,26 @@ export const Navbar = () => {
 
           {/* Right Side Actions */}
           <div className="flex items-center space-x-4">
+            {/* Settings Menu */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm">
+                  <Settings className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem>
+                  Pengaturan Akun
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  Tema
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  Bantuan
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
             {/* Theme Toggle */}
             <Button 
               variant="ghost" 
