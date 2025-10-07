@@ -68,14 +68,17 @@ export const Navbar = () => {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate("/account-settings")}>
+                  <Settings className="mr-2 h-4 w-4" />
                   Pengaturan Akun
                 </DropdownMenuItem>
-                <DropdownMenuItem>
-                  Tema
+                <DropdownMenuItem onClick={() => navigate("/dataset")}>
+                  <Database className="mr-2 h-4 w-4" />
+                  Dataset
                 </DropdownMenuItem>
-                <DropdownMenuItem>
-                  Bantuan
+                <DropdownMenuItem onClick={() => navigate("/predictions")}>
+                  <BrainCircuit className="mr-2 h-4 w-4" />
+                  Prediksi
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

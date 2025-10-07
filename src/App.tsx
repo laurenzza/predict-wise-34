@@ -17,6 +17,7 @@ import { Dataset } from "./pages/Dataset";
 import { Predictions } from "./pages/Predictions";
 import { Login } from "./pages/Login";
 import { Register } from "./pages/Register";
+import { AccountSettings } from "./pages/AccountSettings";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -42,6 +43,7 @@ const App = () => (
           <Route path="/predictions" element={<Predictions />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/account-settings" element={<AccountSettings />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

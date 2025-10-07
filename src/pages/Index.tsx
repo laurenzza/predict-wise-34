@@ -35,12 +35,18 @@ const Index = () => {
     }
   ];
 
-  const advantages = [
+  const userAdvantages = [
     "Prediksi akurat dengan tingkat error rendah",
     "Interface yang mudah dipahami dan user-friendly", 
+    "Analisis tren penjualan berbasis data historis",
+    "Dashboard interaktif untuk monitoring penjualan"
+  ];
+
+  const developerAdvantages = [
     "Perbandingan langsung antara algoritma ARIMA vs LSTM",
     "Visualisasi data yang interaktif dan informatif",
-    "Analisis tren penjualan berbasis data historis"
+    "Akses ke metrik evaluasi model machine learning",
+    "Dataset terstruktur dan siap untuk analisis"
   ];
 
   return (
@@ -68,24 +74,6 @@ const Index = () => {
             </p>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16">
-            <Button 
-              size="lg" 
-              variant="ml" 
-              onClick={() => navigate("/role-selection")}
-              className="text-lg px-8 py-6"
-            >
-              Mulai Eksplorasi <ArrowRight className="ml-2 h-5 w-5" />
-            </Button>
-            <Button 
-              size="lg" 
-              variant="outline" 
-              onClick={() => navigate("/dataset")}
-              className="text-lg px-8 py-6 border-ml-primary/30 hover:bg-ml-primary/10"
-            >
-              Lihat Dataset
-            </Button>
-          </div>
 
         </div>
       </section>
@@ -122,7 +110,7 @@ const Index = () => {
 
       {/* Advantages Section */}
       <section className="py-16 px-4 bg-background/50 backdrop-blur">
-        <div className="container mx-auto max-w-4xl">
+        <div className="container mx-auto max-w-6xl">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
               Mengapa Sales Predictor?
@@ -132,13 +120,42 @@ const Index = () => {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {advantages.map((advantage, index) => (
-              <div key={index} className="flex items-center space-x-3 p-4 rounded-lg bg-card/50 border border-success/20">
-                <CheckCircle2 className="h-5 w-5 text-success flex-shrink-0" />
-                <span className="text-foreground">{advantage}</span>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* For Store Owners */}
+            <div className="bg-card p-6 rounded-xl border border-ml-primary/20 shadow-neural">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="p-3 rounded-lg bg-gradient-ml">
+                  <Target className="h-6 w-6 text-white" />
+                </div>
+                <h3 className="text-xl font-semibold">Untuk Pemilik Toko</h3>
               </div>
-            ))}
+              <div className="space-y-3">
+                {userAdvantages.map((advantage, index) => (
+                  <div key={index} className="flex items-start space-x-3">
+                    <CheckCircle2 className="h-5 w-5 text-success flex-shrink-0 mt-0.5" />
+                    <span className="text-muted-foreground">{advantage}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* For Developers */}
+            <div className="bg-card p-6 rounded-xl border border-ml-secondary/20 shadow-neural">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="p-3 rounded-lg bg-gradient-ml">
+                  <BrainCircuit className="h-6 w-6 text-white" />
+                </div>
+                <h3 className="text-xl font-semibold">Untuk Pengembang</h3>
+              </div>
+              <div className="space-y-3">
+                {developerAdvantages.map((advantage, index) => (
+                  <div key={index} className="flex items-start space-x-3">
+                    <CheckCircle2 className="h-5 w-5 text-success flex-shrink-0 mt-0.5" />
+                    <span className="text-muted-foreground">{advantage}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -157,11 +174,10 @@ const Index = () => {
               <Button 
                 size="lg" 
                 variant="secondary"
-                onClick={() => navigate("/role-selection")}
+                onClick={() => navigate("/login")}
                 className="bg-white text-ml-primary hover:bg-white/90 text-lg px-8 py-6"
               >
-                <Zap className="mr-2 h-5 w-5" />
-                Masuk Dashboard
+                Login
               </Button>
               <Button 
                 size="lg" 
@@ -169,7 +185,7 @@ const Index = () => {
                 onClick={() => navigate("/register")}
                 className="border-white text-white hover:bg-white/10 text-lg px-8 py-6"
               >
-                Daftar Gratis
+                Sign Up
               </Button>
             </div>
           </div>
