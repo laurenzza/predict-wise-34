@@ -52,7 +52,7 @@ export const Register = () => {
         {/* Registration Form */}
         <Card className="shadow-ml border-ml-primary/20">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl">Register</CardTitle>
+            <CardTitle className="text-2xl text-center">Register</CardTitle>
             <CardDescription>
               Buat akun baru untuk mengakses fitur prediksi penjualan
             </CardDescription>
@@ -167,7 +167,7 @@ export const Register = () => {
                     <span>Membuat akun...</span>
                   </div>
                 ) : (
-                  "Daftar"
+                  "Register"
                 )}
               </Button>
             </form>
@@ -179,7 +179,7 @@ export const Register = () => {
                 className="p-0 h-auto text-ml-primary"
                 onClick={() => navigate("/login")}
               >
-                Log in
+                Log In
               </Button>
             </div>
           </CardContent>
