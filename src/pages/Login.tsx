@@ -50,7 +50,7 @@ export const Login = () => {
         <Card className="shadow-ml border-ml-primary/20">
           <CardHeader className="space-y-1">
             <CardTitle className="text-2xl text-center">Log in</CardTitle>
-            <CardDescription>
+            <CardDescription className="text-center">
               Masukkan email dan password untuk mengakses dashboard
             </CardDescription>
           </CardHeader>

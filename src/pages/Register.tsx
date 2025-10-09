@@ -53,7 +53,7 @@ export const Register = () => {
         <Card className="shadow-ml border-ml-primary/20">
           <CardHeader className="space-y-1">
             <CardTitle className="text-2xl text-center">Register</CardTitle>
-            <CardDescription>
+            <CardDescription className="text-center">
               Buat akun baru untuk mengakses fitur prediksi penjualan
             </CardDescription>
           </CardHeader>
