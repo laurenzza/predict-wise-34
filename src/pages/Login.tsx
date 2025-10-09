@@ -109,7 +109,7 @@ export const Login = () => {
                     <span>Memverifikasi...</span>
                   </div>
                 ) : (
-                  "Masuk"
+                  "Log in"
                 )}
               </Button>
             </form>
@@ -123,17 +123,6 @@ export const Login = () => {
               >
                 Register
               </Button>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Demo Credentials */}
-        <Card className="bg-muted/50 border-dashed">
-          <CardContent className="pt-6">
-            <div className="text-center text-sm text-muted-foreground">
-              <p className="font-medium mb-2">Demo Credentials:</p>
-              <p>Email: admin@salespredictor.com</p>
-              <p>Password: admin123</p>
             </div>
           </CardContent>
         </Card>
