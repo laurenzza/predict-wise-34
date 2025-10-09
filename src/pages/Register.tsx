@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { BrainCircuit, Eye, EyeOff, Mail, Lock, User } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -11,6 +12,7 @@ export const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [role, setRole] = useState<"admin" | "developer">("developer");
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -50,7 +52,7 @@ export const Register = () => {
         {/* Registration Form */}
         <Card className="shadow-ml border-ml-primary/20">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl">Daftar Akun</CardTitle>
+            <CardTitle className="text-2xl">Register</CardTitle>
             <CardDescription>
               Buat akun baru untuk mengakses fitur prediksi penjualan
             </CardDescription>
@@ -139,6 +141,20 @@ export const Register = () => {
                 </div>
               </div>
 
+              <div className="space-y-2">
+                <Label>Role</Label>
+                <RadioGroup value={role} onValueChange={(value) => setRole(value as "admin" | "developer")}>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="admin" id="admin" />
+                    <Label htmlFor="admin" className="font-normal cursor-pointer">Admin</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="developer" id="developer" />
+                    <Label htmlFor="developer" className="font-normal cursor-pointer">Developer</Label>
+                  </div>
+                </RadioGroup>
+              </div>
+
               <Button 
                 type="submit" 
                 className="w-full" 
@@ -163,7 +179,7 @@ export const Register = () => {
                 className="p-0 h-auto text-ml-primary"
                 onClick={() => navigate("/login")}
               >
-                Masuk sekarang
+                Log in
               </Button>
             </div>
           </CardContent>
