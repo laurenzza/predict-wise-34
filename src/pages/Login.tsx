@@ -49,7 +49,7 @@ export const Login = () => {
         {/* Login Form */}
         <Card className="shadow-ml border-ml-primary/20">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl">Masuk</CardTitle>
+            <CardTitle className="text-2xl text-center">Log in</CardTitle>
             <CardDescription>
               Masukkan email dan password untuk mengakses dashboard
             </CardDescription>
@@ -121,7 +121,7 @@ export const Login = () => {
                 className="p-0 h-auto text-ml-primary"
                 onClick={() => navigate("/register")}
               >
-                Daftar sekarang
+                Register
               </Button>
             </div>
           </CardContent>
