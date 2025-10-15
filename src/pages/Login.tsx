@@ -24,7 +24,7 @@ export const Login = () => {
         title: "Login Berhasil",
         description: "Selamat datang di Sales Predictor!",
       });
-      navigate("/dashboard");
+      navigate("/role-selection");
     }, 1500);
   };
 
@@ -117,7 +117,7 @@ export const Login = () => {
                 type="button" 
                 className="w-full" 
                 variant="outline"
-                onClick={() => navigate("/dashboard")}
+                onClick={() => navigate("/role-selection")}
               >
                 Demo Mode
               </Button>

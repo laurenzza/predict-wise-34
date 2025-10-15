@@ -175,7 +175,7 @@ export const Register = () => {
                 type="button" 
                 className="w-full" 
                 variant="outline"
-                onClick={() => navigate("/dashboard")}
+                onClick={() => navigate("/role-selection")}
               >
                 Demo Mode
               </Button>
