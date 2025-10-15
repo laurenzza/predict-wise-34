@@ -5,12 +5,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { User, Lock, Bell, Database, Shield } from "lucide-react";
-import { Switch } from "@/components/ui/switch";
+import { User, Lock, Database, Eye, EyeOff, Upload } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 export const AccountSettings = () => {
-  const [emailNotifications, setEmailNotifications] = useState(true);
-  const [predictionAlerts, setPredictionAlerts] = useState(true);
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const { toast } = useToast();
 
   return (
     <div className="min-h-screen bg-gradient-hero">
@@ -25,20 +27,16 @@ export const AccountSettings = () => {
         </div>
 
         <Tabs defaultValue="profile" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="profile" className="gap-2">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="profile" className="gap-2 data-[state=active]:bg-ml-primary/10 data-[state=active]:text-ml-primary">
               <User className="h-4 w-4" />
               Profil
             </TabsTrigger>
-            <TabsTrigger value="security" className="gap-2">
+            <TabsTrigger value="security" className="gap-2 data-[state=active]:bg-ml-primary/10 data-[state=active]:text-ml-primary">
               <Lock className="h-4 w-4" />
               Keamanan
             </TabsTrigger>
-            <TabsTrigger value="notifications" className="gap-2">
-              <Bell className="h-4 w-4" />
-              Notifikasi
-            </TabsTrigger>
-            <TabsTrigger value="data" className="gap-2">
+            <TabsTrigger value="data" className="gap-2 data-[state=active]:bg-ml-primary/10 data-[state=active]:text-ml-primary">
               <Database className="h-4 w-4" />
               Data
             </TabsTrigger>
@@ -87,77 +85,71 @@ export const AccountSettings = () => {
               <CardContent className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="current-password">Password Saat Ini</Label>
-                  <Input id="current-password" type="password" />
+                  <div className="relative">
+                    <Input 
+                      id="current-password" 
+                      type={showCurrentPassword ? "text" : "password"} 
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
+                      onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                    >
+                      {showCurrentPassword ? (
+                        <EyeOff className="h-4 w-4 text-muted-foreground" />
+                      ) : (
+                        <Eye className="h-4 w-4 text-muted-foreground" />
+                      )}
+                    </Button>
+                  </div>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="new-password">Password Baru</Label>
-                  <Input id="new-password" type="password" />
+                  <div className="relative">
+                    <Input 
+                      id="new-password" 
+                      type={showNewPassword ? "text" : "password"} 
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
+                      onClick={() => setShowNewPassword(!showNewPassword)}
+                    >
+                      {showNewPassword ? (
+                        <EyeOff className="h-4 w-4 text-muted-foreground" />
+                      ) : (
+                        <Eye className="h-4 w-4 text-muted-foreground" />
+                      )}
+                    </Button>
+                  </div>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="confirm-password">Konfirmasi Password Baru</Label>
-                  <Input id="confirm-password" type="password" />
-                </div>
-                <div className="flex items-center space-x-2 p-4 bg-muted/50 rounded-lg">
-                  <Shield className="h-5 w-5 text-ml-primary" />
-                  <div className="flex-1">
-                    <p className="text-sm font-medium">Two-Factor Authentication</p>
-                    <p className="text-xs text-muted-foreground">
-                      Tambahkan lapisan keamanan ekstra
-                    </p>
+                  <div className="relative">
+                    <Input 
+                      id="confirm-password" 
+                      type={showConfirmPassword ? "text" : "password"} 
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    >
+                      {showConfirmPassword ? (
+                        <EyeOff className="h-4 w-4 text-muted-foreground" />
+                      ) : (
+                        <Eye className="h-4 w-4 text-muted-foreground" />
+                      )}
+                    </Button>
                   </div>
-                  <Switch />
                 </div>
                 <Button variant="ml">Update Password</Button>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* Notifications Tab */}
-          <TabsContent value="notifications">
-            <Card>
-              <CardHeader>
-                <CardTitle>Preferensi Notifikasi</CardTitle>
-                <CardDescription>
-                  Atur bagaimana Anda ingin menerima notifikasi
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
-                  <div className="space-y-0.5">
-                    <Label htmlFor="email-notifications">Email Notifications</Label>
-                    <p className="text-xs text-muted-foreground">
-                      Terima update via email
-                    </p>
-                  </div>
-                  <Switch
-                    id="email-notifications"
-                    checked={emailNotifications}
-                    onCheckedChange={setEmailNotifications}
-                  />
-                </div>
-                <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
-                  <div className="space-y-0.5">
-                    <Label htmlFor="prediction-alerts">Prediction Alerts</Label>
-                    <p className="text-xs text-muted-foreground">
-                      Notifikasi saat prediksi baru tersedia
-                    </p>
-                  </div>
-                  <Switch
-                    id="prediction-alerts"
-                    checked={predictionAlerts}
-                    onCheckedChange={setPredictionAlerts}
-                  />
-                </div>
-                <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
-                  <div className="space-y-0.5">
-                    <Label htmlFor="weekly-reports">Weekly Reports</Label>
-                    <p className="text-xs text-muted-foreground">
-                      Laporan mingguan performa penjualan
-                    </p>
-                  </div>
-                  <Switch id="weekly-reports" />
-                </div>
-                <Button variant="ml">Simpan Preferensi</Button>
               </CardContent>
             </Card>
           </TabsContent>
@@ -168,30 +160,46 @@ export const AccountSettings = () => {
               <CardHeader>
                 <CardTitle>Manajemen Data</CardTitle>
                 <CardDescription>
-                  Export, backup, dan kelola data Anda
+                  Upload dan kelola data penjualan Anda
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
+                <div className="p-4 bg-ml-primary/5 border border-ml-primary/20 rounded-lg space-y-3">
+                  <h4 className="font-medium flex items-center gap-2">
+                    <Upload className="h-5 w-5 text-ml-primary" />
+                    Upload Data Penjualan
+                  </h4>
+                  <p className="text-sm text-muted-foreground">
+                    Upload file CSV dengan kolom: Tanggal Pembayaran, Status Terakhir, Nama Produk, Jumlah Produk Dibeli, Harga Jual, Total Penjualan
+                  </p>
+                  <div className="flex flex-col gap-2">
+                    <Input 
+                      type="file" 
+                      accept=".csv"
+                      onChange={(e) => {
+                        if (e.target.files?.[0]) {
+                          toast({
+                            title: "File Berhasil Dipilih",
+                            description: `File: ${e.target.files[0].name}`,
+                          });
+                        }
+                      }}
+                    />
+                    <Button variant="ml" className="w-full">
+                      Upload & Perbarui Data
+                    </Button>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Data akan langsung diproses dan digunakan untuk prediksi real-time
+                  </p>
+                </div>
+                
                 <div className="p-4 bg-muted/50 rounded-lg space-y-3">
                   <h4 className="font-medium">Export Data</h4>
                   <p className="text-sm text-muted-foreground">
                     Download semua data prediksi dan analisis Anda
                   </p>
                   <Button variant="outline">Export ke CSV</Button>
-                </div>
-                <div className="p-4 bg-muted/50 rounded-lg space-y-3">
-                  <h4 className="font-medium">Backup Data</h4>
-                  <p className="text-sm text-muted-foreground">
-                    Buat backup dari semua data dan pengaturan
-                  </p>
-                  <Button variant="outline">Buat Backup</Button>
-                </div>
-                <div className="p-4 bg-destructive/10 border border-destructive/20 rounded-lg space-y-3">
-                  <h4 className="font-medium text-destructive">Hapus Akun</h4>
-                  <p className="text-sm text-muted-foreground">
-                    Hapus akun Anda secara permanen beserta semua data
-                  </p>
-                  <Button variant="destructive">Hapus Akun</Button>
                 </div>
               </CardContent>
             </Card>

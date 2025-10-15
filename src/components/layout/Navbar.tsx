@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Moon, Sun, Menu, X, BarChart3, Database, BrainCircuit, Settings } from "lucide-react";
+import { Moon, Sun, Menu, X, BarChart3, Database, BrainCircuit, Settings, LogOut, User } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
@@ -20,7 +21,7 @@ export const Navbar = () => {
   };
 
   const menuItems = [
-    { icon: BarChart3, label: "Dashboard", path: "/dashboard" },
+    { icon: BarChart3, label: "Dashboard", path: "/role-selection" },
     { icon: Database, label: "Dataset", path: "/dataset" },
     { icon: BrainCircuit, label: "Predictions", path: "/predictions" },
   ];
@@ -69,16 +70,19 @@ export const Navbar = () => {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuItem onClick={() => navigate("/account-settings")}>
-                  <Settings className="mr-2 h-4 w-4" />
+                  <User className="mr-2 h-4 w-4" />
                   Pengaturan Akun
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate("/dataset")}>
-                  <Database className="mr-2 h-4 w-4" />
-                  Dataset
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate("/predictions")}>
-                  <BrainCircuit className="mr-2 h-4 w-4" />
-                  Prediksi
+                <DropdownMenuSeparator />
+                <DropdownMenuItem 
+                  onClick={() => {
+                    localStorage.removeItem('userRole');
+                    navigate("/login");
+                  }}
+                  className="text-destructive focus:text-destructive"
+                >
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Log Out
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
