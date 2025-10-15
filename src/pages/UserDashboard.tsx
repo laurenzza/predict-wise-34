@@ -213,7 +213,7 @@ export const UserDashboard = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="text-center p-4 bg-muted/20 rounded-lg">
                 <Clock className="h-8 w-8 text-ml-accent mx-auto mb-2" />
                 <h4 className="font-semibold mb-1">Periode Data</h4>
@@ -223,11 +223,6 @@ export const UserDashboard = () => {
                 <Database className="h-8 w-8 text-ml-accent mx-auto mb-2" />
                 <h4 className="font-semibold mb-1">Total Transaksi</h4>
                 <p className="text-sm text-muted-foreground">32,570 Data Points</p>
-              </div>
-              <div className="text-center p-4 bg-muted/20 rounded-lg">
-                <BarChart3 className="h-8 w-8 text-ml-accent mx-auto mb-2" />
-                <h4 className="font-semibold mb-1">Akurasi Model</h4>
-                <p className="text-sm text-muted-foreground">LSTM: 96.8%</p>
               </div>
             </div>
           </CardContent>

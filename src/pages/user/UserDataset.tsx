@@ -35,7 +35,7 @@ export const UserDataset = () => {
             Dataset <span className="bg-gradient-ml bg-clip-text text-transparent">Toko</span>
           </h1>
           <p className="text-muted-foreground text-lg">
-            Data transaksi penjualan Toko Loa Kim Jong untuk training model ML
+            Data transaksi penjualan Toko Loa Kim Jong
           </p>
         </div>
 

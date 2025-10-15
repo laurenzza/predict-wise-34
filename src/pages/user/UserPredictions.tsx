@@ -45,7 +45,7 @@ export const UserPredictions = () => {
             Prediksi <span className="bg-gradient-ml bg-clip-text text-transparent">Penjualan</span>
           </h1>
           <p className="text-muted-foreground text-lg">
-            Estimasi penjualan produk berdasarkan model machine learning LSTM
+            Estimasi penjualan produk berdasarkan analisis data historis
           </p>
         </div>
 
@@ -139,31 +139,6 @@ export const UserPredictions = () => {
           </Card>
         </div>
 
-        {/* Model Info */}
-        <Card className="shadow-neural border-ml-primary/20 mt-8">
-          <CardHeader>
-            <CardTitle>Informasi Model Prediksi</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="text-center p-4 bg-muted/20 rounded-lg">
-                <TrendingUp className="h-8 w-8 text-ml-primary mx-auto mb-2" />
-                <h4 className="font-semibold mb-1">Model LSTM</h4>
-                <p className="text-sm text-muted-foreground">Akurasi: 96.8%</p>
-              </div>
-              <div className="text-center p-4 bg-muted/20 rounded-lg">
-                <Calendar className="h-8 w-8 text-ml-accent mx-auto mb-2" />
-                <h4 className="font-semibold mb-1">Update Terakhir</h4>
-                <p className="text-sm text-muted-foreground">2 jam yang lalu</p>
-              </div>
-              <div className="text-center p-4 bg-muted/20 rounded-lg">
-                <Package className="h-8 w-8 text-success mx-auto mb-2" />
-                <h4 className="font-semibold mb-1">Confidence Level</h4>
-                <p className="text-sm text-muted-foreground">95% ± 5%</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
       </div>
     </div>
   );

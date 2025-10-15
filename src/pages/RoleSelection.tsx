@@ -30,16 +30,16 @@ export const RoleSelection = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-          {/* User Role Card */}
+          {/* Admin Role Card */}
           <Card className="shadow-neural border-ml-primary/20 hover:shadow-ml transition-all duration-300 cursor-pointer group" 
                 onClick={() => handleRoleSelection('user')}>
             <CardHeader className="text-center pb-4">
               <div className="mx-auto mb-4 p-4 bg-gradient-subtle rounded-full w-fit group-hover:scale-110 transition-transform">
                 <User className="h-8 w-8 text-ml-primary" />
               </div>
-              <CardTitle className="text-2xl">USER</CardTitle>
+              <CardTitle className="text-2xl">ADMIN</CardTitle>
               <CardDescription className="text-base">
-                Akses untuk pengguna umum dengan fitur prediksi penjualan
+                Akses untuk admin dengan fitur prediksi penjualan
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
@@ -67,19 +67,19 @@ export const RoleSelection = () => {
                   handleRoleSelection('user');
                 }}
               >
-                Masuk sebagai User
+                Masuk sebagai Admin
               </Button>
             </CardContent>
           </Card>
 
-          {/* Admin Role Card */}
+          {/* Developer Role Card */}
           <Card className="shadow-neural border-ml-primary/20 hover:shadow-ml transition-all duration-300 cursor-pointer group"
                 onClick={() => handleRoleSelection('admin')}>
             <CardHeader className="text-center pb-4">
               <div className="mx-auto mb-4 p-4 bg-gradient-subtle rounded-full w-fit group-hover:scale-110 transition-transform">
                 <Shield className="h-8 w-8 text-ml-primary" />
               </div>
-              <CardTitle className="text-2xl">ADMIN</CardTitle>
+              <CardTitle className="text-2xl">DEVELOPER</CardTitle>
               <CardDescription className="text-base">
                 Akses lengkap untuk monitoring dan analisis model ML
               </CardDescription>
@@ -110,7 +110,7 @@ export const RoleSelection = () => {
                   handleRoleSelection('admin');
                 }}
               >
-                Masuk sebagai Admin
+                Masuk sebagai Developer
               </Button>
             </CardContent>
           </Card>
