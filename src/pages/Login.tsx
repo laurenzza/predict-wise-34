@@ -112,6 +112,15 @@ export const Login = () => {
                   "Log in"
                 )}
               </Button>
+
+              <Button 
+                type="button" 
+                className="w-full" 
+                variant="outline"
+                onClick={() => navigate("/dashboard")}
+              >
+                Demo Mode
+              </Button>
             </form>
 
             <div className="mt-6 text-center text-sm">
