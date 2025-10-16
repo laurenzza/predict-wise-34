@@ -6,11 +6,10 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import { AdminDashboard } from "./pages/AdminDashboard";
 import { UserDashboard } from "./pages/UserDashboard";
+import { DeveloperDashboard } from "./pages/DeveloperDashboard";
 import { RoleSelection } from "./pages/RoleSelection";
-import { UserPredictions } from "./pages/user/UserPredictions";
 import { UserPeriod } from "./pages/user/UserPeriod";
 import { UserDataset } from "./pages/user/UserDataset";
-import { UserCategories } from "./pages/user/UserCategories";
 import { UserStatistics } from "./pages/user/UserStatistics";
 import { UserInfo } from "./pages/user/UserInfo";
 import { Dataset } from "./pages/Dataset";
@@ -31,12 +30,10 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/role-selection" element={<RoleSelection />} />
-          <Route path="/admin-dashboard" element={<AdminDashboard />} />
-          <Route path="/user-dashboard" element={<UserDashboard />} />
-          <Route path="/user/predictions" element={<UserPredictions />} />
+          <Route path="/admin-dashboard" element={<UserDashboard />} />
+          <Route path="/developer-dashboard" element={<DeveloperDashboard />} />
           <Route path="/user/period" element={<UserPeriod />} />
           <Route path="/user/dataset" element={<UserDataset />} />
-          <Route path="/user/categories" element={<UserCategories />} />
           <Route path="/user/statistics" element={<UserStatistics />} />
           <Route path="/user/info" element={<UserInfo />} />
           <Route path="/dataset" element={<Dataset />} />

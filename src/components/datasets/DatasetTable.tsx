@@ -1,4 +1,3 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -9,6 +8,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { useState } from "react";
 
 const sampleData = [
   {
@@ -59,6 +61,9 @@ const sampleData = [
 ];
 
 export const DatasetTable = () => {
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [yearFilter, setYearFilter] = useState<string>("all");
+
   const getStatusBadge = (status: string) => {
     if (status === "Pesanan Selesai") {
       return <Badge className="bg-success/10 text-success border-success/20">Selesai</Badge>;
@@ -77,19 +82,50 @@ export const DatasetTable = () => {
     }).format(amount);
   };
 
+  // Filter data based on selected filters
+  const filteredData = sampleData.filter(item => {
+    const statusMatch = statusFilter === "all" || item.status === statusFilter;
+    const yearMatch = yearFilter === "all" || item.tanggal.includes(`/${yearFilter.slice(-2)}`);
+    return statusMatch && yearMatch;
+  });
+
   return (
-    <Card className="shadow-data border-ml-primary/10">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <div className="h-3 w-3 rounded-full bg-gradient-data animate-ml-pulse"></div>
-          Sample Dataset Toko Loa Kim Jong
-        </CardTitle>
-        <CardDescription>
-          Contoh data penjualan yang digunakan untuk training model ARIMA dan LSTM
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="rounded-md border overflow-x-auto">
+    <div className="space-y-4">
+      {/* Filters */}
+      <div className="flex flex-wrap gap-4">
+        <div className="w-[200px]">
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger>
+              <SelectValue placeholder="Filter Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Semua Status</SelectItem>
+              <SelectItem value="Pesanan Selesai">Pesanan Selesai</SelectItem>
+              <SelectItem value="Dibatalkan Penjual">Dibatalkan Penjual</SelectItem>
+              <SelectItem value="Dibatalkan Pembeli">Dibatalkan Pembeli</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="w-[200px]">
+          <Select value={yearFilter} onValueChange={setYearFilter}>
+            <SelectTrigger>
+              <SelectValue placeholder="Filter Tahun" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Semua Tahun</SelectItem>
+              <SelectItem value="2020">2020</SelectItem>
+              <SelectItem value="2021">2021</SelectItem>
+              <SelectItem value="2022">2022</SelectItem>
+              <SelectItem value="2023">2023</SelectItem>
+              <SelectItem value="2024">2024</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      {/* Table with ScrollArea */}
+      <div className="rounded-md border">
+        <ScrollArea className="h-[500px]">
           <Table>
             <TableCaption>Data penjualan dari periode Mei 2020 - April 2024</TableCaption>
             <TableHeader>
@@ -104,7 +140,7 @@ export const DatasetTable = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {sampleData.map((item, index) => (
+              {filteredData.map((item, index) => (
                 <TableRow key={index} className="hover:bg-muted/50">
                   <TableCell className="font-mono text-xs">{item.invoice}</TableCell>
                   <TableCell className="text-sm">{item.tanggal}</TableCell>
@@ -119,8 +155,8 @@ export const DatasetTable = () => {
               ))}
             </TableBody>
           </Table>
-        </div>
-      </CardContent>
-    </Card>
+        </ScrollArea>
+      </div>
+    </div>
   );
 };

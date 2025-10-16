@@ -6,14 +6,14 @@ import { useNavigate } from "react-router-dom";
 export const RoleSelection = () => {
   const navigate = useNavigate();
 
-  const handleRoleSelection = (role: 'user' | 'admin') => {
+  const handleRoleSelection = (role: 'admin' | 'developer') => {
     // Store role in localStorage for persistence
     localStorage.setItem('userRole', role);
     
     if (role === 'admin') {
       navigate('/admin-dashboard');
     } else {
-      navigate('/user-dashboard');
+      navigate('/developer-dashboard');
     }
   };
 
@@ -32,7 +32,7 @@ export const RoleSelection = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
           {/* Admin Role Card */}
           <Card className="shadow-neural border-ml-primary/20 hover:shadow-ml transition-all duration-300 cursor-pointer group" 
-                onClick={() => handleRoleSelection('user')}>
+                onClick={() => handleRoleSelection('admin')}>
             <CardHeader className="text-center pb-4">
               <div className="mx-auto mb-4 p-4 bg-gradient-subtle rounded-full w-fit group-hover:scale-110 transition-transform">
                 <User className="h-8 w-8 text-ml-primary" />
@@ -53,18 +53,14 @@ export const RoleSelection = () => {
               </div>
               <div className="flex items-center space-x-2 text-sm">
                 <BarChart3 className="h-4 w-4 text-ml-accent" />
-                <span>Kategori Produk</span>
-              </div>
-              <div className="flex items-center space-x-2 text-sm">
-                <BarChart3 className="h-4 w-4 text-ml-accent" />
-                <span>Informasi Prediksi</span>
+                <span>Periode Analisis</span>
               </div>
               
               <Button 
                 className="w-full mt-6 bg-gradient-ml hover:shadow-ml"
                 onClick={(e) => {
                   e.stopPropagation();
-                  handleRoleSelection('user');
+                  handleRoleSelection('admin');
                 }}
               >
                 Masuk sebagai Admin
@@ -74,7 +70,7 @@ export const RoleSelection = () => {
 
           {/* Developer Role Card */}
           <Card className="shadow-neural border-ml-primary/20 hover:shadow-ml transition-all duration-300 cursor-pointer group"
-                onClick={() => handleRoleSelection('admin')}>
+                onClick={() => handleRoleSelection('developer')}>
             <CardHeader className="text-center pb-4">
               <div className="mx-auto mb-4 p-4 bg-gradient-subtle rounded-full w-fit group-hover:scale-110 transition-transform">
                 <Shield className="h-8 w-8 text-ml-primary" />
@@ -107,7 +103,7 @@ export const RoleSelection = () => {
                 className="w-full mt-6"
                 onClick={(e) => {
                   e.stopPropagation();
-                  handleRoleSelection('admin');
+                  handleRoleSelection('developer');
                 }}
               >
                 Masuk sebagai Developer

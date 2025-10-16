@@ -61,76 +61,14 @@ export const UserDataset = () => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Database className="h-5 w-5 text-ml-primary" />
-              Sample Data Transaksi
+              Data Transaksi
             </CardTitle>
             <CardDescription>
-              Contoh data transaksi yang digunakan untuk training model prediksi
+              Data transaksi yang dimiliki
             </CardDescription>
           </CardHeader>
           <CardContent>
             <DatasetTable />
-          </CardContent>
-        </Card>
-
-        {/* Data Quality Information */}
-        <Card className="shadow-neural border-ml-primary/20">
-          <CardHeader>
-            <CardTitle>Kualitas Dataset</CardTitle>
-            <CardDescription>
-              Informasi tentang kualitas dan kelengkapan data training
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-4">
-                <h4 className="font-semibold text-success">Kualitas Data</h4>
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm">Kelengkapan Data</span>
-                    <span className="font-semibold text-success">100%</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm">Missing Values</span>
-                    <span className="font-semibold text-success">0%</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm">Duplicate Records</span>
-                    <span className="font-semibold text-success">0%</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm">Data Consistency</span>
-                    <span className="font-semibold text-success">98.5%</span>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="space-y-4">
-                <h4 className="font-semibold text-ml-primary">Kolom Dataset</h4>
-                <div className="space-y-3">
-                  <div className="text-sm">
-                    <strong>Invoice:</strong> ID unik transaksi
-                  </div>
-                  <div className="text-sm">
-                    <strong>Tanggal Pembayaran:</strong> Timestamp transaksi
-                  </div>
-                  <div className="text-sm">
-                    <strong>Status Terakhir:</strong> Status penyelesaian order
-                  </div>
-                  <div className="text-sm">
-                    <strong>Nama Produk:</strong> Deskripsi lengkap produk
-                  </div>
-                  <div className="text-sm">
-                    <strong>Jumlah Produk:</strong> Kuantitas item dibeli
-                  </div>
-                  <div className="text-sm">
-                    <strong>Harga Jual:</strong> Harga per unit (IDR)
-                  </div>
-                  <div className="text-sm">
-                    <strong>Total Penjualan:</strong> Total nilai transaksi (IDR)
-                  </div>
-                </div>
-              </div>
-            </div>
           </CardContent>
         </Card>
       </div>

@@ -196,10 +196,6 @@ export const UserStatistics = () => {
                   <h4 className="font-semibold mb-2">Jam Tersibuk</h4>
                   <p className="text-sm text-muted-foreground">10:00 - 12:00: 28% transaksi harian</p>
                 </div>
-                <div>
-                  <h4 className="font-semibold mb-2">Pola Musiman</h4>
-                  <p className="text-sm text-muted-foreground">Q2: Peningkatan 15% dibanding Q1</p>
-                </div>
               </div>
             </CardContent>
           </Card>

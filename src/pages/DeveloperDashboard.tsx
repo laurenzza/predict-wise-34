@@ -11,11 +11,12 @@ import {
   BarChart3,
   Info,
   Clock,
-  ArrowRight
+  ArrowRight,
+  Brain
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
-export const UserDashboard = () => {
+export const DeveloperDashboard = () => {
   const navigate = useNavigate();
 
   const upcomingPredictions = [
@@ -39,10 +40,10 @@ export const UserDashboard = () => {
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl md:text-4xl font-bold mb-2">
-            Dashboard <span className="bg-gradient-ml bg-clip-text text-transparent">Admin</span>
+            Dashboard <span className="bg-gradient-ml bg-clip-text text-transparent">Developer</span>
           </h1>
           <p className="text-muted-foreground text-lg">
-            Prediksi penjualan dan analisis data untuk Toko Loa Kim Jong
+            Analisis mendalam model prediksi dan kualitas data untuk Toko Loa Kim Jong
           </p>
         </div>
 
@@ -69,10 +70,11 @@ export const UserDashboard = () => {
             icon={<Database className="h-4 w-4 text-ml-accent" />}
           />
           <MetricCard
-            title="Periode Data"
-            value="Mei 2020 - Sep 2024"
-            description="4+ tahun data"
-            icon={<Clock className="h-4 w-4 text-ml-accent" />}
+            title="Akurasi Model"
+            value="96.8%"
+            change="LSTM Model"
+            changeType="positive"
+            icon={<BarChart3 className="h-4 w-4 text-success" />}
           />
         </div>
 
@@ -162,6 +164,18 @@ export const UserDashboard = () => {
                   </div>
                   <ArrowRight className="h-4 w-4" />
                 </Button>
+
+                <Button 
+                  variant="outline" 
+                  className="justify-between h-12"
+                  onClick={() => navigate('/user/info')}
+                >
+                  <div className="flex items-center space-x-2">
+                    <Info className="h-4 w-4" />
+                    <span>Informasi Prediksi</span>
+                  </div>
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
               </div>
             </CardContent>
           </Card>
@@ -171,12 +185,12 @@ export const UserDashboard = () => {
         <Card className="shadow-neural border-ml-primary/20">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Info className="h-5 w-5 text-ml-primary" />
-              Informasi Dataset
+              <Brain className="h-5 w-5 text-ml-primary" />
+              Informasi Model & Dataset
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="text-center p-4 bg-muted/20 rounded-lg">
                 <Clock className="h-8 w-8 text-ml-accent mx-auto mb-2" />
                 <h4 className="font-semibold mb-1">Periode Data</h4>
@@ -186,6 +200,11 @@ export const UserDashboard = () => {
                 <Database className="h-8 w-8 text-ml-accent mx-auto mb-2" />
                 <h4 className="font-semibold mb-1">Total Transaksi</h4>
                 <p className="text-sm text-muted-foreground">32,570 Data Points</p>
+              </div>
+              <div className="text-center p-4 bg-muted/20 rounded-lg">
+                <Brain className="h-8 w-8 text-success mx-auto mb-2" />
+                <h4 className="font-semibold mb-1">Model Terbaik</h4>
+                <p className="text-sm text-muted-foreground">LSTM (96.8% akurasi)</p>
               </div>
             </div>
           </CardContent>
