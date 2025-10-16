@@ -9,10 +9,41 @@ export const UserDataset = () => {
   const navigate = useNavigate();
 
   const datasetStats = [
-    { label: "Total Transaksi", value: "32,570", icon: Database, color: "text-ml-primary" },
-    { label: "Periode Data", value: "Mei 2020 - Sep 2024", icon: FileText, color: "text-ml-accent" },
-    { label: "Produk Unik", value: "156", icon: TrendingUp, color: "text-success" },
-    { label: "Status Selesai", value: "97.8%", icon: TrendingUp, color: "text-success" },
+    { 
+      label: "Total Transaksi", 
+      value: "32,570", 
+      icon: Database, 
+      color: "text-ml-primary",
+      description: "Jumlah keseluruhan transaksi yang tercatat"
+    },
+    { 
+      label: "Periode Data", 
+      value: "Mei 2020 - Sep 2024", 
+      icon: FileText, 
+      color: "text-ml-accent",
+      description: "Rentang waktu data transaksi"
+    },
+    { 
+      label: "Produk Unik", 
+      value: "156", 
+      icon: TrendingUp, 
+      color: "text-success",
+      description: "Jumlah variasi produk yang berbeda"
+    },
+    { 
+      label: "Status Selesai", 
+      value: "97.8%", 
+      icon: TrendingUp, 
+      color: "text-success",
+      description: "Persentase transaksi yang berhasil diselesaikan"
+    },
+    { 
+      label: "Status Batal", 
+      value: "2.2%", 
+      icon: FileText, 
+      color: "text-destructive",
+      description: "Persentase transaksi yang dibatalkan"
+    },
   ];
 
   return (
@@ -40,17 +71,20 @@ export const UserDataset = () => {
         </div>
 
         {/* Dataset Statistics */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
           {datasetStats.map((stat, index) => (
             <Card key={index} className="shadow-neural border-ml-primary/20">
-              <CardContent className="flex items-center p-6">
-                <div className={`p-3 rounded-full bg-muted/20 mr-4`}>
-                  <stat.icon className={`h-6 w-6 ${stat.color}`} />
+              <CardContent className="flex flex-col p-6">
+                <div className="flex items-center mb-2">
+                  <div className={`p-3 rounded-full bg-muted/20 mr-4`}>
+                    <stat.icon className={`h-6 w-6 ${stat.color}`} />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">{stat.label}</p>
+                    <p className="text-2xl font-bold">{stat.value}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">{stat.label}</p>
-                  <p className="text-2xl font-bold">{stat.value}</p>
-                </div>
+                <p className="text-xs text-muted-foreground mt-2">{stat.description}</p>
               </CardContent>
             </Card>
           ))}

@@ -68,8 +68,11 @@ export const DatasetTable = () => {
     if (status === "Pesanan Selesai") {
       return <Badge className="bg-success/10 text-success border-success/20">Selesai</Badge>;
     }
-    if (status.includes("Dibatalkan")) {
-      return <Badge variant="destructive">Dibatalkan</Badge>;
+    if (status === "Dibatalkan Penjual") {
+      return <Badge variant="destructive">Dibatalkan Penjual</Badge>;
+    }
+    if (status === "Dibatalkan Pembeli") {
+      return <Badge variant="destructive">Dibatalkan Pembeli</Badge>;
     }
     return <Badge variant="secondary">{status}</Badge>;
   };

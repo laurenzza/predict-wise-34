@@ -20,11 +20,7 @@ export const Navbar = () => {
     document.documentElement.classList.toggle("dark");
   };
 
-  const menuItems = [
-    { icon: BarChart3, label: "Dashboard", path: "/role-selection" },
-    { icon: Database, label: "Dataset", path: "/dataset" },
-    { icon: BrainCircuit, label: "Predictions", path: "/predictions" },
-  ];
+  const menuItems: { icon: any; label: string; path: string }[] = [];
 
   return (
     <nav className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">

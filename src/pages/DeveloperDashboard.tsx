@@ -136,19 +136,7 @@ export const DeveloperDashboard = () => {
                 >
                   <div className="flex items-center space-x-2">
                     <Calendar className="h-4 w-4" />
-                    <span>Periode Analisis</span>
-                  </div>
-                  <ArrowRight className="h-4 w-4" />
-                </Button>
-                
-                <Button 
-                  variant="outline" 
-                  className="justify-between h-12"
-                  onClick={() => navigate('/user/dataset')}
-                >
-                  <div className="flex items-center space-x-2">
-                    <Database className="h-4 w-4" />
-                    <span>Dataset Toko</span>
+                    <span>Prediksi Penjualan</span>
                   </div>
                   <ArrowRight className="h-4 w-4" />
                 </Button>
@@ -160,7 +148,7 @@ export const DeveloperDashboard = () => {
                 >
                   <div className="flex items-center space-x-2">
                     <BarChart3 className="h-4 w-4" />
-                    <span>Statistik Dataset</span>
+                    <span>Dataset & Statistik</span>
                   </div>
                   <ArrowRight className="h-4 w-4" />
                 </Button>
