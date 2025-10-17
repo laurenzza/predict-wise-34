@@ -177,48 +177,50 @@ export const UserPeriod = () => {
         )}
 
         {selectedPeriod === 'weekly' && (
-          <Card className="shadow-neural border-ml-primary/20 mb-8">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <TrendingUp className="h-5 w-5 text-ml-primary" />
-                Prediksi 30 Hari Mendatang
-              </CardTitle>
-              <CardDescription>
-                Estimasi mingguan untuk perencanaan inventori
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {predictions30Days.map((pred, index) => (
-                  <div key={index} className="p-4 bg-muted/20 rounded-lg">
-                    <div className="flex justify-between items-start mb-3">
-                      <h4 className="font-medium">{pred.week}</h4>
-                      <Badge className="bg-lstm/10 text-lstm border-lstm/20">
-                        {pred.sales}
+          <>
+            <Card className="shadow-neural border-ml-primary/20 mb-8">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <TrendingUp className="h-5 w-5 text-ml-primary" />
+                  Hasil Prediksi 30 Hari Mendatang
+                </CardTitle>
+                <CardDescription>
+                  Estimasi mingguan untuk perencanaan inventori
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {predictions30Days.map((pred, index) => (
+                    <div key={index} className="p-4 bg-muted/20 rounded-lg">
+                      <div className="flex justify-between items-start mb-3">
+                        <h4 className="font-medium">{pred.week}</h4>
+                        <Badge className="bg-lstm/10 text-lstm border-lstm/20">
+                          {pred.sales}
+                        </Badge>
+                      </div>
+                      <div className="space-y-2">
+                        <p className="text-sm text-muted-foreground">Kategori Produk Utama:</p>
+                        {pred.products.map((product, idx) => (
+                          <div key={idx} className="flex items-center space-x-2 text-sm">
+                            <Package className="h-3 w-3 text-ml-accent" />
+                            <span>{product}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                  <div className="pt-4 border-t">
+                    <div className="flex justify-between items-center">
+                      <span className="font-semibold">Total Estimasi 30 Hari:</span>
+                      <Badge variant="secondary" className="text-lg">
+                        Rp 6,420,000
                       </Badge>
                     </div>
-                    <div className="space-y-2">
-                      <p className="text-sm text-muted-foreground">Kategori Produk Utama:</p>
-                      {pred.products.map((product, idx) => (
-                        <div key={idx} className="flex items-center space-x-2 text-sm">
-                          <Package className="h-3 w-3 text-ml-accent" />
-                          <span>{product}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-                <div className="pt-4 border-t">
-                  <div className="flex justify-between items-center">
-                    <span className="font-semibold">Total Estimasi 30 Hari:</span>
-                    <Badge variant="secondary" className="text-lg">
-                      Rp 6,420,000
-                    </Badge>
                   </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </>
         )}
 
         {selectedPeriod === 'monthly' && (

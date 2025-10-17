@@ -24,7 +24,7 @@ export const Login = () => {
         title: "Login Berhasil",
         description: "Selamat datang di Sales Predictor!",
       });
-      navigate("/role-selection");
+      navigate("/account-settings?tab=data");
     }, 1500);
   };
 

@@ -106,11 +106,23 @@ export const UserDashboard = () => {
                 <Button 
                   variant="outline" 
                   className="justify-between h-12"
+                  onClick={() => navigate('/user/dataset')}
+                >
+                  <div className="flex items-center space-x-2">
+                    <Database className="h-4 w-4" />
+                    <span>Dataset Toko</span>
+                  </div>
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+
+                <Button 
+                  variant="outline" 
+                  className="justify-between h-12"
                   onClick={() => navigate('/user/statistics')}
                 >
                   <div className="flex items-center space-x-2">
                     <BarChart3 className="h-4 w-4" />
-                    <span>Dataset & Statistik</span>
+                    <span>Statistik Penjualan</span>
                   </div>
                   <ArrowRight className="h-4 w-4" />
                 </Button>

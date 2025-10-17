@@ -25,9 +25,9 @@ export const Register = () => {
       setIsLoading(false);
       toast({
         title: "Registrasi Berhasil",
-        description: "Akun berhasil dibuat. Silakan login untuk melanjutkan.",
+        description: "Silakan upload data penjualan untuk memulai.",
       });
-      navigate("/login");
+      navigate("/account-settings?tab=data");
     }, 2000);
   };
 

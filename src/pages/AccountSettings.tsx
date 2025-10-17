@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Navbar } from "@/components/layout/Navbar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,10 +10,19 @@ import { User, Lock, Database, Eye, EyeOff, Upload } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 export const AccountSettings = () => {
+  const [searchParams] = useSearchParams();
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [activeTab, setActiveTab] = useState<string>("profile");
   const { toast } = useToast();
+
+  useEffect(() => {
+    const tab = searchParams.get("tab");
+    if (tab) {
+      setActiveTab(tab);
+    }
+  }, [searchParams]);
 
   return (
     <div className="min-h-screen bg-gradient-hero">
@@ -26,8 +36,8 @@ export const AccountSettings = () => {
           </p>
         </div>
 
-        <Tabs defaultValue="profile" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="profile" className="gap-2 data-[state=active]:bg-ml-primary/10 data-[state=active]:text-ml-primary">
               <User className="h-4 w-4" />
               Profil
@@ -39,6 +49,10 @@ export const AccountSettings = () => {
             <TabsTrigger value="data" className="gap-2 data-[state=active]:bg-ml-primary/10 data-[state=active]:text-ml-primary">
               <Database className="h-4 w-4" />
               Data
+            </TabsTrigger>
+            <TabsTrigger value="delete" className="gap-2 data-[state=active]:bg-destructive/10 data-[state=active]:text-destructive">
+              <User className="h-4 w-4" />
+              Hapus Akun
             </TabsTrigger>
           </TabsList>
 
@@ -201,6 +215,50 @@ export const AccountSettings = () => {
                   </p>
                   <Button variant="outline">Export ke CSV</Button>
                 </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Delete Account Tab */}
+          <TabsContent value="delete">
+            <Card className="border-destructive/50">
+              <CardHeader>
+                <CardTitle className="text-destructive">Hapus Akun</CardTitle>
+                <CardDescription>
+                  Hapus akun Anda secara permanen. Tindakan ini tidak dapat dibatalkan.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="p-4 bg-destructive/5 border border-destructive/20 rounded-lg space-y-3">
+                  <h4 className="font-medium text-destructive">Peringatan</h4>
+                  <ul className="text-sm text-muted-foreground space-y-2 list-disc list-inside">
+                    <li>Semua data penjualan Anda akan dihapus secara permanen</li>
+                    <li>Riwayat prediksi dan analisis tidak dapat dipulihkan</li>
+                    <li>Akun tidak dapat diaktifkan kembali setelah dihapus</li>
+                  </ul>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="confirm-delete">Ketik "HAPUS AKUN" untuk konfirmasi</Label>
+                  <Input 
+                    id="confirm-delete" 
+                    placeholder="HAPUS AKUN"
+                  />
+                </div>
+
+                <Button 
+                  variant="destructive" 
+                  className="w-full"
+                  onClick={() => {
+                    toast({
+                      title: "Konfirmasi Diperlukan",
+                      description: "Pastikan Anda telah mengetik 'HAPUS AKUN' dengan benar.",
+                      variant: "destructive"
+                    });
+                  }}
+                >
+                  Hapus Akun Saya Secara Permanen
+                </Button>
               </CardContent>
             </Card>
           </TabsContent>

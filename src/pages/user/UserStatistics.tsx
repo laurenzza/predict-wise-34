@@ -46,7 +46,7 @@ export const UserStatistics = () => {
           </Button>
           
           <h1 className="text-3xl md:text-4xl font-bold mb-2">
-            Statistik <span className="bg-gradient-ml bg-clip-text text-transparent">Dataset</span>
+            Statistik <span className="bg-gradient-ml bg-clip-text text-transparent">Penjualan</span>
           </h1>
           <p className="text-muted-foreground text-lg">
             Analisis statistik mendalam dari data penjualan
