@@ -66,11 +66,10 @@ const Index = () => {
               </span>
             </h1>
             <p className="text-xl md:text-2xl text-muted-foreground mb-4 max-w-3xl mx-auto">
-              Sistem Prediksi Penjualan Toko Loa Kim Jong dengan Perbandingan Algoritma ARIMA dan LSTM
+              Sistem Prediksi Penjualan dengan Machine Learning
             </p>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Platform machine learning yang menganalisis dan memprediksi tren penjualan menggunakan 
-              teknologi artificial intelligence terdepan.
+              Platform machine learning untuk analisis dan memprediksi tren penjualan.
             </p>
           </div>
 
@@ -127,7 +126,7 @@ const Index = () => {
                 <div className="p-3 rounded-lg bg-gradient-ml">
                   <Target className="h-6 w-6 text-white" />
                 </div>
-                <h3 className="text-xl font-semibold">Untuk Pemilik Toko</h3>
+                <h3 className="text-xl font-semibold">Untuk Pemilik Toko (Admin)</h3>
               </div>
               <div className="space-y-3">
                 {userAdvantages.map((advantage, index) => (
@@ -145,7 +144,7 @@ const Index = () => {
                 <div className="p-3 rounded-lg bg-gradient-ml">
                   <BrainCircuit className="h-6 w-6 text-white" />
                 </div>
-                <h3 className="text-xl font-semibold">Untuk Pengembang</h3>
+                <h3 className="text-xl font-semibold">Untuk Pengembang (Developer)</h3>
               </div>
               <div className="space-y-3">
                 {developerAdvantages.map((advantage, index) => (
@@ -181,9 +180,9 @@ const Index = () => {
               </Button>
               <Button 
                 size="lg" 
-                variant="outline"
+                variant="secondary"
                 onClick={() => navigate("/register")}
-                className="border-white text-white hover:bg-white/10 text-lg px-8 py-6"
+                className="bg-white text-ml-primary hover:bg-white/90 text-lg px-8 py-6"
               >
                 Sign Up
               </Button>
@@ -209,7 +208,7 @@ const Index = () => {
             </p>
           </div>
           <div className="text-sm text-muted-foreground">
-            <p>© 2024 Sales Predictor. Rancang Bangun Sistem Prediksi Penjualan Toko Loa Kim Jong</p>
+            <p>© 2025 Sales Predictor. Rancang Bangun Sistem Prediksi Penjualan</p>
           </div>
         </div>
       </footer>

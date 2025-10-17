@@ -49,7 +49,7 @@ export const UserStatistics = () => {
             Statistik <span className="bg-gradient-ml bg-clip-text text-transparent">Dataset</span>
           </h1>
           <p className="text-muted-foreground text-lg">
-            Analisis statistik mendalam dari data penjualan Toko Loa Kim Jong
+            Analisis statistik mendalam dari data penjualan
           </p>
         </div>
 

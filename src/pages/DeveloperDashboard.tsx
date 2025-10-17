@@ -156,10 +156,10 @@ export const DeveloperDashboard = () => {
                 <Button 
                   variant="outline" 
                   className="justify-between h-12"
-                  onClick={() => navigate('/user/info')}
+                  onClick={() => navigate('/predictions')}
                 >
                   <div className="flex items-center space-x-2">
-                    <Info className="h-4 w-4" />
+                    <Brain className="h-4 w-4" />
                     <span>Informasi Prediksi</span>
                   </div>
                   <ArrowRight className="h-4 w-4" />
