@@ -12,6 +12,7 @@ import { UserPeriod } from "./pages/user/UserPeriod";
 import { UserDataset } from "./pages/user/UserDataset";
 import { UserStatistics } from "./pages/user/UserStatistics";
 import { UserInfo } from "./pages/user/UserInfo";
+import { UserTopProducts } from "./pages/user/UserTopProducts";
 import { Dataset } from "./pages/Dataset";
 import { Predictions } from "./pages/Predictions";
 import { Login } from "./pages/Login";
@@ -35,6 +36,7 @@ const App = () => (
           <Route path="/user/period" element={<UserPeriod />} />
           <Route path="/user/dataset" element={<UserDataset />} />
           <Route path="/user/statistics" element={<UserStatistics />} />
+          <Route path="/user/top-products" element={<UserTopProducts />} />
           <Route path="/user/info" element={<UserInfo />} />
           <Route path="/dataset" element={<Dataset />} />
           <Route path="/predictions" element={<Predictions />} />

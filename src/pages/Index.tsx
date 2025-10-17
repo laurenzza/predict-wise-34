@@ -31,7 +31,7 @@ const Index = () => {
     {
       icon: <Database className="h-8 w-8" />,
       title: "Analisis Dataset",
-      description: "Eksplorasi mendalam terhadap data penjualan Toko Loa Kim Jong dengan insight yang komprehensif."
+      description: "Eksplorasi mendalam terhadap data penjualan dengan insight yang komprehensif."
     }
   ];
 

@@ -55,7 +55,7 @@ export const UserDataset = () => {
         <div className="mb-8">
           <Button 
             variant="ghost" 
-            onClick={() => navigate('/user-dashboard')}
+            onClick={() => navigate('/admin-dashboard')}
             className="mb-4"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />

@@ -77,43 +77,7 @@ export const UserDashboard = () => {
         </div>
 
         {/* Main Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-          {/* Prediction Cards */}
-          <Card className="shadow-neural border-ml-primary/20">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Calendar className="h-5 w-5 text-ml-primary" />
-                Prediksi Penjualan
-              </CardTitle>
-              <CardDescription>
-                Estimasi penjualan produk berdasarkan model machine learning
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {upcomingPredictions.map((pred, index) => (
-                  <div key={index} className="p-4 bg-muted/20 rounded-lg">
-                    <div className="flex justify-between items-start mb-3">
-                      <h4 className="font-medium">{pred.period}</h4>
-                      <Badge className="bg-ml-primary/10 text-ml-primary border-ml-primary/20">
-                        {pred.totalSales}
-                      </Badge>
-                    </div>
-                    <div className="space-y-2">
-                      <p className="text-sm text-muted-foreground">Produk Teratas:</p>
-                      {pred.products.map((product, idx) => (
-                        <div key={idx} className="flex items-center space-x-2 text-sm">
-                          <div className="w-2 h-2 bg-ml-accent rounded-full"></div>
-                          <span>{product}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-
+        <div className="grid grid-cols-1 gap-8 mb-8">
           {/* Quick Actions */}
           <Card className="shadow-neural border-ml-primary/20">
             <CardHeader>
@@ -147,6 +111,18 @@ export const UserDashboard = () => {
                   <div className="flex items-center space-x-2">
                     <BarChart3 className="h-4 w-4" />
                     <span>Dataset & Statistik</span>
+                  </div>
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+
+                <Button 
+                  variant="outline" 
+                  className="justify-between h-12"
+                  onClick={() => navigate('/user/top-products')}
+                >
+                  <div className="flex items-center space-x-2">
+                    <TrendingUp className="h-4 w-4" />
+                    <span>Produk Terlaris</span>
                   </div>
                   <ArrowRight className="h-4 w-4" />
                 </Button>
