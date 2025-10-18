@@ -11,9 +11,11 @@ export const RoleSelection = () => {
     localStorage.setItem('userRole', role);
     
     if (role === 'admin') {
-      navigate('/admin-dashboard');
+      // navigate('/admin-dashboard');
+      navigate('/admin-login');
     } else {
-      navigate('/developer-dashboard');
+      // navigate('/developer-dashboard');
+      navigate('/developer-login');
     }
   };
 

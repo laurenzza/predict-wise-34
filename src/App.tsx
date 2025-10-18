@@ -15,7 +15,7 @@ import { UserInfo } from "./pages/user/UserInfo";
 import { UserTopProducts } from "./pages/user/UserTopProducts";
 import { Dataset } from "./pages/Dataset";
 import { Predictions } from "./pages/Predictions";
-import { Login } from "./pages/Login";
+import { LoginAsAdmin, LoginAsDeveloper } from "./pages/Login";
 import { Register } from "./pages/Register";
 import { AccountSettings } from "./pages/AccountSettings";
 import NotFound from "./pages/NotFound";
@@ -31,16 +31,17 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/role-selection" element={<RoleSelection />} />
-          <Route path="/admin-dashboard" element={<UserDashboard />} />
-          <Route path="/developer-dashboard" element={<DeveloperDashboard />} />
+          <Route path="/user/dashboard" element={<UserDashboard />} />
           <Route path="/user/period" element={<UserPeriod />} />
           <Route path="/user/dataset" element={<UserDataset />} />
           <Route path="/user/statistics" element={<UserStatistics />} />
           <Route path="/user/top-products" element={<UserTopProducts />} />
           <Route path="/user/info" element={<UserInfo />} />
+          <Route path="/developer/dashboard" element={<DeveloperDashboard />} />
           <Route path="/dataset" element={<Dataset />} />
           <Route path="/predictions" element={<Predictions />} />
-          <Route path="/login" element={<Login />} />
+          <Route path="/admin-login" element={<LoginAsAdmin />} />
+          <Route path="/developer-login" element={<LoginAsDeveloper />} />
           <Route path="/register" element={<Register />} />
           <Route path="/account-settings" element={<AccountSettings />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

@@ -73,7 +73,7 @@ export const Navbar = () => {
                 <DropdownMenuItem 
                   onClick={() => {
                     localStorage.removeItem('userRole');
-                    navigate("/login");
+                    navigate("/role-selection");
                   }}
                   className="text-destructive focus:text-destructive"
                 >
@@ -98,7 +98,7 @@ export const Navbar = () => {
             <div className="hidden md:flex items-center space-x-2">
               <Button 
                 variant="ghost" 
-                onClick={() => navigate("/login")}
+                onClick={() => navigate("/role-selection")}
                 className="hover:bg-ml-primary/10 hover:text-ml-primary"
               >
                 Login

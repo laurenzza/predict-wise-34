@@ -173,7 +173,7 @@ const Index = () => {
               <Button 
                 size="lg" 
                 variant="secondary"
-                onClick={() => navigate("/login")}
+                onClick={() => navigate("/role-selection")}
                 className="bg-white text-ml-primary hover:bg-white/90 text-lg px-8 py-6"
               >
                 Login
