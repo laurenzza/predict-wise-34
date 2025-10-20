@@ -9,11 +9,14 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useAuthIsAuthenticated, useAuthLogout } from "@/store/AuthStore";
 
 export const Navbar = () => {
   const [isDark, setIsDark] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
+  const logout = useAuthLogout();
+  const isAuthenticated = useAuthIsAuthenticated();
 
   const toggleTheme = () => {
     setIsDark(!isDark);
@@ -72,8 +75,9 @@ export const Navbar = () => {
                 <DropdownMenuSeparator />
                 <DropdownMenuItem 
                   onClick={() => {
-                    localStorage.removeItem('userRole');
-                    navigate("/role-selection");
+                    // localStorage.removeItem('userRole');
+                    logout();
+                    navigate("/");
                   }}
                   className="text-destructive focus:text-destructive"
                 >
@@ -95,35 +99,48 @@ export const Navbar = () => {
             </Button>
 
             {/* Auth Buttons - Desktop */}
-            <div className="hidden md:flex items-center space-x-2">
+            {
+              isAuthenticated() ?
               <Button 
-                variant="ghost" 
-                onClick={() => navigate("/role-selection")}
-                className="hover:bg-ml-primary/10 hover:text-ml-primary"
-              >
-                Login
-              </Button>
-              <Button 
-                onClick={() => navigate("/register")}
+                onClick={() => navigate("/user/dashboard")}
                 className="bg-gradient-ml hover:opacity-90 shadow-ml"
-              >
-                Register
+                >
+                Dashboard
               </Button>
-            </div>
+              :
+              <div className="hidden md:flex items-center space-x-2">
+                <Button 
+                  variant="ghost" 
+                  onClick={() => navigate("/role-selection")}
+                  className="hover:bg-ml-primary/10 hover:text-ml-primary"
+                  >
+                  Login
+                </Button>
+                <Button 
+                  onClick={() => navigate("/register")}
+                  className="bg-gradient-ml hover:opacity-90 shadow-ml"
+                  >
+                  Register
+                </Button>
+              </div>
+            }
 
             {/* Mobile Menu Toggle */}
-            <Button
+            {
+              isAuthenticated() ||
+              <Button
               variant="ghost"
               size="sm"
               className="md:hidden"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            >
-              {isMobileMenuOpen ? (
-                <X className="h-5 w-5" />
-              ) : (
-                <Menu className="h-5 w-5" />
-              )}
-            </Button>
+              >
+                {isMobileMenuOpen ? (
+                  <X className="h-5 w-5" />
+                ) : (
+                  <Menu className="h-5 w-5" />
+                )}
+              </Button>
+            }
           </div>
         </div>
 

@@ -7,28 +7,72 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { BrainCircuit, Eye, EyeOff, Mail, Lock, User } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { apiRegister } from "@/api";
+import { useAuthRegister } from "@/store/AuthStore";
 
 export const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [role, setRole] = useState<"admin" | "developer">("developer");
+  const register = useAuthRegister();
+
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  const [role, setRole] = useState<"ADMIN" | "DEVELOPER">("DEVELOPER");
+  const [namaLengkap, setNamaLengkap] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [konfirmasi, setKonfirmasi] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     
-    // Simulate registration process
-    setTimeout(() => {
+    if(password.length < 8){
       setIsLoading(false);
       toast({
-        title: "Registrasi Berhasil",
-        description: "Silakan upload data penjualan untuk memulai.",
+        title: "Password Kurang dari 8 Karakter!",
+        description: "Perkuat password anda",
       });
-      navigate("/account-settings?tab=data");
-    }, 2000);
+      setKonfirmasi("");
+      return;
+    }
+    
+    if(password != konfirmasi){
+      setIsLoading(false);
+      toast({
+        title: "Password Tidak Cocok!",
+        description: "Ulangi konfirmasi password"
+      });
+      setKonfirmasi("");
+      return;
+    }
+
+    try {
+      // const response = await apiRegister(email, namaLengkap, password, role);
+      const response = await register(email, namaLengkap, password, role);
+      
+      // Simulate registration process
+      setTimeout(() => {
+        setIsLoading(false);
+        toast({
+          title: "Registrasi Berhasil",
+          description: "Silakan upload data penjualan untuk memulai.",
+        });
+        navigate("/account-settings?tab=data");
+      }, 2000);
+    } catch (error) {
+      console.error(error);
+      if(error.response.status == 409){
+        toast({
+          title: "Registrasi Gagal!",
+          description: "Email sudah digunakan, silakan gunakan email lain"
+        })
+      }
+      setIsLoading(false);
+    }
+    
   };
 
   return (
@@ -68,6 +112,8 @@ export const Register = () => {
                     type="text"
                     placeholder="Masukkan nama lengkap"
                     className="pl-10"
+                    value={namaLengkap}
+                    onChange={(e) => setNamaLengkap(e.target.value)}
                     required
                   />
                 </div>
@@ -82,6 +128,8 @@ export const Register = () => {
                     type="email"
                     placeholder="nama@email.com"
                     className="pl-10"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     required
                   />
                 </div>
@@ -96,6 +144,8 @@ export const Register = () => {
                     type={showPassword ? "text" : "password"}
                     placeholder="Minimal 8 karakter"
                     className="pl-10 pr-10"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                     required
                   />
                   <Button
@@ -123,6 +173,8 @@ export const Register = () => {
                     type={showConfirmPassword ? "text" : "password"}
                     placeholder="Ulangi password"
                     className="pl-10 pr-10"
+                    value={konfirmasi}
+                    onChange={(e) => setKonfirmasi(e.target.value)}
                     required
                   />
                   <Button
@@ -143,14 +195,14 @@ export const Register = () => {
 
               <div className="space-y-2">
                 <Label>Role</Label>
-                <RadioGroup value={role} onValueChange={(value) => setRole(value as "admin" | "developer")}>
+                <RadioGroup value={role} onValueChange={(value) => setRole(value as "ADMIN" | "DEVELOPER")}>
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="admin" id="admin" />
-                    <Label htmlFor="admin" className="font-normal cursor-pointer">Admin</Label>
+                    <RadioGroupItem value="ADMIN" id="ADMIN" />
+                    <Label htmlFor="ADMIN" className="font-normal cursor-pointer">Admin</Label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="developer" id="developer" />
-                    <Label htmlFor="developer" className="font-normal cursor-pointer">Developer</Label>
+                    <RadioGroupItem value="DEVELOPER" id="DEVELOPER" />
+                    <Label htmlFor="DEVELOPER" className="font-normal cursor-pointer">Developer</Label>
                   </div>
                 </RadioGroup>
               </div>

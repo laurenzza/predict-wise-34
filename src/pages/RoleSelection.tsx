@@ -8,15 +8,16 @@ export const RoleSelection = () => {
 
   const handleRoleSelection = (role: 'admin' | 'developer') => {
     // Store role in localStorage for persistence
-    localStorage.setItem('userRole', role);
+    // localStorage.setItem('userRole', role);
     
-    if (role === 'admin') {
-      // navigate('/admin-dashboard');
-      navigate('/admin-login');
-    } else {
-      // navigate('/developer-dashboard');
-      navigate('/developer-login');
-    }
+    navigate('/login');
+    // if (role === 'admin') {
+    //   // navigate('/admin-dashboard');
+    //   navigate('/admin-login');
+    // } else {
+    //   // navigate('/developer-dashboard');
+    //   navigate('/developer-login');
+    // }
   };
 
   return (

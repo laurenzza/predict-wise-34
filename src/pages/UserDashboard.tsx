@@ -11,12 +11,17 @@ import {
   BarChart3,
   Info,
   Clock,
-  ArrowRight
+  ArrowRight,
+  Brain
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useAuthNamaToko, useAuthRole } from "@/store/AuthStore";
 
 export const UserDashboard = () => {
   const navigate = useNavigate();
+
+  const role = useAuthRole();
+  const namaToko = useAuthNamaToko();
 
   const upcomingPredictions = [
     { 
@@ -39,11 +44,18 @@ export const UserDashboard = () => {
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl md:text-4xl font-bold mb-2">
-            Dashboard <span className="bg-gradient-ml bg-clip-text text-transparent">Admin</span>
+            Dashboard <span className="bg-gradient-ml bg-clip-text text-transparent">{ role == "ADMIN" ? "Admin" : "Developer"}</span>
           </h1>
-          <p className="text-muted-foreground text-lg">
-            Prediksi penjualan dan analisis data untuk Toko Loa Kim Jong
-          </p>
+          {
+            role == "ADMIN" ?
+            <p className="text-muted-foreground text-lg">
+              Prediksi penjualan dan analisis data untuk {namaToko}
+            </p>
+            :
+            <p className="text-muted-foreground text-lg">
+              Analisis mendalam prediksi dan kualitas data penjualan
+            </p>
+          }
         </div>
 
         {/* Quick Stats */}
@@ -127,6 +139,21 @@ export const UserDashboard = () => {
                   <ArrowRight className="h-4 w-4" />
                 </Button>
 
+                {
+                  role == "DEVELOPER" && 
+                  <Button 
+                    variant="outline" 
+                    className="justify-between h-12"
+                    onClick={() => navigate('/predictions')}
+                  >
+                    <div className="flex items-center space-x-2">
+                      <Brain className="h-4 w-4" />
+                      <span>Informasi Prediksi</span>
+                    </div>
+                    <ArrowRight className="h-4 w-4" />
+                  </Button>
+                }
+
                 <Button 
                   variant="outline" 
                   className="justify-between h-12"
@@ -152,7 +179,7 @@ export const UserDashboard = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className={role == "DEVELOPER" ? "grid grid-cols-1 md:grid-cols-3 gap-6" : "grid grid-cols-1 md:grid-cols-2 gap-6"}>
               <div className="text-center p-4 bg-muted/20 rounded-lg">
                 <Clock className="h-8 w-8 text-ml-accent mx-auto mb-2" />
                 <h4 className="font-semibold mb-1">Periode Data</h4>
@@ -163,6 +190,14 @@ export const UserDashboard = () => {
                 <h4 className="font-semibold mb-1">Total Transaksi</h4>
                 <p className="text-sm text-muted-foreground">32,570 Data Points</p>
               </div>
+              {
+                role == "DEVELOPER" &&
+                <div className="text-center p-4 bg-muted/20 rounded-lg">
+                  <Brain className="h-8 w-8 text-success mx-auto mb-2" />
+                  <h4 className="font-semibold mb-1">Model Terbaik</h4>
+                  <p className="text-sm text-muted-foreground">LSTM (96.8% akurasi)</p>
+                </div>
+              }
             </div>
           </CardContent>
         </Card>

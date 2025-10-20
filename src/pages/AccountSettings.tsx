@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Navbar } from "@/components/layout/Navbar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,8 +8,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { User, Lock, Database, Eye, EyeOff, Upload } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useAuthChangePassword, useAuthDeleteAccount, useAuthEditProfile, useAuthEmail, useAuthNamaLengkap, useAuthNamaToko, useAuthRole } from "@/store/AuthStore";
 
 export const AccountSettings = () => {
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
@@ -17,12 +19,108 @@ export const AccountSettings = () => {
   const [activeTab, setActiveTab] = useState<string>("profile");
   const { toast } = useToast();
 
+  const namaLengkap = useAuthNamaLengkap();
+  const email = useAuthEmail();
+  const namaToko = useAuthNamaToko();
+  const role = useAuthRole();
+  const edit_profile = useAuthEditProfile();
+  const change_password = useAuthChangePassword();
+  const delete_account = useAuthDeleteAccount();
+
+  const [namaLengkapForm, setNamaLengkapForm] = useState(namaLengkap);
+  const [emailForm, setEmailForm] = useState(email);
+  const [namaTokoForm, setNamaTokoForm] = useState(namaToko);
+  const [roleForm, setRoleForm] = useState(role);
+
+  const [oldPasswordForm, setOldPasswordForm] = useState("");
+  const [newPasswordForm, setNewPasswordForm] = useState("");
+  const [confirmPasswordForm, setConfirmPasswordForm] = useState("");
+
+  const [hapusAkunForm, setHapusAkunForm] = useState("");
+
   useEffect(() => {
     const tab = searchParams.get("tab");
     if (tab) {
       setActiveTab(tab);
     }
   }, [searchParams]);
+
+  const handleProfileSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    try {
+      const response = await edit_profile(emailForm, namaLengkapForm, namaTokoForm, roleForm);
+
+      if(response){
+        toast({
+          title: "Berhasil Mengubah Profile"
+        })
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if(newPasswordForm != confirmPasswordForm){
+      toast({
+        title: "Password Tidak Cocok!",
+        description: "Ulangi konfirmasi password"
+      });
+      setConfirmPasswordForm("");
+      return;
+    }
+
+    try {
+      const response = await change_password(oldPasswordForm, newPasswordForm);
+
+      if(response){
+        toast({
+          title: "Berhasil Mengubah Password"
+        })
+        setOldPasswordForm("");
+        setNewPasswordForm("");
+        setConfirmPasswordForm("");
+      }
+    } catch (error) {
+      console.error(error);
+      toast({
+        title: "Gagal Mengubah Password",
+        description: "Silakan coba lagi"
+      })
+    }
+  }
+
+  const handleHapusAkun = async (e: React.FormEvent) => {
+    try {
+      if(hapusAkunForm != "HAPUS AKUN"){
+        toast({
+          title: "Konfirmasi Diperlukan",
+          description: "Pastikan Anda telah mengetik 'HAPUS AKUN' dengan benar.",
+          variant: "destructive"
+        });
+        return;
+      }
+    
+      const response = await delete_account();
+
+      if(response["message"] == "success"){
+        toast({
+          title: "Berhasil Menghapus Akun Anda",
+          description: "Sampai jumpa lagi"
+        })
+        navigate("/");
+      }
+    } catch (error) {
+      console.error(error);
+      toast({
+        title: "Gagal hapus akun",
+        description: "Yakin ingin hapus akun anda?"
+      })
+    }
+  }
 
   return (
     <div className="min-h-screen bg-gradient-hero">
@@ -68,21 +166,21 @@ export const AccountSettings = () => {
               <CardContent className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="name">Nama Lengkap</Label>
-                  <Input id="name" placeholder="Masukkan nama lengkap" />
+                  <Input id="name" placeholder="Masukkan nama lengkap" value={namaLengkapForm} onChange={(e) => setNamaLengkapForm(e.target.value)} />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
-                  <Input id="email" type="email" placeholder="email@example.com" />
+                  <Input id="email" type="email" placeholder="email@example.com" value={emailForm} onChange={(e) => setEmailForm(e.target.value)} />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="company">Nama Toko</Label>
-                  <Input id="company" placeholder="Loa Kim Jong" />
+                  <Input id="company" placeholder="Loa Kim Jong" value={namaTokoForm} onChange={(e) => setNamaTokoForm(e.target.value)} />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="role">Role</Label>
-                  <Input id="role" value="User" disabled />
+                  <Input id="role" value={roleForm} disabled />
                 </div>
-                <Button variant="ml">Simpan Perubahan</Button>
+                <Button variant="ml" onClick={handleProfileSubmit}>Simpan Perubahan</Button>
               </CardContent>
             </Card>
           </TabsContent>
@@ -102,7 +200,9 @@ export const AccountSettings = () => {
                   <div className="relative">
                     <Input 
                       id="current-password" 
-                      type={showCurrentPassword ? "text" : "password"} 
+                      type={showCurrentPassword ? "text" : "password"}
+                      value={oldPasswordForm}
+                      onChange={(e) => setOldPasswordForm(e.target.value)}
                     />
                     <Button
                       type="button"
@@ -125,6 +225,8 @@ export const AccountSettings = () => {
                     <Input 
                       id="new-password" 
                       type={showNewPassword ? "text" : "password"} 
+                      value={newPasswordForm}
+                      onChange={(e) => setNewPasswordForm(e.target.value)}
                     />
                     <Button
                       type="button"
@@ -147,6 +249,8 @@ export const AccountSettings = () => {
                     <Input 
                       id="confirm-password" 
                       type={showConfirmPassword ? "text" : "password"} 
+                      value={confirmPasswordForm}
+                      onChange={(e) => setConfirmPasswordForm(e.target.value)}
                     />
                     <Button
                       type="button"
@@ -163,7 +267,7 @@ export const AccountSettings = () => {
                     </Button>
                   </div>
                 </div>
-                <Button variant="ml">Update Password</Button>
+                <Button variant="ml" onClick={handleChangePassword}>Update Password</Button>
               </CardContent>
             </Card>
           </TabsContent>
@@ -243,19 +347,15 @@ export const AccountSettings = () => {
                   <Input 
                     id="confirm-delete" 
                     placeholder="HAPUS AKUN"
+                    value={hapusAkunForm}
+                    onChange={(e) => setHapusAkunForm(e.target.value)}
                   />
                 </div>
 
                 <Button 
                   variant="destructive" 
                   className="w-full"
-                  onClick={() => {
-                    toast({
-                      title: "Konfirmasi Diperlukan",
-                      description: "Pastikan Anda telah mengetik 'HAPUS AKUN' dengan benar.",
-                      variant: "destructive"
-                    });
-                  }}
+                  onClick={handleHapusAkun}
                 >
                   Hapus Akun Saya Secara Permanen
                 </Button>

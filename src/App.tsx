@@ -15,10 +15,11 @@ import { UserInfo } from "./pages/user/UserInfo";
 import { UserTopProducts } from "./pages/user/UserTopProducts";
 import { Dataset } from "./pages/Dataset";
 import { Predictions } from "./pages/Predictions";
-import { LoginAsAdmin, LoginAsDeveloper } from "./pages/Login";
+import { Login } from "./pages/Login";
 import { Register } from "./pages/Register";
 import { AccountSettings } from "./pages/AccountSettings";
 import NotFound from "./pages/NotFound";
+import { ProtectedRoutes, UnprotectedRoutes } from "./utils/AuthMiddleware";
 
 const queryClient = new QueryClient();
 
@@ -30,20 +31,25 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
-          <Route path="/role-selection" element={<RoleSelection />} />
-          <Route path="/user/dashboard" element={<UserDashboard />} />
-          <Route path="/user/period" element={<UserPeriod />} />
-          <Route path="/user/dataset" element={<UserDataset />} />
-          <Route path="/user/statistics" element={<UserStatistics />} />
-          <Route path="/user/top-products" element={<UserTopProducts />} />
-          <Route path="/user/info" element={<UserInfo />} />
-          <Route path="/developer/dashboard" element={<DeveloperDashboard />} />
-          <Route path="/dataset" element={<Dataset />} />
-          <Route path="/predictions" element={<Predictions />} />
-          <Route path="/admin-login" element={<LoginAsAdmin />} />
-          <Route path="/developer-login" element={<LoginAsDeveloper />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/account-settings" element={<AccountSettings />} />
+          <Route element={<ProtectedRoutes/>}>
+            <Route path="/user/dashboard" element={<UserDashboard />} />
+            <Route path="/user/period" element={<UserPeriod />} />
+            <Route path="/user/dataset" element={<UserDataset />} />
+            <Route path="/user/statistics" element={<UserStatistics />} />
+            <Route path="/user/top-products" element={<UserTopProducts />} />
+            <Route path="/user/info" element={<UserInfo />} />
+            <Route path="/account-settings" element={<AccountSettings />} />
+            {/* <Route path="/developer/dashboard" element={<DeveloperDashboard />} /> */}
+            {/* <Route path="/dataset" element={<Dataset />} /> */}
+            {/* <Route path="/predictions" element={<Predictions />} /> */}
+          </Route>
+          <Route element={<UnprotectedRoutes/>}>
+            <Route path="/role-selection" element={<RoleSelection />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            {/* <Route path="/admin-login" element={<LoginAsAdmin />} /> */}
+            {/* <Route path="/developer-login" element={<LoginAsDeveloper />} /> */}
+          </Route>
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
