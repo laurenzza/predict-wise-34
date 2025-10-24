@@ -15,13 +15,20 @@ import {
   Brain
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useAuthNamaToko, useAuthRole } from "@/store/AuthStore";
+import { useAuthId, useAuthNamaToko, useAuthRole, useAuthToken } from "@/store/AuthStore";
+import { useDataSummary, useFormatDate, useSummarizeData } from "@/store/DataSummaryStore";
 
 export const UserDashboard = () => {
   const navigate = useNavigate();
 
   const role = useAuthRole();
   const namaToko = useAuthNamaToko();
+
+  const ds = useDataSummary();
+  const summarize_data = useSummarizeData();
+  const user_id = useAuthId();
+  const access_token = useAuthToken();
+  const format_date = useFormatDate();
 
   const upcomingPredictions = [
     { 
@@ -39,6 +46,9 @@ export const UserDashboard = () => {
   return (
     <div className="min-h-screen bg-gradient-hero">
       <Navbar />
+      <button onClick={async () => { await summarize_data(user_id, access_token) }}>
+        Refresh
+      </button>
       
       <div className="container mx-auto px-4 py-8 max-w-7xl">
         {/* Header */}
@@ -70,19 +80,19 @@ export const UserDashboard = () => {
           />
           <MetricCard
             title="Total Produk"
-            value="156"
+            value={ds.total_produk.toLocaleString('id-ID')}
             description="Kategori tersedia"
             icon={<Package className="h-4 w-4 text-ml-accent" />}
           />
           <MetricCard
             title="Data Points"
-            value="32,570"
+            value={ds.total_transaksi.toLocaleString('id-ID')}
             description="Total transaksi"
             icon={<Database className="h-4 w-4 text-ml-accent" />}
           />
           <MetricCard
             title="Periode Data"
-            value="Mei 2020 - Sep 2024"
+            value={`${format_date(ds.periode_awal)} - ${format_date(ds.periode_akhir)}`}
             description="4+ tahun data"
             icon={<Clock className="h-4 w-4 text-ml-accent" />}
           />
@@ -183,12 +193,12 @@ export const UserDashboard = () => {
               <div className="text-center p-4 bg-muted/20 rounded-lg">
                 <Clock className="h-8 w-8 text-ml-accent mx-auto mb-2" />
                 <h4 className="font-semibold mb-1">Periode Data</h4>
-                <p className="text-sm text-muted-foreground">Mei 2020 - September 2024</p>
+                <p className="text-sm text-muted-foreground">{format_date(ds.periode_awal)} - {format_date(ds.periode_akhir)}</p>
               </div>
               <div className="text-center p-4 bg-muted/20 rounded-lg">
                 <Database className="h-8 w-8 text-ml-accent mx-auto mb-2" />
                 <h4 className="font-semibold mb-1">Total Transaksi</h4>
-                <p className="text-sm text-muted-foreground">32,570 Data Points</p>
+                <p className="text-sm text-muted-foreground">{ds.total_transaksi.toLocaleString('id-ID')} Data Points</p>
               </div>
               {
                 role == "DEVELOPER" &&

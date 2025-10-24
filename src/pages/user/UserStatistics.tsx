@@ -3,9 +3,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { BarChart3, ArrowLeft, TrendingUp, DollarSign, Calendar, Package } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useDataSummary } from "@/store/DataSummaryStore";
 
 export const UserStatistics = () => {
   const navigate = useNavigate();
+
+  const ds = useDataSummary();
 
   const salesStats = [
     { period: "Harian", avg: "Rp 107,476", total: "Rp 3,501,987,985", transactions: "32,570" },
@@ -23,10 +26,11 @@ export const UserStatistics = () => {
   ];
 
   const statusDistribution = [
-    { status: "Pesanan Selesai", count: "31,880", percentage: "97.88%" },
-    { status: "Dibatalkan Pembeli", count: "305", percentage: "0.94%" },
-    { status: "Dibatalkan Penjual", count: "220", percentage: "0.68%" },
-    { status: "Dibatalkan Sistem", count: "165", percentage: "0.51%" },
+    { status: "Pesanan Selesai", count: ds.total_status_selesai.toLocaleString('id-ID'), percentage: (ds.total_status_selesai / ds.total_transaksi * 100).toFixed(2).toString() + "%" },
+    { status: "Dibatalkan Pembeli", count: ds.total_status_dibatalkan_pembeli.toLocaleString('id-ID'), percentage: (ds.total_status_dibatalkan_pembeli / ds.total_transaksi * 100).toFixed(2).toString() + "%" },
+    { status: "Dibatalkan Penjual", count: ds.total_status_dibatalkan_penjual.toLocaleString('id-ID'), percentage: (ds.total_status_dibatalkan_penjual / ds.total_transaksi * 100).toFixed(2).toString() + "%" },
+    { status: "Dibatalkan Sistem", count: ds.total_status_dibatalkan_sistem.toLocaleString('id-ID'), percentage: (ds.total_status_dibatalkan_sistem / ds.total_transaksi * 100).toFixed(2).toString() + "%" },
+    { status: "Sedang Dikirim", count: ds.total_status_sedang_dikirim.toLocaleString('id-ID'), percentage: (ds.total_status_sedang_dikirim / ds.total_transaksi * 100).toFixed(2).toString() + "%" },
   ];
 
   return (
@@ -120,7 +124,7 @@ export const UserStatistics = () => {
               Distribusi Status Transaksi
             </CardTitle>
             <CardDescription>
-              Breakdown status penyelesaian order dari total 32,570 transaksi
+              Breakdown status penyelesaian order dari total {ds.total_transaksi.toLocaleString('id-ID')} transaksi
             </CardDescription>
           </CardHeader>
           <CardContent>

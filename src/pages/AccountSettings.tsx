@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, ChangeEvent } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Navbar } from "@/components/layout/Navbar";
 import { Button } from "@/components/ui/button";
@@ -8,7 +8,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { User, Lock, Database, Eye, EyeOff, Upload } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { useAuthChangePassword, useAuthDeleteAccount, useAuthEditProfile, useAuthEmail, useAuthNamaLengkap, useAuthNamaToko, useAuthRole } from "@/store/AuthStore";
+import { useAuthChangePassword, useAuthDeleteAccount, useAuthEditProfile, useAuthEmail, useAuthId, useAuthNamaLengkap, useAuthNamaToko, useAuthRole, useAuthToken } from "@/store/AuthStore";
+import { apiSalesSummary, apiUploadSales } from "@/api";
+import { useSummarizeData } from "@/store/DataSummaryStore";
+
+type UploadStatus = 'idle' | 'uploading' | 'success' | 'error';
 
 export const AccountSettings = () => {
   const navigate = useNavigate();
@@ -19,6 +23,8 @@ export const AccountSettings = () => {
   const [activeTab, setActiveTab] = useState<string>("profile");
   const { toast } = useToast();
 
+  const user_id = useAuthId();
+  const access_token = useAuthToken();
   const namaLengkap = useAuthNamaLengkap();
   const email = useAuthEmail();
   const namaToko = useAuthNamaToko();
@@ -26,6 +32,7 @@ export const AccountSettings = () => {
   const edit_profile = useAuthEditProfile();
   const change_password = useAuthChangePassword();
   const delete_account = useAuthDeleteAccount();
+  const summarize_data = useSummarizeData();
 
   const [namaLengkapForm, setNamaLengkapForm] = useState(namaLengkap);
   const [emailForm, setEmailForm] = useState(email);
@@ -37,6 +44,9 @@ export const AccountSettings = () => {
   const [confirmPasswordForm, setConfirmPasswordForm] = useState("");
 
   const [hapusAkunForm, setHapusAkunForm] = useState("");
+
+  const [file, setFile] = useState<File | null>(null);
+  const [status, setStatus] = useState<UploadStatus>('idle');
 
   useEffect(() => {
     const tab = searchParams.get("tab");
@@ -118,6 +128,46 @@ export const AccountSettings = () => {
       toast({
         title: "Gagal hapus akun",
         description: "Yakin ingin hapus akun anda?"
+      })
+    }
+  }
+
+  const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files?.[0]) {
+      setFile(e.target.files[0]);
+      toast({
+        title: "File Berhasil Dipilih",
+        description: `File: ${e.target.files[0].name}`,
+      });
+    }
+    else{
+      setFile(null);
+    }
+  }
+
+  const handleFileUpload = async (e: React.FormEvent) => {
+    if(!file) return;
+
+    setStatus('uploading');
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const response = await apiUploadSales(formData, access_token);
+      await summarize_data(user_id, access_token);
+
+      setStatus("success");
+      toast({
+        title: "Berhasil Upload File",
+        description: "Data siap untuk diproses"
+      })
+    } catch (error) {
+      console.error(error);
+      setStatus("error");
+      toast({
+        title: "Upload Gagal",
+        description: "Perhatikan format file dan coba lagi"
       })
     }
   }
@@ -294,18 +344,18 @@ export const AccountSettings = () => {
                     <Input 
                       type="file" 
                       accept=".csv"
-                      onChange={(e) => {
-                        if (e.target.files?.[0]) {
-                          toast({
-                            title: "File Berhasil Dipilih",
-                            description: `File: ${e.target.files[0].name}`,
-                          });
-                        }
-                      }}
+                      onChange={handleFileChange}
                     />
-                    <Button variant="ml" className="w-full">
-                      Upload & Perbarui Data
-                    </Button>
+                    {
+                      file && status !== 'uploading' ?
+                      <Button variant="ml" className="w-full" onClick={handleFileUpload}>
+                        Upload & Perbarui Data
+                      </Button>
+                      :
+                      <Button variant="ml" className="w-full" disabled>
+                        Upload & Perbarui Data
+                      </Button>
+                    }
                   </div>
                   <p className="text-xs text-muted-foreground">
                     Data akan langsung diproses dan digunakan untuk prediksi real-time

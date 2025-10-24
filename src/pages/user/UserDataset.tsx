@@ -4,42 +4,46 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Database, ArrowLeft, FileText, TrendingUp } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useDataSummary, useFormatDate } from "@/store/DataSummaryStore";
 
 export const UserDataset = () => {
   const navigate = useNavigate();
 
+  const ds = useDataSummary();
+  const format_date = useFormatDate();
+
   const datasetStats = [
     { 
       label: "Total Transaksi", 
-      value: "32,570", 
+      value: ds.total_transaksi.toLocaleString('id-ID'), 
       icon: Database, 
       color: "text-ml-primary",
       description: "Jumlah keseluruhan transaksi yang tercatat"
     },
     { 
       label: "Periode Data", 
-      value: "Mei 2020 - Sep 2024", 
+      value: `${format_date(ds.periode_awal)} - ${format_date(ds.periode_akhir)}`, 
       icon: FileText, 
       color: "text-ml-accent",
       description: "Rentang waktu data transaksi"
     },
     { 
       label: "Produk Unik", 
-      value: "156", 
+      value: ds.total_produk.toLocaleString('id-ID'), 
       icon: TrendingUp, 
       color: "text-success",
       description: "Jumlah variasi produk yang berbeda"
     },
     { 
       label: "Status Selesai", 
-      value: "97.8%", 
+      value: (ds.total_status_selesai / ds.total_transaksi * 100).toFixed(2).toString() + "%", 
       icon: TrendingUp, 
       color: "text-success",
       description: "Persentase transaksi yang berhasil diselesaikan"
     },
     { 
       label: "Status Batal", 
-      value: "2.2%", 
+      value: (ds.total_status_dibatalkan / ds.total_transaksi * 100).toFixed(2).toString() + "%", 
       icon: FileText, 
       color: "text-destructive",
       description: "Persentase transaksi yang dibatalkan"

@@ -1,4 +1,5 @@
 import { User } from '@/store/AuthStore';
+import { DataSummary, useSummarizeData } from '@/store/DataSummaryStore';
 import axios from 'axios';
 
 const base_url = "http://localhost:8000"
@@ -98,6 +99,39 @@ export const apiChangePassword = async (user_id: number, email: string, old_pass
 export const apiDeleteAccount = async (user_id: number, access_token: string): Promise<any> => {
     try {
         const response = await axios.delete(`${base_url}/api/user/${user_id}/delete`,
+            {
+                headers: {
+                    "Authorization": `Bearer ${access_token}`
+                }
+            }
+        );
+
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+}
+
+export const apiUploadSales = async (file: FormData, access_token: string): Promise<any> => {
+    try {
+        const response = await axios.post(`${base_url}/api/sales/upload`,
+            file,
+            {
+                headers: {
+                    "Authorization": `Bearer ${access_token}`
+                }
+            }
+        );
+
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+}
+
+export const apiSalesSummary = async (user_id: number, access_token: string): Promise<DataSummary> => {
+    try {
+        const response = await axios.get(`${base_url}/api/sales/summary/${user_id}`,
             {
                 headers: {
                     "Authorization": `Bearer ${access_token}`
