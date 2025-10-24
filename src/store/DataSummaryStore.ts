@@ -21,7 +21,7 @@ interface DataSummaryStore {
     format_date: (date: Date) => string;
 }
 
-const useDataSummaryStore = create<DataSummaryStore>()(
+export const useDataSummaryStore = create<DataSummaryStore>()(
     persist(
         (set,get) => ({
             data_summary: {

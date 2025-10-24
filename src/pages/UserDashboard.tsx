@@ -46,9 +46,9 @@ export const UserDashboard = () => {
   return (
     <div className="min-h-screen bg-gradient-hero">
       <Navbar />
-      <button onClick={async () => { await summarize_data(user_id, access_token) }}>
+      {/* <button onClick={async () => { await summarize_data(user_id, access_token) }}>
         Refresh
-      </button>
+      </button> */}
       
       <div className="container mx-auto px-4 py-8 max-w-7xl">
         {/* Header */}

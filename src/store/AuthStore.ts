@@ -1,6 +1,7 @@
-import { apiChangePassword, apiDeleteAccount, apiEditProfile, apiLogin, apiRegister } from '@/api';
+import { apiChangePassword, apiDeleteAccount, apiEditProfile, apiLogin, apiRegister, apiSalesSummary } from '@/api';
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+import { useDataSummaryStore, useSummarizeData } from './DataSummaryStore';
 
 export interface User {
     user_id: number;
@@ -37,6 +38,7 @@ const useAuthStore = create<AuthStore>()(
             access_token: "",
             login: async (email, password) => {
                 const response = await apiLogin(email, password);
+
                 set({
                     user_id: response.user_data.user_id,
                     email: response.user_data.email,
@@ -45,6 +47,10 @@ const useAuthStore = create<AuthStore>()(
                     role: response.user_data.role,
                     access_token: response.access_token
                 });
+
+                const summarize_data = useDataSummaryStore.getState().summarize_data;
+                await summarize_data(get().user_id, get().access_token);
+
                 return response.user_data;
             },
             register: async (email, nama_lengkap, password, role) => {
@@ -68,6 +74,8 @@ const useAuthStore = create<AuthStore>()(
                     role: "",
                     access_token: "",
                 });
+
+                localStorage.clear();
             },
             edit_profile: async (email, nama_lengkap, nama_toko, role) => {
                 const response = await apiEditProfile(get().user_id, email, nama_lengkap, nama_toko, role, get().access_token);
