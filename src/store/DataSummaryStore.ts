@@ -5,8 +5,8 @@ import { persist } from "zustand/middleware";
 export interface DataSummary {
     total_transaksi: number;
     total_produk: number;
-    periode_awal: Date;
-    periode_akhir: Date;
+    periode_awal: string;
+    periode_akhir: string;
     total_status_selesai: number;
     total_status_dibatalkan: number;
     total_status_dibatalkan_pembeli: number;
@@ -18,35 +18,22 @@ export interface DataSummary {
 interface DataSummaryStore {
     data_summary: DataSummary;
     summarize_data: (user_id: number, access_token: string) => Promise<void>;
-    format_date: (date: Date) => string;
+    format_date: (date: string) => string;
 }
 
 export const useDataSummaryStore = create<DataSummaryStore>()(
     persist(
         (set,get) => ({
-            data_summary: {
-                total_transaksi: 0,
-                total_produk: 0,
-                periode_awal: new Date("2000-01-01T00:00:00.000Z"),
-                periode_akhir: new Date("2000-01-01T00:00:00.000Z"),
-                total_status_selesai: 0,
-                total_status_dibatalkan: 0,
-                total_status_dibatalkan_pembeli: 0,
-                total_status_dibatalkan_penjual: 0,
-                total_status_dibatalkan_sistem: 0,
-                total_status_sedang_dikirim: 0,
-            },
+            data_summary: null,
             summarize_data: async (user_id, access_token) => {
                 const response = await apiSalesSummary(user_id, access_token);
-
-                response.periode_awal = new Date(response.periode_awal);
-                response.periode_akhir = new Date(response.periode_akhir);
 
                 set({ data_summary: response });
             },
             format_date: (date) => {
-                console.log(date.toLocaleString('id-ID', {month: "short", year: "numeric"}));
-                return date.toLocaleString('id-ID', {month: "short", year: "numeric"});
+                const new_date = new Date(date);
+                // console.log(new_date.toLocaleString('id-ID', {month: "short", year: "numeric"}));
+                return new_date.toLocaleString('id-ID', {month: "short", year: "numeric"});
             }
         }),
         {
