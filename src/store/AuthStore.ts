@@ -27,7 +27,7 @@ interface AuthStore {
     is_authenticated: () => boolean;
 }
 
-const useAuthStore = create<AuthStore>()(
+export const useAuthStore = create<AuthStore>()(
     persist(
         (set, get) => ({
             user_id: 0,

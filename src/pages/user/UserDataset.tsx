@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Database, ArrowLeft, FileText, TrendingUp } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useDataSummary, useFormatDate } from "@/store/DataSummaryStore";
+import { useSalesDataset } from "@/hooks/useSalesDataset";
 
 export const UserDataset = () => {
   const navigate = useNavigate();

@@ -1,5 +1,7 @@
-import { User } from '@/store/AuthStore';
+import { useAuthStore, User } from '@/store/AuthStore';
 import { DataSummary, useSummarizeData } from '@/store/DataSummaryStore';
+import { usePaginationStore } from '@/store/PaginationStore';
+import { SalesData } from '@/store/SalesDataStore';
 import axios from 'axios';
 
 const base_url = "http://localhost:8000"
@@ -138,6 +140,31 @@ export const apiSalesSummary = async (user_id: number, access_token: string): Pr
                 }
             }
         );
+
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+}
+
+export const apiFetchSales = async (limit: number, offset: number, year: string, status: string): Promise<any> => {
+    try {
+        const auth = useAuthStore.getState();
+        const response = await axios.get(`${base_url}/api/sales/${auth.user_id}`,
+            {
+                params: {
+                    limit: limit,
+                    offset: offset,
+                    year: year,
+                    status: status,
+                },
+                headers: {
+                    "Authorization": `Bearer ${auth.access_token}`
+                }
+            }
+        );
+
+        usePaginationStore.setState({ rows_count: response.data.rows });
 
         return response.data;
     } catch (error) {
