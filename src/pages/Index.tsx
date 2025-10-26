@@ -13,9 +13,12 @@ import {
   ArrowRight,
   CheckCircle2
 } from "lucide-react";
+import { useAuthIsAuthenticated } from "@/store/AuthStore";
 
 const Index = () => {
   const navigate = useNavigate();
+
+  const is_authenticated = useAuthIsAuthenticated();
 
   const features = [
     {
@@ -170,22 +173,37 @@ const Index = () => {
               Jelajahi dashboard lengkap dan mulai analisis prediksi penjualan dengan teknologi machine learning terdepan.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button 
-                size="lg" 
-                variant="secondary"
-                onClick={() => navigate("/role-selection")}
-                className="bg-white text-ml-primary hover:bg-white/90 text-lg px-8 py-6"
-              >
-                Login
-              </Button>
-              <Button 
-                size="lg" 
-                variant="secondary"
-                onClick={() => navigate("/register")}
-                className="bg-white text-ml-primary hover:bg-white/90 text-lg px-8 py-6"
-              >
-                Sign Up
-              </Button>
+              {
+                is_authenticated() ? (
+                  <Button 
+                    size="lg" 
+                    variant="secondary"
+                    onClick={() => navigate("/user/dashboard")}
+                    className="bg-white text-ml-primary hover:bg-white/90 text-lg px-8 py-6"
+                  >
+                    Dashboard
+                  </Button>
+                ) : (
+                  <>
+                    <Button 
+                      size="lg" 
+                      variant="secondary"
+                      onClick={() => navigate("/role-selection")}
+                      className="bg-white text-ml-primary hover:bg-white/90 text-lg px-8 py-6"
+                      >
+                      Login
+                    </Button>
+                    <Button 
+                      size="lg" 
+                      variant="secondary"
+                      onClick={() => navigate("/register")}
+                      className="bg-white text-ml-primary hover:bg-white/90 text-lg px-8 py-6"
+                      >
+                      Sign Up
+                    </Button>
+                  </>
+                )
+              }
             </div>
           </div>
         </div>
