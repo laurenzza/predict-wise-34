@@ -4,9 +4,13 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, TrendingUp, Package, DollarSign } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
+import { useTopProducts, useTopProductsSummary } from "@/hooks/useTopProducts";
 
 export const UserTopProducts = () => {
   const navigate = useNavigate();
+
+  const { data: top_products, isLoading, isError } = useTopProducts();
+  const { data: top_products_summary, isLoading: isLoadingSummary, isError: isErrorSummary } = useTopProductsSummary();
 
   const topProducts = [
     { 
@@ -134,7 +138,13 @@ export const UserTopProducts = () => {
               </div>
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Total Penjualan Top 10</p>
-                <p className="text-2xl font-bold">Rp 57,180,000</p>
+                {
+                  isLoadingSummary ? (
+                    <p className="text-2xl font-bold">Loading...</p>
+                  ) : (
+                    <p className="text-2xl font-bold">{top_products_summary.total_penjualan_top.toLocaleString('id-ID', {style: "currency", currency: "IDR"})}</p>
+                  )
+                }
               </div>
             </CardContent>
           </Card>
@@ -146,7 +156,13 @@ export const UserTopProducts = () => {
               </div>
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Total Unit Terjual</p>
-                <p className="text-2xl font-bold">9,540</p>
+                {
+                  isLoadingSummary ? (
+                    <p className="text-2xl font-bold">Loading...</p>
+                  ) : (
+                    <p className="text-2xl font-bold">{top_products_summary.total_unit_terjual_top.toLocaleString('id-ID')}</p>
+                  )
+                }
               </div>
             </CardContent>
           </Card>
@@ -177,42 +193,48 @@ export const UserTopProducts = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {topProducts.map((product) => (
-                <div 
-                  key={product.rank}
-                  className="p-4 bg-muted/20 rounded-lg hover:bg-muted/30 transition-colors"
-                >
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex items-start gap-4 flex-1">
-                      <div className="flex items-center justify-center w-10 h-10 rounded-full bg-gradient-ml text-white font-bold">
-                        {product.rank}
-                      </div>
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-lg mb-1">{product.product}</h3>
-                        <Badge variant="outline" className="mb-2">
-                          {product.category}
-                        </Badge>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-2 text-sm text-muted-foreground mt-2">
-                          <div>
-                            <span className="font-medium">Unit Terjual:</span> {product.quantity.toLocaleString('id-ID')}
+              {
+                isLoading ? (
+                  <p className="text-2xl font-bold">Loading...</p>
+                ) : (
+                  top_products.map((product, index) => (
+                    <div 
+                      key={index}
+                      className="p-4 bg-muted/20 rounded-lg hover:bg-muted/30 transition-colors"
+                    >
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex items-start gap-4 flex-1">
+                          <div className="flex items-center justify-center w-10 h-10 rounded-full bg-gradient-ml text-white font-bold">
+                            {index+1}
                           </div>
-                          <div>
-                            <span className="font-medium">Transaksi:</span> {product.transactions}
+                          <div className="flex-1">
+                            <h3 className="font-semibold text-lg mb-1">{product.nama_produk}</h3>
+                            {/* <Badge variant="outline" className="mb-2">
+                              {product.category}
+                            </Badge> */}
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-2 text-sm text-muted-foreground mt-2">
+                              <div>
+                                <span className="font-medium">Unit Terjual:</span> {product.total_unit_terjual.toLocaleString('id-ID')}
+                              </div>
+                              <div>
+                                <span className="font-medium">Transaksi:</span> {product.total_transaksi}
+                              </div>
+                              <div className="flex items-center gap-1">
+                                <span className="font-medium">Pertumbuhan:</span>
+                                <span className="text-success font-semibold">10%</span>
+                              </div>
+                            </div>
                           </div>
-                          <div className="flex items-center gap-1">
-                            <span className="font-medium">Pertumbuhan:</span>
-                            <span className="text-success font-semibold">{product.growth}</span>
-                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-2xl font-bold text-ml-primary">{product.total_penjualan.toLocaleString('id-ID', {style: "currency", currency: "IDR"})}</p>
+                          <p className="text-xs text-muted-foreground mt-1">Total Penjualan</p>
                         </div>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <p className="text-2xl font-bold text-ml-primary">{product.totalSales}</p>
-                      <p className="text-xs text-muted-foreground mt-1">Total Penjualan</p>
-                    </div>
-                  </div>
-                </div>
-              ))}
+                  ))
+                )
+              }
             </div>
           </CardContent>
         </Card>

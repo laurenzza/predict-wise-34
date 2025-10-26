@@ -1,3 +1,5 @@
+import { SalesTrend, TemporalPattern, TransactionAnalysis } from '@/hooks/useSalesTrend';
+import { TopProducts, TopProductsSummary } from '@/hooks/useTopProducts';
 import { useAuthStore, User } from '@/store/AuthStore';
 import { DataSummary, useSummarizeData } from '@/store/DataSummaryStore';
 import { usePaginationStore } from '@/store/PaginationStore';
@@ -165,6 +167,96 @@ export const apiFetchSales = async (limit: number, offset: number, year: string,
         );
 
         usePaginationStore.setState({ rows_count: response.data.rows });
+
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+}
+
+export const apiFetchTopProductsSummary = async (): Promise<TopProductsSummary> => {
+    try {
+        const auth = useAuthStore.getState();
+
+        const response = await axios.get(`${base_url}/api/top_products/summary/${auth.user_id}`,
+            {
+                headers: {
+                    "Authorization": `Bearer ${auth.access_token}`
+                }
+            }
+        );
+
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+}
+
+export const apiFetchTopProducts = async (): Promise<TopProducts[]> => {
+    try {
+        const auth = useAuthStore.getState();
+
+        const response = await axios.get(`${base_url}/api/top_products/${auth.user_id}`,
+            {
+                headers: {
+                    "Authorization": `Bearer ${auth.access_token}`
+                }
+            }
+        );
+
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+}
+
+export const apiFetchMonthlySalesTrend = async (): Promise<SalesTrend[]> => {
+    try {
+        const auth = useAuthStore.getState();
+
+        const response = await axios.get(`${base_url}/api/statistics/monthly_trend/${auth.user_id}`,
+            {
+                headers: {
+                    "Authorization" : `Bearer ${auth.access_token}`
+                }
+            }
+        );
+
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+}
+
+export const apiFetchTransactionAnalysis = async (): Promise<TransactionAnalysis> => {
+    try {
+        const auth = useAuthStore.getState();
+
+        const response = await axios.get(`${base_url}/api/statistics/transaction_analysis/${auth.user_id}`,
+            {
+                headers: {
+                    "Authorization" : `Bearer ${auth.access_token}`
+                }
+            }
+        );
+
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+}
+
+export const apiFetchTemporalPattern = async (): Promise<TemporalPattern> => {
+    try {
+        const auth = useAuthStore.getState();
+
+        const response = await axios.get(`${base_url}/api/statistics/temporal_pattern/${auth.user_id}`,
+            {
+                headers: {
+                    "Authorization" : `Bearer ${auth.access_token}`
+                }
+            }
+        );
 
         return response.data;
     } catch (error) {

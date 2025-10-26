@@ -4,11 +4,15 @@ import { Button } from "@/components/ui/button";
 import { BarChart3, ArrowLeft, TrendingUp, DollarSign, Calendar, Package } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useDataSummary } from "@/store/DataSummaryStore";
+import { useSalesTrend, useTemporalPattern, useTransactionAnalysis } from "@/hooks/useSalesTrend";
 
 export const UserStatistics = () => {
   const navigate = useNavigate();
 
   const ds = useDataSummary();
+  const { data: monthly_trend, isLoading: isLoadingTrend, isError: isErrorTrend } = useSalesTrend();
+  const { data: transaction_analysis, isLoading: isLoadingAnalysis, isError: isErrorAnalysis } = useTransactionAnalysis();
+  const { data: temporal_pattern, isLoading: isLoadingTemporal, isError: isErrorTemporal } = useTemporalPattern();
 
   const salesStats = [
     { period: "Harian", avg: "Rp 107,476", total: "Rp 3,501,987,985", transactions: "32,570" },
@@ -98,21 +102,27 @@ export const UserStatistics = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {monthlyTrends.map((trend, index) => (
-                <div key={index} className="p-4 bg-muted/20 rounded-lg">
-                  <div className="flex justify-between items-start mb-2">
-                    <h4 className="font-medium">{trend.month}</h4>
-                    <span className={`text-sm font-semibold ${
-                      trend.change.startsWith('+') ? 'text-success' : 'text-destructive'
-                    }`}>
-                      {trend.change}
-                    </span>
-                  </div>
-                  <div className="text-lg font-bold">{trend.sales}</div>
+            {
+              isLoadingTrend ? (
+                <p>Loading...</p>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {monthly_trend.map((trend, index) => (
+                    <div key={index} className="p-4 bg-muted/20 rounded-lg">
+                      <div className="flex justify-between items-start mb-2">
+                        <h4 className="font-medium">{(new Date(2000, trend.bulan_pembayaran-1, 1)).toLocaleString('id-ID', {month: "short"})} {trend.tahun_pembayaran}</h4>
+                        <span className={`text-sm font-semibold ${
+                          trend.pertumbuhan >= 0 ? 'text-success' : 'text-destructive'
+                        }`}>
+                          {trend.pertumbuhan >= 0 ? '+' : '' }{trend.pertumbuhan.toFixed(1)}%
+                        </span>
+                      </div>
+                      <div className="text-lg font-bold">{trend.total_penjualan.toLocaleString('id-ID', { style: "currency", currency: "IDR" })}</div>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
+              )
+            }
           </CardContent>
         </Card>
 
@@ -154,28 +164,34 @@ export const UserStatistics = () => {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <span className="text-muted-foreground">Rata-rata per Transaksi:</span>
-                  <span className="font-semibold">Rp 107,476</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-muted-foreground">Transaksi Tertinggi:</span>
-                  <span className="font-semibold">Rp 4,800,000</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-muted-foreground">Transaksi Terendah:</span>
-                  <span className="font-semibold">Rp 2,475</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-muted-foreground">Median:</span>
-                  <span className="font-semibold">Rp 52,700</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-muted-foreground">Standar Deviasi:</span>
-                  <span className="font-semibold">Rp 213,356</span>
-                </div>
-              </div>
+              {
+                isLoadingAnalysis ? (
+                  <p>Loading...</p>
+                ) : (
+                  <div className="space-y-4">
+                    <div className="flex justify-between items-center">
+                      <span className="text-muted-foreground">Rata-rata per Transaksi:</span>
+                      <span className="font-semibold">{transaction_analysis.avg_penjualan.toLocaleString('id-ID', { style: "currency", currency: "IDR" })}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-muted-foreground">Transaksi Tertinggi:</span>
+                      <span className="font-semibold">{transaction_analysis.max_penjualan.toLocaleString('id-ID', { style: "currency", currency: "IDR" })}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-muted-foreground">Transaksi Terendah:</span>
+                      <span className="font-semibold">{transaction_analysis.min_penjualan.toLocaleString('id-ID', { style: "currency", currency: "IDR" })}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-muted-foreground">Median:</span>
+                      <span className="font-semibold">{transaction_analysis.median_penjualan.toLocaleString('id-ID', { style: "currency", currency: "IDR" })}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-muted-foreground">Standar Deviasi:</span>
+                      <span className="font-semibold">{transaction_analysis.std_penjualan.toLocaleString('id-ID', { style: "currency", currency: "IDR" })}</span>
+                    </div>
+                  </div>
+                )
+              }
             </CardContent>
           </Card>
 
@@ -187,20 +203,26 @@ export const UserStatistics = () => {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                <div>
-                  <h4 className="font-semibold mb-2">Hari Terbaik</h4>
-                  <p className="text-sm text-muted-foreground">Senin: 15.2% dari total transaksi</p>
-                </div>
-                <div>
-                  <h4 className="font-semibold mb-2">Bulan Terbaik</h4>
-                  <p className="text-sm text-muted-foreground">Mei: 12.8% dari total penjualan tahunan</p>
-                </div>
-                <div>
-                  <h4 className="font-semibold mb-2">Jam Tersibuk</h4>
-                  <p className="text-sm text-muted-foreground">10:00 - 12:00: 28% transaksi harian</p>
-                </div>
-              </div>
+              {
+                isLoadingTemporal ? (
+                  <p>Loading...</p>
+                ) : (
+                  <div className="space-y-4">
+                    <div>
+                      <h4 className="font-semibold mb-2">Hari Terbaik</h4>
+                      <p className="text-sm text-muted-foreground">{(new Date(2025, 9, 26 + temporal_pattern.hari_transaksi)).toLocaleString('id-ID', { weekday: "long" })}: {((temporal_pattern.jumlah_transaksi_hari/ds.total_transaksi)*100).toFixed(1)}% dari total transaksi</p>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold mb-2">Bulan Terbaik</h4>
+                      <p className="text-sm text-muted-foreground">{(new Date(2025, temporal_pattern.bulan_transaksi - 1, 26)).toLocaleString('id-ID', { month: "long" })}: {((temporal_pattern.jumlah_transaksi_bulan/ds.total_transaksi)*100).toFixed(1)}% dari total penjualan tahunan</p>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold mb-2">Jam Tersibuk</h4>
+                      <p className="text-sm text-muted-foreground">{temporal_pattern.rentang_jam_transaksi}: {((temporal_pattern.jumlah_transaksi_jam/ds.total_transaksi)*100).toFixed(1)}% transaksi harian</p>
+                    </div>
+                  </div>
+                )
+              }
             </CardContent>
           </Card>
         </div>
