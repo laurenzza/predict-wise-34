@@ -26,8 +26,6 @@ export const UserDashboard = () => {
 
   const ds = useDataSummary();
   const summarize_data = useSummarizeData();
-  const user_id = useAuthId();
-  const access_token = useAuthToken();
   const format_date = useFormatDate();
 
   const upcomingPredictions = [

@@ -17,7 +17,7 @@ export const usePaginationStore = create<PaginationStore>()(
         current_page: 1,
         limit: 10,
         offset: 0,
-        rows_count: useDataSummaryStore.getState().data_summary.total_transaksi,
+        rows_count: useDataSummaryStore.getState().data_summary?.total_transaksi || 0,
         set_current_page: (current_page) => {
             set({
                 current_page: current_page

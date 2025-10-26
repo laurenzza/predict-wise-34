@@ -48,8 +48,10 @@ export const useAuthStore = create<AuthStore>()(
                     access_token: response.access_token
                 });
 
-                const summarize_data = useDataSummaryStore.getState().summarize_data;
-                await summarize_data(get().user_id, get().access_token);
+                if(useDataSummaryStore.getState().data_summary?.total_transaksi != null){
+                    const summarize_data = useDataSummaryStore.getState().summarize_data;
+                    await summarize_data(get().user_id, get().access_token);
+                }
 
                 return response.user_data;
             },
