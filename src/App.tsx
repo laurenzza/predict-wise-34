@@ -21,6 +21,7 @@ import { AccountSettings } from "./pages/AccountSettings";
 import NotFound from "./pages/NotFound";
 import { ProtectedRoutes, UnprotectedRoutes } from "./utils/AuthMiddleware";
 import { DashboardMiddleware } from "./utils/DashboardMiddleware";
+import { DeveloperOnly } from "./utils/RoleMiddleware";
 
 const queryClient = new QueryClient();
 
@@ -40,11 +41,13 @@ const App = () => (
               <Route path="/user/statistics" element={<UserStatistics />} />
               <Route path="/user/top-products" element={<UserTopProducts />} />
               <Route path="/user/info" element={<UserInfo />} />
+              <Route element={<DeveloperOnly/>}>
+                <Route path="/user/predictions" element={<Predictions />} />
+              </Route>
             </Route>
             <Route path="/account-settings" element={<AccountSettings />} />
             {/* <Route path="/developer/dashboard" element={<DeveloperDashboard />} /> */}
             {/* <Route path="/dataset" element={<Dataset />} /> */}
-            {/* <Route path="/predictions" element={<Predictions />} /> */}
           </Route>
           <Route element={<UnprotectedRoutes/>}>
             <Route path="/role-selection" element={<RoleSelection />} />

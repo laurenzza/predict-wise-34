@@ -223,14 +223,14 @@ export const Register = () => {
                 )}
               </Button>
 
-              <Button 
+              {/* <Button 
                 type="button" 
                 className="w-full" 
                 variant="outline"
                 onClick={() => navigate("/role-selection")}
               >
                 Demo Mode
-              </Button>
+              </Button> */}
             </form>
 
             <div className="mt-6 text-center text-sm">
