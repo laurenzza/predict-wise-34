@@ -64,7 +64,7 @@ export const Register = () => {
       }, 2000);
     } catch (error) {
       console.error(error);
-      if(error.response.status == 409){
+      if(error.response?.status == 409){
         toast({
           title: "Registrasi Gagal!",
           description: "Email sudah digunakan, silakan gunakan email lain"

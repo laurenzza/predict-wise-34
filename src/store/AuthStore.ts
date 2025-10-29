@@ -77,6 +77,7 @@ export const useAuthStore = create<AuthStore>()(
                     access_token: "",
                 });
 
+                useDataSummaryStore.getState().reset();
                 localStorage.clear();
             },
             edit_profile: async (email, nama_lengkap, nama_toko, role) => {

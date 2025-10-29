@@ -19,6 +19,7 @@ interface DataSummaryStore {
     data_summary: DataSummary;
     summarize_data: (user_id: number, access_token: string) => Promise<void>;
     format_date: (date: string) => string;
+    reset: () => void;
 }
 
 export const useDataSummaryStore = create<DataSummaryStore>()(
@@ -34,6 +35,9 @@ export const useDataSummaryStore = create<DataSummaryStore>()(
                 const new_date = new Date(date);
                 // console.log(new_date.toLocaleString('id-ID', {month: "short", year: "numeric"}));
                 return new_date.toLocaleString('id-ID', {month: "short", year: "numeric"});
+            },
+            reset: () => {
+                set({ data_summary: null });
             }
         }),
         {
@@ -42,6 +46,7 @@ export const useDataSummaryStore = create<DataSummaryStore>()(
     )
 );
 
+export const useReset = () => useDataSummaryStore((state) => state.reset);
 export const useDataSummary = () => useDataSummaryStore((state) => state.data_summary);
 export const useSummarizeData = () => useDataSummaryStore((state) => state.summarize_data);
 export const useFormatDate = () => useDataSummaryStore((state) => state.format_date);
