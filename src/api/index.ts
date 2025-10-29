@@ -1,3 +1,4 @@
+import { Product } from '@/hooks/useProducts';
 import { SalesTrend, TemporalPattern, TransactionAnalysis } from '@/hooks/useSalesTrend';
 import { TopProducts, TopProductsSummary } from '@/hooks/useTopProducts';
 import { useAuthStore, User } from '@/store/AuthStore';
@@ -167,6 +168,28 @@ export const apiFetchSales = async (limit: number, offset: number, year: string,
         );
 
         usePaginationStore.setState({ rows_count: response.data.rows });
+
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+}
+
+export const apiFetchProducts = async (limit: number, offset: number): Promise<Product[]> => {
+    try {
+        const auth = useAuthStore.getState();
+
+        const response = await axios(`${base_url}/api/sales/products/${auth.user_id}`,
+            {
+                params: {
+                    limit: limit,
+                    offset: offset,
+                },
+                headers: {
+                    "Authorization": `Bearer ${auth.access_token}`
+                }
+            }
+        );
 
         return response.data;
     } catch (error) {

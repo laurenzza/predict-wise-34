@@ -54,7 +54,7 @@ export const UserDashboard = () => {
           {
             role == "ADMIN" ?
             <p className="text-muted-foreground text-lg">
-              Prediksi penjualan dan analisis data untuk {namaToko}
+              Prediksi penjualan dan analisis data untuk {namaToko == "" ? "toko anda" : namaToko}
             </p>
             :
             <p className="text-muted-foreground text-lg">
@@ -73,18 +73,22 @@ export const UserDashboard = () => {
             icon={<TrendingUp className="h-4 w-4 text-ml-primary" />}
             gradient
           />
-          <MetricCard
-            title="Total Produk"
-            value={ds.total_produk.toLocaleString('id-ID')}
-            description="Kategori tersedia"
-            icon={<Package className="h-4 w-4 text-ml-accent" />}
-          />
-          <MetricCard
-            title="Data Points"
-            value={ds.total_transaksi.toLocaleString('id-ID')}
-            description="Total transaksi"
-            icon={<Database className="h-4 w-4 text-ml-accent" />}
-          />
+          <button className="text-left" onClick={() => navigate("/user/dataset#products")}>
+            <MetricCard
+              title="Total Produk"
+              value={ds.total_produk.toLocaleString('id-ID')}
+              description="Kategori tersedia"
+              icon={<Package className="h-4 w-4 text-ml-accent" />}
+            />
+          </button>
+          <button className="text-left" onClick={() => navigate("/user/dataset#dataset")}>
+            <MetricCard
+              title="Data Points"
+              value={ds.total_transaksi.toLocaleString('id-ID')}
+              description="Total transaksi"
+              icon={<Database className="h-4 w-4 text-ml-accent" />}
+            />
+          </button>
           <MetricCard
             title="Periode Data"
             value={`${format_date(ds.periode_awal)} - ${format_date(ds.periode_akhir)}`}

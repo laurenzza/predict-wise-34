@@ -130,7 +130,7 @@ export const UserTopProducts = () => {
         </div>
 
         {/* Summary Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid md:grid-cols-2 gap-6 mb-8">
           <Card className="shadow-neural border-ml-primary/20">
             <CardContent className="flex items-center p-6">
               <div className="p-3 rounded-full bg-ml-primary/10 mr-4">
@@ -167,7 +167,7 @@ export const UserTopProducts = () => {
             </CardContent>
           </Card>
 
-          <Card className="shadow-neural border-ml-primary/20">
+          {/* <Card className="shadow-neural border-ml-primary/20">
             <CardContent className="flex items-center p-6">
               <div className="p-3 rounded-full bg-success/10 mr-4">
                 <TrendingUp className="h-6 w-6 text-success" />
@@ -177,7 +177,7 @@ export const UserTopProducts = () => {
                 <p className="text-2xl font-bold">+8.4%</p>
               </div>
             </CardContent>
-          </Card>
+          </Card> */}
         </div>
 
         {/* Top Products List */}
@@ -219,10 +219,10 @@ export const UserTopProducts = () => {
                               <div>
                                 <span className="font-medium">Transaksi:</span> {product.total_transaksi}
                               </div>
-                              <div className="flex items-center gap-1">
+                              {/* <div className="flex items-center gap-1">
                                 <span className="font-medium">Pertumbuhan:</span>
                                 <span className="text-success font-semibold">10%</span>
-                              </div>
+                              </div> */}
                             </div>
                           </div>
                         </div>

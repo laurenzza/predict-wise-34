@@ -2,16 +2,22 @@ import { Navbar } from "@/components/layout/Navbar";
 import { DatasetTable } from "@/components/datasets/DatasetTable";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Database, ArrowLeft, FileText, TrendingUp } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Database, ArrowLeft, FileText, TrendingUp, Package } from "lucide-react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useDataSummary, useFormatDate } from "@/store/DataSummaryStore";
 import { useSalesDataset } from "@/hooks/useSalesDataset";
+import { ProductTable } from "@/components/datasets/ProductTable";
+import { useAuthNamaToko } from "@/store/AuthStore";
+import { useEffect } from "react";
 
 export const UserDataset = () => {
+  const location = useLocation();
   const navigate = useNavigate();
 
   const ds = useDataSummary();
   const format_date = useFormatDate();
+
+  const nama_toko = useAuthNamaToko();
 
   const datasetStats = [
     { 
@@ -31,8 +37,8 @@ export const UserDataset = () => {
     { 
       label: "Produk Unik", 
       value: ds.total_produk.toLocaleString('id-ID'), 
-      icon: TrendingUp, 
-      color: "text-success",
+      icon: Package, 
+      color: "text-ml-accent",
       description: "Jumlah variasi produk yang berbeda"
     },
     { 
@@ -50,6 +56,16 @@ export const UserDataset = () => {
       description: "Persentase transaksi yang dibatalkan"
     },
   ];
+
+  useEffect(() => {
+    if(location.hash){
+      const target_id = location.hash.replace("#", "");
+      const element = document.getElementById(target_id);
+      if(element){
+        element.scrollIntoView({ behavior: "smooth" });
+      }
+    }
+  }, [location]);
 
   return (
     <div className="min-h-screen bg-gradient-hero">
@@ -71,7 +87,7 @@ export const UserDataset = () => {
             Dataset <span className="bg-gradient-ml bg-clip-text text-transparent">Toko</span>
           </h1>
           <p className="text-muted-foreground text-lg">
-            Data transaksi penjualan Toko Loa Kim Jong
+            Data transaksi penjualan {nama_toko == "" ? "toko anda" : nama_toko}
           </p>
         </div>
 
@@ -95,8 +111,24 @@ export const UserDataset = () => {
           ))}
         </div>
 
+        {/* Product Table */}
+        <Card id="products" className="shadow-neural border-ml-primary/20 mb-8">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Package className="h-5 w-5 text-ml-accent" />
+              Data Produk
+            </CardTitle>
+            <CardDescription>
+              Data produk yang dimiliki
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ProductTable />
+          </CardContent>
+        </Card>
+
         {/* Dataset Table */}
-        <Card className="shadow-neural border-ml-primary/20 mb-8">
+        <Card id="dataset" className="shadow-neural border-ml-primary/20 mb-8">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Database className="h-5 w-5 text-ml-primary" />
