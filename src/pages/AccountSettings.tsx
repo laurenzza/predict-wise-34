@@ -11,6 +11,8 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuthChangePassword, useAuthDeleteAccount, useAuthEditProfile, useAuthEmail, useAuthId, useAuthNamaLengkap, useAuthNamaToko, useAuthRole, useAuthToken, useAuthUploadFile } from "@/store/AuthStore";
 import { apiRunPrediction, apiSalesSummary, apiUploadSales } from "@/api";
 import { useSummarizeData } from "@/store/DataSummaryStore";
+import { PredictionComparisonBase, usePredictionComparisons, usePredictionMetrics, useTotalPredictions } from "@/hooks/usePredictions";
+import * as XLSX from "xlsx";
 
 type UploadStatus = 'idle' | 'uploading' | 'success' | 'error';
 
@@ -171,6 +173,77 @@ export const AccountSettings = () => {
         title: "Upload Gagal",
         description: "Perhatikan format file dan coba lagi"
       })
+    }
+  }
+
+  const { data: data_total, isLoading: is_loading_total, isError: is_error_total } = useTotalPredictions();
+  const { data: data_comparisons, isLoading: is_loading_comparisons, isError: is_error_comparisons } = usePredictionComparisons();
+  const { data: data_metrics, isLoading: is_loading_metrics, isError: is_error_metrics } = usePredictionMetrics();
+
+  const nama_toko = useAuthNamaToko();
+
+  const handleExportExcel = () => {
+    if (!data_total || !data_comparisons || !data_metrics) {
+      alert("Data belum siap untuk diekspor!");
+      return;
+    }
+
+    // 1️⃣ Total Predictions Sheet
+    const totalSheetData = data_total.data.map((item: any, index: number) => ({
+      No: index + 1,
+      Tanggal: new Date(item.hasil_tanggal).toLocaleDateString("id-ID"),
+      "Total Penjualan ARIMA": item.hasil_total_penjualan_arima,
+      "Total Penjualan LSTM": item.hasil_total_penjualan_lstm,
+      "Selisih": Math.abs(item.hasil_total_penjualan_arima - item.hasil_total_penjualan_lstm)
+    }));
+    const totalSheet = XLSX.utils.json_to_sheet(totalSheetData);
+
+    // 2️⃣ Prediction Comparisons Sheet
+    const comparisonSheetData = data_comparisons.data.map((item: PredictionComparisonBase) => ({
+      Hari: item.hari,
+      Aktual: item.hasil_total_penjualan_aktual,
+      ARIMA: item.hasil_total_penjualan_arima,
+      LSTM: item.hasil_total_penjualan_lstm,
+    }));
+    const comparisonSheet = XLSX.utils.json_to_sheet(comparisonSheetData);
+
+    // 3️⃣ Prediction Metrics Sheet
+    const metricSheetData = [
+      {
+        Metric: "Mean Absolute Error (MAE)",
+        ARIMA: data_metrics.data.arima_mae,
+        LSTM: data_metrics.data.lstm_mae,
+      },
+      {
+        Metric: "Root Mean Squared Error (RMSE)",
+        ARIMA: data_metrics.data.arima_rmse,
+        LSTM: data_metrics.data.lstm_rmse,
+      },
+      {
+        Metric: "Training Time (s)",
+        ARIMA: data_metrics.data.arima_waktu_train,
+        LSTM: data_metrics.data.lstm_waktu_train,
+      },
+      {
+        Metric: "Memory Usage (MB)",
+        ARIMA: data_metrics.data.arima_memori,
+        LSTM: data_metrics.data.lstm_memori,
+      },
+    ];
+    const metricSheet = XLSX.utils.json_to_sheet(metricSheetData);
+
+    // 4️⃣ Buat workbook
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, totalSheet, "Total Predictions");
+    XLSX.utils.book_append_sheet(workbook, comparisonSheet, "Prediction Comparisons");
+    XLSX.utils.book_append_sheet(workbook, metricSheet, "Prediction Metrics");
+
+    // 5️⃣ Simpan file
+    if(nama_toko != ""){
+      XLSX.writeFile(workbook, `Prediksi Toko ${nama_toko}.xlsx`);
+    }
+    else{
+      XLSX.writeFile(workbook, "Prediksi Toko.xlsx");
     }
   }
 
@@ -369,7 +442,7 @@ export const AccountSettings = () => {
                   <p className="text-sm text-muted-foreground">
                     Download semua data prediksi dan analisis Anda
                   </p>
-                  <Button variant="outline">Export ke CSV</Button>
+                  <Button variant="outline" onClick={handleExportExcel}>Export ke CSV</Button>
                 </div>
               </CardContent>
             </Card>
