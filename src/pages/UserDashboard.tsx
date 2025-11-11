@@ -204,7 +204,7 @@ export const UserDashboard = () => {
                 <div className="text-center p-4 bg-muted/20 rounded-lg">
                   <Brain className="h-8 w-8 text-success mx-auto mb-2" />
                   <h4 className="font-semibold mb-1">Model Terbaik</h4>
-                  <p className="text-sm text-muted-foreground">LSTM (96.8% akurasi)</p>
+                  <p className="text-sm text-muted-foreground">LSTM</p>
                 </div>
               }
             </div>

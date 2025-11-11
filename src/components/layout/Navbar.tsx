@@ -111,7 +111,7 @@ export const Navbar = () => {
               <div className="hidden md:flex items-center space-x-2">
                 <Button 
                   variant="ghost" 
-                  onClick={() => navigate("/role-selection")}
+                  onClick={() => navigate("/login")}
                   className="hover:bg-ml-primary/10 hover:text-ml-primary"
                   >
                   Login

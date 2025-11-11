@@ -2,7 +2,7 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, ArrowLeft, TrendingUp, BarChart3, Package } from "lucide-react";
+import { Calendar, ArrowLeft, TrendingUp, BarChart3, Package, Clock, Hourglass, CircleX } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { TotalPredictions, useDailyPredictions, useMonthlyPredictions, useTotalPredictions, useWeeklyPredictions } from "@/hooks/usePredictions";
@@ -166,10 +166,10 @@ export const UserPeriod = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-hero">
+    <div className="flex flex-col min-h-screen bg-gradient-hero">
       <Navbar />
       
-      <div className="container mx-auto px-4 py-8 max-w-7xl">
+      <div className="container mx-auto px-4 py-8 max-w-7xl flex flex-col flex-grow">
         {/* Header */}
         <div className="mb-8">
           <Button 
@@ -181,12 +181,12 @@ export const UserPeriod = () => {
             Kembali ke Dashboard
           </Button>
           
+          <h1 className="text-3xl md:text-4xl font-bold mb-2">
+            Periode <span className="bg-gradient-ml bg-clip-text text-transparent">Analisis</span>
+          </h1>
           {
-            !(data_total?.job_status === 'failed' && data_total?.job_status === undefined) &&
+            data_total?.job_status === 'failed' || data_total?.job_status === undefined || is_loading_total &&
             <>
-              <h1 className="text-3xl md:text-4xl font-bold mb-2">
-                Periode <span className="bg-gradient-ml bg-clip-text text-transparent">Analisis</span>
-              </h1>
               <p className="text-muted-foreground text-lg">
                 Pilih periode waktu untuk analisis prediksi penjualan
               </p>
@@ -194,118 +194,79 @@ export const UserPeriod = () => {
           }
         </div>
 
-        {
-          data_total?.job_status === 'running' || is_loading_total ?
-          (
-            <p>
-              Data anda sedang diproses, mohon tunggu
-            </p>
-          ) :
-          <>
-            { 
-              (data_total?.job_status === 'failed' || data_total?.job_status === undefined) ?
-              (
-                <p>Please run prediction</p>
-              ) : (
-              <>
-                {/* Period Options */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                  {periods.map((period, index) => (
-                    <Card 
+        
+          {
+            data_total?.job_status === 'running' || is_loading_total ?
+            (
+              <div className="text-center grid grid-cols-1 gap-6">
+                <div className="text-center p-4 bg-muted/20 rounded-lg">
+                  <Hourglass className="h-8 w-8 text-ml-accent mx-auto mb-2" />
+                  <h4 className="font-semibold mb-1">Data anda sedang diproses, mohon tunggu</h4>
+                </div>
+              </div>
+            ) :
+            <>
+              { 
+                (data_total?.job_status === 'failed' || data_total?.job_status === undefined) ?
+                (
+                  <main className="flex-grow flex items-center justify-center">
+                    <div className="text-center grid grid-cols-1 gap-6">
+                      <div className="text-center p-4 bg-muted/20 rounded-lg">
+                        <CircleX className="h-8 w-8 text-red-500 mx-auto mb-2" />
+                        <h4 className="font-semibold mb-1">Data anda gagal diproses</h4>
+                      </div>
+                    </div>
+                  </main>
+                ) : (
+                  <>
+                  {/* Period Options */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    {periods.map((period, index) => (
+                      <Card 
                       key={index} 
                       className={`shadow-neural border-ml-primary/20 hover:shadow-ml transition-all cursor-pointer ${
                         selectedPeriod === period.id ? 'ring-2 ring-ml-primary bg-ml-primary/5' : ''
                       }`}
                       onClick={() => setSelectedPeriod(period.id)}
-                    >
-                      <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                          <Calendar className="h-5 w-5 text-ml-primary" />
-                          {period.title}
-                        </CardTitle>
-                        <CardDescription>{period.description}</CardDescription>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="space-y-3">
-                          <div className="flex justify-between items-center">
-                            <span className="text-sm text-muted-foreground">Akurasi:</span>
-                            <span className="font-semibold text-success">{period.accuracy}</span>
-                          </div>
-                          <div className="text-sm text-muted-foreground">
-                            <strong>Terbaik untuk:</strong> {period.bestFor}
-                          </div>
-                          <Button 
-                            className="w-full mt-4" 
-                            variant={selectedPeriod === period.id ? "default" : "outline"}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setSelectedPeriod(period.id);
-                            }}
-                          >
-                            {selectedPeriod === period.id ? 'Terpilih' : 'Pilih Periode'}
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-
-                {/* Predictions Display based on selected period */}
-                  {selectedPeriod === 'daily' && selectedDataTotal != null && data_daily != undefined && (
-                    <Card className="shadow-neural border-ml-primary/20 mb-8">
-                      <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                          <Calendar className="h-5 w-5 text-ml-primary" />
-                          Prediksi 7 Hari Mendatang
-                        </CardTitle>
-                        <CardDescription>
-                          Estimasi harian dengan produk yang diprediksi akan terjual
-                        </CardDescription>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="space-y-4">
-                          {selectedDataTotal.map((pred, index) => (
-                            <div key={index} className="p-4 bg-muted/20 rounded-lg">
-                              <div className="flex justify-between items-start mb-3">
-                                <h4 className="font-medium">Hari {index+1}</h4>
-                                <Badge className="bg-ml-primary/10 text-ml-primary border-ml-primary/20">
-                                  {pred.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })}
-                                </Badge>
-                              </div>
-                              <div className="space-y-2">
-                                <p className="text-sm text-muted-foreground">Produk Teratas:</p>
-                                {dataDaily?.get(index+1)?.map((product, idx) => (
-                                  <div key={idx} className="flex items-center space-x-2 text-sm">
-                                    <Package className="h-3 w-3 text-ml-accent" />
-                                    <span>{product}</span>
-                                  </div>
-                                ))}
-                              </div>
+                      >
+                        <CardHeader>
+                          <CardTitle className="flex items-center gap-2">
+                            <Calendar className="h-5 w-5 text-ml-primary" />
+                            {period.title}
+                          </CardTitle>
+                          <CardDescription>{period.description}</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="space-y-3">
+                            <div className="text-sm text-muted-foreground">
+                              <strong>Terbaik untuk:</strong> {period.bestFor}
                             </div>
-                          ))}
-                          <div className="pt-4 border-t">
-                            <div className="flex justify-between items-center">
-                              <span className="font-semibold">Total Estimasi 7 Hari:</span>
-                              <Badge variant="secondary" className="text-lg">
-                                {selectedTotal.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })}
-                              </Badge>
-                            </div>
+                            <Button 
+                              className="w-full mt-4" 
+                              variant={selectedPeriod === period.id ? "default" : "outline"}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedPeriod(period.id);
+                              }}
+                              >
+                              {selectedPeriod === period.id ? 'Terpilih' : 'Pilih Periode'}
+                            </Button>
                           </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  )}
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
 
-                  {selectedPeriod === 'weekly' && selectedDataTotal != null && data_weekly != undefined && (
-                    <>
+                  {/* Predictions Display based on selected period */}
+                    {selectedPeriod === 'daily' && selectedDataTotal != null && data_daily != undefined && (
                       <Card className="shadow-neural border-ml-primary/20 mb-8">
                         <CardHeader>
                           <CardTitle className="flex items-center gap-2">
-                            <TrendingUp className="h-5 w-5 text-ml-primary" />
-                            Hasil Prediksi 30 Hari Mendatang
+                            <Calendar className="h-5 w-5 text-ml-primary" />
+                            Prediksi 7 Hari Mendatang
                           </CardTitle>
                           <CardDescription>
-                            Estimasi mingguan untuk perencanaan inventori
+                            Estimasi harian dengan produk yang diprediksi akan terjual
                           </CardDescription>
                         </CardHeader>
                         <CardContent>
@@ -313,14 +274,14 @@ export const UserPeriod = () => {
                             {selectedDataTotal.map((pred, index) => (
                               <div key={index} className="p-4 bg-muted/20 rounded-lg">
                                 <div className="flex justify-between items-start mb-3">
-                                  <h4 className="font-medium">Minggu {index+1}</h4>
-                                  <Badge className="bg-lstm/10 text-lstm border-lstm/20">
+                                  <h4 className="font-medium">Hari {index+1}</h4>
+                                  <Badge className="bg-ml-primary/10 text-ml-primary border-ml-primary/20">
                                     {pred.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })}
                                   </Badge>
                                 </div>
                                 <div className="space-y-2">
-                                  <p className="text-sm text-muted-foreground">Kategori Produk Utama:</p>
-                                  {dataWeekly?.get(index+1)?.map((product, idx) => (
+                                  <p className="text-sm text-muted-foreground">Produk Teratas:</p>
+                                  {dataDaily?.get(index+1)?.map((product, idx) => (
                                     <div key={idx} className="flex items-center space-x-2 text-sm">
                                       <Package className="h-3 w-3 text-ml-accent" />
                                       <span>{product}</span>
@@ -331,7 +292,7 @@ export const UserPeriod = () => {
                             ))}
                             <div className="pt-4 border-t">
                               <div className="flex justify-between items-center">
-                                <span className="font-semibold">Total Estimasi 30 Hari:</span>
+                                <span className="font-semibold">Total Estimasi 7 Hari:</span>
                                 <Badge variant="secondary" className="text-lg">
                                   {selectedTotal.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })}
                                 </Badge>
@@ -340,95 +301,141 @@ export const UserPeriod = () => {
                           </div>
                         </CardContent>
                       </Card>
-                    </>
-                  )}
+                    )}
 
-                  {selectedPeriod === 'monthly' && selectedDataTotal != null && data_monthly != undefined && (
-                    <Card className="shadow-neural border-ml-primary/20 mb-8">
+                    {selectedPeriod === 'weekly' && selectedDataTotal != null && data_weekly != undefined && (
+                      <>
+                        <Card className="shadow-neural border-ml-primary/20 mb-8">
+                          <CardHeader>
+                            <CardTitle className="flex items-center gap-2">
+                              <TrendingUp className="h-5 w-5 text-ml-primary" />
+                              Hasil Prediksi 30 Hari Mendatang
+                            </CardTitle>
+                            <CardDescription>
+                              Estimasi mingguan untuk perencanaan inventori
+                            </CardDescription>
+                          </CardHeader>
+                          <CardContent>
+                            <div className="space-y-4">
+                              {selectedDataTotal.map((pred, index) => (
+                                <div key={index} className="p-4 bg-muted/20 rounded-lg">
+                                  <div className="flex justify-between items-start mb-3">
+                                    <h4 className="font-medium">Minggu {index+1}</h4>
+                                    <Badge className="bg-lstm/10 text-lstm border-lstm/20">
+                                      {pred.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })}
+                                    </Badge>
+                                  </div>
+                                  <div className="space-y-2">
+                                    <p className="text-sm text-muted-foreground">Kategori Produk Utama:</p>
+                                    {dataWeekly?.get(index+1)?.map((product, idx) => (
+                                      <div key={idx} className="flex items-center space-x-2 text-sm">
+                                        <Package className="h-3 w-3 text-ml-accent" />
+                                        <span>{product}</span>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              ))}
+                              <div className="pt-4 border-t">
+                                <div className="flex justify-between items-center">
+                                  <span className="font-semibold">Total Estimasi 30 Hari:</span>
+                                  <Badge variant="secondary" className="text-lg">
+                                    {selectedTotal.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })}
+                                  </Badge>
+                                </div>
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </>
+                    )}
+
+                    {selectedPeriod === 'monthly' && selectedDataTotal != null && data_monthly != undefined && (
+                      <Card className="shadow-neural border-ml-primary/20 mb-8">
+                        <CardHeader>
+                          <CardTitle className="flex items-center gap-2">
+                            <BarChart3 className="h-5 w-5 text-ml-primary" />
+                            Prediksi 90 Hari Mendatang
+                          </CardTitle>
+                          <CardDescription>
+                            Estimasi bulanan untuk perencanaan strategis
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="space-y-4">
+                            {selectedDataTotal.map((pred, index) => (
+                              <div key={index} className="p-4 bg-muted/20 rounded-lg">
+                                <div className="flex justify-between items-start mb-3">
+                                  <h4 className="font-medium">Bulan {index+1}</h4>
+                                  <Badge className="bg-arima/10 text-arima border-arima/20">
+                                    {pred.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })}
+                                  </Badge>
+                                </div>
+                                <div className="space-y-2">
+                                  <p className="text-sm text-muted-foreground">Kategori Produk Utama:</p>
+                                  {dataMonthly?.get(index+1)?.map((product, idx) => (
+                                    <div key={idx} className="flex items-center space-x-2 text-sm">
+                                      <Package className="h-3 w-3 text-ml-accent" />
+                                      <span>{product}</span>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            ))}
+                            <div className="pt-4 border-t">
+                              <div className="flex justify-between items-center">
+                                <span className="font-semibold">Total Estimasi 90 Hari:</span>
+                                <Badge variant="secondary" className="text-lg">
+                                  {selectedTotal.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })}
+                                </Badge>
+                              </div>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    )}
+
+                    {/* Data Range Information */}
+                    <Card className="shadow-neural border-ml-primary/20">
                       <CardHeader>
                         <CardTitle className="flex items-center gap-2">
                           <BarChart3 className="h-5 w-5 text-ml-primary" />
-                          Prediksi 90 Hari Mendatang
+                          Rentang Data Training
                         </CardTitle>
                         <CardDescription>
-                          Estimasi bulanan untuk perencanaan strategis
+                          Informasi periode data yang digunakan untuk pelatihan model
                         </CardDescription>
                       </CardHeader>
                       <CardContent>
-                        <div className="space-y-4">
-                          {selectedDataTotal.map((pred, index) => (
-                            <div key={index} className="p-4 bg-muted/20 rounded-lg">
-                              <div className="flex justify-between items-start mb-3">
-                                <h4 className="font-medium">Bulan {index+1}</h4>
-                                <Badge className="bg-arima/10 text-arima border-arima/20">
-                                  {pred.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })}
-                                </Badge>
-                              </div>
-                              <div className="space-y-2">
-                                <p className="text-sm text-muted-foreground">Kategori Produk Utama:</p>
-                                {dataMonthly?.get(index+1)?.map((product, idx) => (
-                                  <div key={idx} className="flex items-center space-x-2 text-sm">
-                                    <Package className="h-3 w-3 text-ml-accent" />
-                                    <span>{product}</span>
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          ))}
-                          <div className="pt-4 border-t">
-                            <div className="flex justify-between items-center">
-                              <span className="font-semibold">Total Estimasi 90 Hari:</span>
-                              <Badge variant="secondary" className="text-lg">
-                                {selectedTotal.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })}
-                              </Badge>
-                            </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                          <div className="text-center p-4 bg-muted/20 rounded-lg">
+                            <Calendar className="h-8 w-8 text-ml-accent mx-auto mb-2" />
+                            <h4 className="font-semibold mb-1">Mulai</h4>
+                            <p className="text-sm text-muted-foreground">{(new Date(ds.periode_awal)).toLocaleString('id-ID', { month: "long", year: "numeric" })}</p>
+                          </div>
+                          <div className="text-center p-4 bg-muted/20 rounded-lg">
+                            <Calendar className="h-8 w-8 text-ml-accent mx-auto mb-2" />
+                            <h4 className="font-semibold mb-1">Berakhir</h4>
+                            <p className="text-sm text-muted-foreground">{(new Date(ds.periode_akhir)).toLocaleString('id-ID', { month: "long", year: "numeric" })}</p>
+                          </div>
+                          <div className="text-center p-4 bg-muted/20 rounded-lg">
+                            <TrendingUp className="h-8 w-8 text-ml-accent mx-auto mb-2" />
+                            <h4 className="font-semibold mb-1">Total Hari</h4>
+                            <p className="text-sm text-muted-foreground">{Math.round((new Date(ds.periode_akhir).getTime() - new Date(ds.periode_awal).getTime()) / (1000 * 60 * 60 * 24)).toLocaleString('id-ID')} hari</p>
+                          </div>
+                          <div className="text-center p-4 bg-muted/20 rounded-lg">
+                            <BarChart3 className="h-8 w-8 text-ml-accent mx-auto mb-2" />
+                            <h4 className="font-semibold mb-1">Total Transaksi</h4>
+                            <p className="text-sm text-muted-foreground">{ds.total_transaksi.toLocaleString('id-ID')}</p>
                           </div>
                         </div>
                       </CardContent>
                     </Card>
-                  )}
-
-                  {/* Data Range Information */}
-                  <Card className="shadow-neural border-ml-primary/20">
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <BarChart3 className="h-5 w-5 text-ml-primary" />
-                        Rentang Data Training
-                      </CardTitle>
-                      <CardDescription>
-                        Informasi periode data yang digunakan untuk pelatihan model
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                        <div className="text-center p-4 bg-muted/20 rounded-lg">
-                          <Calendar className="h-8 w-8 text-ml-accent mx-auto mb-2" />
-                          <h4 className="font-semibold mb-1">Mulai</h4>
-                          <p className="text-sm text-muted-foreground">{(new Date(ds.periode_awal)).toLocaleString('id-ID', { month: "long", year: "numeric" })}</p>
-                        </div>
-                        <div className="text-center p-4 bg-muted/20 rounded-lg">
-                          <Calendar className="h-8 w-8 text-ml-accent mx-auto mb-2" />
-                          <h4 className="font-semibold mb-1">Berakhir</h4>
-                          <p className="text-sm text-muted-foreground">{(new Date(ds.periode_akhir)).toLocaleString('id-ID', { month: "long", year: "numeric" })}</p>
-                        </div>
-                        <div className="text-center p-4 bg-muted/20 rounded-lg">
-                          <TrendingUp className="h-8 w-8 text-ml-accent mx-auto mb-2" />
-                          <h4 className="font-semibold mb-1">Total Hari</h4>
-                          <p className="text-sm text-muted-foreground">{Math.round((new Date(ds.periode_akhir).getTime() - new Date(ds.periode_awal).getTime()) / (1000 * 60 * 60 * 24)).toLocaleString('id-ID')} hari</p>
-                        </div>
-                        <div className="text-center p-4 bg-muted/20 rounded-lg">
-                          <BarChart3 className="h-8 w-8 text-ml-accent mx-auto mb-2" />
-                          <h4 className="font-semibold mb-1">Total Transaksi</h4>
-                          <p className="text-sm text-muted-foreground">{ds.total_transaksi.toLocaleString('id-ID')}</p>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </>
-              )
-            }
-          </>
-        }
+                  </>
+                )
+              }
+            </>
+          }
       </div>
     </div>
   );
