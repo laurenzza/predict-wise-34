@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Navbar } from "@/components/layout/Navbar";
 import { PredictionChart } from "@/components/charts/PredictionChart";
 import { MetricCard } from "@/components/cards/MetricCard";
@@ -21,29 +21,30 @@ import {
   Download,
   RefreshCw,
   Calendar,
-  BarChart3
+  BarChart3,
+  ArrowLeft
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { PredictionComparisonBase, usePredictionComparisons, usePredictionMetrics, useTotalPredictions } from "@/hooks/usePredictions";
+import * as XLSX from "xlsx";
+import { useAuthNamaToko } from "@/store/AuthStore";
 
 export const Predictions = () => {
+  const navigate = useNavigate();
   const [isGenerating, setIsGenerating] = useState(false);
 
-  const predictionResults = [
-    { day: "Hari 1", date: "2024-09-25", arima: 220215, lstm: 218500, difference: 1715, accuracy: "96.8%" },
-    { day: "Hari 2", date: "2024-09-26", arima: 220131, lstm: 218200, difference: 1931, accuracy: "96.5%" },
-    { day: "Hari 3", date: "2024-09-27", arima: 219943, lstm: 217950, difference: 1993, accuracy: "96.7%" },
-    { day: "Hari 4", date: "2024-09-28", arima: 219676, lstm: 217700, difference: 1976, accuracy: "96.4%" },
-    { day: "Hari 5", date: "2024-09-29", arima: 219364, lstm: 217450, difference: 1914, accuracy: "96.9%" },
-    { day: "Hari 6", date: "2024-09-30", arima: 218986, lstm: 217200, difference: 1786, accuracy: "96.6%" },
-    { day: "Hari 7", date: "2024-10-01", arima: 218831, lstm: 216950, difference: 1881, accuracy: "96.8%" },
-  ];
+  const { data: data_total, isLoading: is_loading_total, isError: is_error_total } = useTotalPredictions();
+  const { data: data_comparisons, isLoading: is_loading_comparisons, isError: is_error_comparisons } = usePredictionComparisons();
+  const { data: data_metrics, isLoading: is_loading_metrics, isError: is_error_metrics } = usePredictionMetrics();
 
-  const modelComparison = [
-    { metric: "Mean Absolute Error (MAE)", arima: "861.40", lstm: "0.0026", unit: "", better: "lstm" },
-    { metric: "Root Mean Squared Error (RMSE)", arima: "861.40", lstm: "0.0106", unit: "", better: "lstm" },
-    { metric: "Akurasi Prediksi", arima: "94.2%", lstm: "96.8%", unit: "", better: "lstm" },
-    { metric: "Training Time", arima: "2.3", lstm: "45.2", unit: "detik", better: "arima" },
-    { metric: "Memory Usage", arima: "124", lstm: "892", unit: "MB", better: "arima" },
-  ];
+  const nama_toko = useAuthNamaToko();
+
+  const metric = [
+    "Mean Absolute Error (MAE)",
+    "Root Mean Squared Error (RMSE)",
+    "Training Time",
+    "Memory Usage"
+  ]
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('id-ID', {
@@ -53,12 +54,83 @@ export const Predictions = () => {
     }).format(amount);
   };
 
+  const formatNumber = (num: number) => {
+    return new Intl.NumberFormat('id-ID', {
+      maximumFractionDigits: 2,
+    }).format(num);
+  }
+
   const handleGeneratePrediction = () => {
     setIsGenerating(true);
     setTimeout(() => {
       setIsGenerating(false);
     }, 3000);
   };
+
+  const handleExportExcel = () => {
+    if (!data_total || !data_comparisons || !data_metrics) {
+      alert("Data belum siap untuk diekspor!");
+      return;
+    }
+
+    // 1️⃣ Total Predictions Sheet
+    const totalSheetData = data_total.data.map((item: any, index: number) => ({
+      No: index + 1,
+      Tanggal: new Date(item.hasil_tanggal).toLocaleDateString("id-ID"),
+      "Total Penjualan ARIMA": item.hasil_total_penjualan_arima,
+      "Total Penjualan LSTM": item.hasil_total_penjualan_lstm,
+      "Selisih": Math.abs(item.hasil_total_penjualan_arima - item.hasil_total_penjualan_lstm)
+    }));
+    const totalSheet = XLSX.utils.json_to_sheet(totalSheetData);
+
+    // 2️⃣ Prediction Comparisons Sheet
+    const comparisonSheetData = data_comparisons.data.map((item: PredictionComparisonBase) => ({
+      Hari: item.hari,
+      Aktual: item.hasil_total_penjualan_aktual,
+      ARIMA: item.hasil_total_penjualan_arima,
+      LSTM: item.hasil_total_penjualan_lstm,
+    }));
+    const comparisonSheet = XLSX.utils.json_to_sheet(comparisonSheetData);
+
+    // 3️⃣ Prediction Metrics Sheet
+    const metricSheetData = [
+      {
+        Metric: "Mean Absolute Error (MAE)",
+        ARIMA: data_metrics.data.arima_mae,
+        LSTM: data_metrics.data.lstm_mae,
+      },
+      {
+        Metric: "Root Mean Squared Error (RMSE)",
+        ARIMA: data_metrics.data.arima_rmse,
+        LSTM: data_metrics.data.lstm_rmse,
+      },
+      {
+        Metric: "Training Time (s)",
+        ARIMA: data_metrics.data.arima_waktu_train,
+        LSTM: data_metrics.data.lstm_waktu_train,
+      },
+      {
+        Metric: "Memory Usage (MB)",
+        ARIMA: data_metrics.data.arima_memori,
+        LSTM: data_metrics.data.lstm_memori,
+      },
+    ];
+    const metricSheet = XLSX.utils.json_to_sheet(metricSheetData);
+
+    // 4️⃣ Buat workbook
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, totalSheet, "Total Predictions");
+    XLSX.utils.book_append_sheet(workbook, comparisonSheet, "Prediction Comparisons");
+    XLSX.utils.book_append_sheet(workbook, metricSheet, "Prediction Metrics");
+
+    // 5️⃣ Simpan file
+    if(nama_toko != ""){
+      XLSX.writeFile(workbook, `Prediksi Toko ${nama_toko}.xlsx`);
+    }
+    else{
+      XLSX.writeFile(workbook, "Prediksi Toko.xlsx");
+    }
+  }
 
   return (
     <div className="min-h-screen bg-gradient-hero">
@@ -67,6 +139,15 @@ export const Predictions = () => {
       <div className="container mx-auto px-4 py-8 max-w-7xl">
         {/* Header */}
         <div className="mb-8">
+          <Button 
+            variant="ghost" 
+            onClick={() => navigate(-1)}
+            className="mb-4"
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Kembali ke Dashboard
+          </Button>
+
           <h1 className="text-3xl md:text-4xl font-bold mb-2">
             Prediksi <span className="bg-gradient-ml bg-clip-text text-transparent">Penjualan</span>
           </h1>
@@ -95,14 +176,14 @@ export const Predictions = () => {
               </>
             )}
           </Button>
-          <Button variant="outline" className="border-ml-primary/30 hover:bg-ml-primary/10">
+          <Button variant="outline" className="border-ml-primary/30 hover:bg-ml-primary/10" onClick={handleExportExcel}>
             <Download className="h-4 w-4 mr-2" />
             Export Results
           </Button>
         </div>
 
         {/* Performance Metrics */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        {/* <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <MetricCard
             title="Best Model"
             value="LSTM"
@@ -131,11 +212,13 @@ export const Predictions = () => {
             description="Total predictions"
             icon={<BarChart3 className="h-4 w-4 text-ml-accent" />}
           />
-        </div>
+        </div> */}
 
         {/* Prediction Chart */}
         <div className="mb-8">
-          <PredictionChart />
+          {
+            !is_loading_comparisons && <PredictionChart data={data_comparisons.data} />
+          }
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -160,30 +243,36 @@ export const Predictions = () => {
                       <TableHead className="text-right">ARIMA</TableHead>
                       <TableHead className="text-right">LSTM</TableHead>
                       <TableHead className="text-right">Selisih</TableHead>
-                      <TableHead>Akurasi</TableHead>
+                      {/* <TableHead>Akurasi</TableHead> */}
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {predictionResults.map((result, index) => (
-                      <TableRow key={index} className="hover:bg-muted/50">
-                        <TableCell className="font-medium">{result.day}</TableCell>
-                        <TableCell>{result.date}</TableCell>
-                        <TableCell className="text-right font-mono">
-                          {formatCurrency(result.arima)}
-                        </TableCell>
-                        <TableCell className="text-right font-mono font-semibold text-lstm">
-                          {formatCurrency(result.lstm)}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          {formatCurrency(result.difference)}
-                        </TableCell>
-                        <TableCell>
-                          <Badge className="bg-success/10 text-success border-success/20">
-                            {result.accuracy}
-                          </Badge>
-                        </TableCell>
-                      </TableRow>
-                    ))}
+                    {
+                      is_loading_comparisons ? (
+                        <p>Loading...</p>
+                      ) : (
+                        data_total?.data?.slice(0, 7).map((result, index) => (
+                          <TableRow key={index} className="hover:bg-muted/50">
+                            <TableCell className="font-medium">{index+1}</TableCell>
+                            <TableCell>{(new Date(result.hasil_tanggal)).toLocaleString('id-ID', { day: 'numeric', month: 'numeric', year: 'numeric' })}</TableCell>
+                            <TableCell className="text-right font-mono">
+                              {formatCurrency(result.hasil_total_penjualan_arima)}
+                            </TableCell>
+                            <TableCell className="text-right font-mono font-semibold text-lstm">
+                              {formatCurrency(result.hasil_total_penjualan_lstm)}
+                            </TableCell>
+                            <TableCell className="text-right">
+                              {formatCurrency(Math.abs(result.hasil_total_penjualan_arima - result.hasil_total_penjualan_lstm))}
+                            </TableCell>
+                            {/* <TableCell>
+                              <Badge className="bg-success/10 text-success border-success/20">
+                              {result.accuracy}
+                              </Badge>
+                            </TableCell> */}
+                          </TableRow>
+                        ))
+                      )
+                    }
                   </TableBody>
                 </Table>
               </div>
@@ -203,10 +292,139 @@ export const Predictions = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {modelComparison.map((item, index) => (
+                {
+                  is_loading_metrics ? (
+                    <p>
+                      Loading...
+                    </p>
+                  ) : (
+                    <>
+                      {/* MAE */}
+                      <div className="p-4 bg-muted/20 rounded-lg">
+                        <div className="flex justify-between items-center mb-2">
+                          <span className="font-medium">{metric[0]}</span>
+                          {Number(data_metrics.data.arima_mae) > Number(data_metrics.data.lstm_mae) ? (
+                            <Badge className="bg-lstm/10 text-lstm border-lstm/20">
+                              LSTM Unggul
+                            </Badge>
+                          ) : (
+                            <Badge className="bg-arima/10 text-arima border-arima/20">
+                              ARIMA Unggul
+                            </Badge>
+                          )}
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="text-center p-3 bg-arima/5 border border-arima/20 rounded">
+                            <div className="text-lg font-semibold text-arima">
+                              {formatNumber(data_metrics.data.arima_mae)}
+                            </div>
+                            <div className="text-xs text-muted-foreground">ARIMA</div>
+                          </div>
+                          <div className="text-center p-3 bg-lstm/5 border border-lstm/20 rounded">
+                            <div className="text-lg font-semibold text-lstm">
+                              {formatNumber(data_metrics.data.lstm_mae)}
+                            </div>
+                            <div className="text-xs text-muted-foreground">LSTM</div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* RMSE */}
+                      <div className="p-4 bg-muted/20 rounded-lg">
+                        <div className="flex justify-between items-center mb-2">
+                          <span className="font-medium">{metric[1]}</span>
+                          {Number(data_metrics.data.arima_rmse) > Number(data_metrics.data.lstm_rmse) ? (
+                            <Badge className="bg-lstm/10 text-lstm border-lstm/20">
+                              LSTM Unggul
+                            </Badge>
+                          ) : (
+                            <Badge className="bg-arima/10 text-arima border-arima/20">
+                              ARIMA Unggul
+                            </Badge>
+                          )}
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="text-center p-3 bg-arima/5 border border-arima/20 rounded">
+                            <div className="text-lg font-semibold text-arima">
+                              {formatNumber(data_metrics.data.arima_rmse)}
+                            </div>
+                            <div className="text-xs text-muted-foreground">ARIMA</div>
+                          </div>
+                          <div className="text-center p-3 bg-lstm/5 border border-lstm/20 rounded">
+                            <div className="text-lg font-semibold text-lstm">
+                              {formatNumber(data_metrics.data.lstm_rmse)}
+                            </div>
+                            <div className="text-xs text-muted-foreground">LSTM</div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Waktu Train */}
+                      <div className="p-4 bg-muted/20 rounded-lg">
+                        <div className="flex justify-between items-center mb-2">
+                          <span className="font-medium">{metric[2]}</span>
+                          {Number(data_metrics.data.arima_waktu_train) > Number(data_metrics.data.lstm_waktu_train) ? (
+                            <Badge className="bg-lstm/10 text-lstm border-lstm/20">
+                              LSTM Unggul
+                            </Badge>
+                          ) : (
+                            <Badge className="bg-arima/10 text-arima border-arima/20">
+                              ARIMA Unggul
+                            </Badge>
+                          )}
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="text-center p-3 bg-arima/5 border border-arima/20 rounded">
+                            <div className="text-lg font-semibold text-arima">
+                              {formatNumber(data_metrics.data.arima_waktu_train)} detik
+                            </div>
+                            <div className="text-xs text-muted-foreground">ARIMA</div>
+                          </div>
+                          <div className="text-center p-3 bg-lstm/5 border border-lstm/20 rounded">
+                            <div className="text-lg font-semibold text-lstm">
+                              {formatNumber(data_metrics.data.lstm_waktu_train)} detik
+                            </div>
+                            <div className="text-xs text-muted-foreground">LSTM</div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Memori */}
+                      <div className="p-4 bg-muted/20 rounded-lg">
+                        <div className="flex justify-between items-center mb-2">
+                          <span className="font-medium">{metric[3]}</span>
+                          {Number(data_metrics.data.arima_memori) > Number(data_metrics.data.lstm_memori) ? (
+                            <Badge className="bg-lstm/10 text-lstm border-lstm/20">
+                              LSTM Unggul
+                            </Badge>
+                          ) : (
+                            <Badge className="bg-arima/10 text-arima border-arima/20">
+                              ARIMA Unggul
+                            </Badge>
+                          )}
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="text-center p-3 bg-arima/5 border border-arima/20 rounded">
+                            <div className="text-lg font-semibold text-arima">
+                              {formatNumber(data_metrics.data.arima_memori)} MB
+                            </div>
+                            <div className="text-xs text-muted-foreground">ARIMA</div>
+                          </div>
+                          <div className="text-center p-3 bg-lstm/5 border border-lstm/20 rounded">
+                            <div className="text-lg font-semibold text-lstm">
+                              {formatNumber(data_metrics.data.lstm_memori)} MB
+                            </div>
+                            <div className="text-xs text-muted-foreground">LSTM</div>
+                          </div>
+                        </div>
+                      </div>
+                    </>
+                  )
+                }
+                {/* {data_metrics.data.map((item, index) => (
                   <div key={index} className="p-4 bg-muted/20 rounded-lg">
                     <div className="flex justify-between items-center mb-2">
-                      <span className="font-medium">{item.metric}</span>
+                      <span className="font-medium">{metric[index]}</span>
                       {item.better === 'lstm' ? (
                         <Badge className="bg-lstm/10 text-lstm border-lstm/20">
                           LSTM Unggul
@@ -232,7 +450,7 @@ export const Predictions = () => {
                       </div>
                     </div>
                   </div>
-                ))}
+                ))} */}
               </div>
             </CardContent>
           </Card>

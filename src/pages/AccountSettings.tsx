@@ -8,8 +8,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { User, Lock, Database, Eye, EyeOff, Upload } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { useAuthChangePassword, useAuthDeleteAccount, useAuthEditProfile, useAuthEmail, useAuthId, useAuthNamaLengkap, useAuthNamaToko, useAuthRole, useAuthToken } from "@/store/AuthStore";
-import { apiSalesSummary, apiUploadSales } from "@/api";
+import { useAuthChangePassword, useAuthDeleteAccount, useAuthEditProfile, useAuthEmail, useAuthId, useAuthNamaLengkap, useAuthNamaToko, useAuthRole, useAuthToken, useAuthUploadFile } from "@/store/AuthStore";
+import { apiRunPrediction, apiSalesSummary, apiUploadSales } from "@/api";
 import { useSummarizeData } from "@/store/DataSummaryStore";
 
 type UploadStatus = 'idle' | 'uploading' | 'success' | 'error';
@@ -31,6 +31,7 @@ export const AccountSettings = () => {
   const role = useAuthRole();
   const edit_profile = useAuthEditProfile();
   const change_password = useAuthChangePassword();
+  const upload_file = useAuthUploadFile();
   const delete_account = useAuthDeleteAccount();
   const summarize_data = useSummarizeData();
 
@@ -154,13 +155,14 @@ export const AccountSettings = () => {
     formData.append('file', file);
 
     try {
-      const response = await apiUploadSales(formData, access_token);
+      const response = await upload_file(formData);
+      const response2 = await apiRunPrediction();
       await summarize_data(user_id, access_token);
 
       setStatus("success");
       toast({
         title: "Berhasil Upload File",
-        description: "Data siap untuk diproses"
+        description: "Data sedang diproses"
       })
     } catch (error) {
       console.error(error);

@@ -1,3 +1,4 @@
+import { DailyPredictions, MonthlyPredictions, PredictionComparisons, PredictionMetrics, TotalPredictions, WeeklyPredictions } from '@/hooks/usePredictions';
 import { Product } from '@/hooks/useProducts';
 import { SalesTrend, TemporalPattern, TransactionAnalysis } from '@/hooks/useSalesTrend';
 import { TopProducts, TopProductsSummary } from '@/hooks/useTopProducts';
@@ -117,13 +118,14 @@ export const apiDeleteAccount = async (user_id: number, access_token: string): P
     }
 }
 
-export const apiUploadSales = async (file: FormData, access_token: string): Promise<any> => {
+export const apiUploadSales = async (file: FormData): Promise<User> => {
+    const auth = useAuthStore.getState()
     try {
         const response = await axios.post(`${base_url}/api/sales/upload`,
             file,
             {
                 headers: {
-                    "Authorization": `Bearer ${access_token}`
+                    "Authorization": `Bearer ${auth.access_token}`
                 }
             }
         );
@@ -134,7 +136,7 @@ export const apiUploadSales = async (file: FormData, access_token: string): Prom
     }
 }
 
-export const apiSalesSummary = async (user_id: number, access_token: string): Promise<DataSummary> => {
+export const apiSalesSummary = async (user_id: number, access_token: string): Promise<DataSummary | null> => {
     try {
         const response = await axios.get(`${base_url}/api/sales/summary/${user_id}`,
             {
@@ -274,6 +276,129 @@ export const apiFetchTemporalPattern = async (): Promise<TemporalPattern> => {
         const auth = useAuthStore.getState();
 
         const response = await axios.get(`${base_url}/api/statistics/temporal_pattern/${auth.user_id}`,
+            {
+                headers: {
+                    "Authorization" : `Bearer ${auth.access_token}`
+                }
+            }
+        );
+
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+}
+
+export const apiFetchPredictionMetrics = async (): Promise<PredictionMetrics> => {
+    try {
+        const auth = useAuthStore.getState();
+        const response = await axios.get(`${base_url}/api/predictions/metrics/${auth.user_id}`,
+            {
+                headers: {
+                    "Authorization" : `Bearer ${auth.access_token}`
+                }
+            }
+        );
+
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+}
+
+export const apiRunPrediction = async (): Promise<any> => {
+    try {
+        const auth = useAuthStore.getState();
+        const response = await axios.post(`${base_url}/api/predictions/predict`,
+            {
+                user_id: auth.user_id,
+                csv_path: auth.csv_path
+            },
+            {
+                headers: {
+                    "Authorization" : `Bearer ${auth.access_token}`
+                }
+            }
+        );
+    
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+}
+
+export const apiFetchPredictionComparisons = async (): Promise<PredictionComparisons> => {
+    try {
+        const auth = useAuthStore.getState();
+        const response = await axios.get(`${base_url}/api/predictions/comparisons/${auth.user_id}`,
+            {
+                headers: {
+                    "Authorization" : `Bearer ${auth.access_token}`
+                }
+            }
+        );
+
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+}
+
+export const apiFetchTotalPredictions = async (): Promise<TotalPredictions> => {
+    try {
+        const auth = useAuthStore.getState();
+        const response = await axios.get(`${base_url}/api/predictions/total/${auth.user_id}`,
+            {
+                headers: {
+                    "Authorization" : `Bearer ${auth.access_token}`
+                }
+            }
+        );
+
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+}
+
+export const apiFetchDailyPredictions = async (): Promise<DailyPredictions> => {
+    try {
+        const auth = useAuthStore.getState();
+        const response = await axios.get(`${base_url}/api/predictions/daily/${auth.user_id}`,
+            {
+                headers: {
+                    "Authorization" : `Bearer ${auth.access_token}`
+                }
+            }
+        );
+
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+}
+
+export const apiFetchWeeklyPredictions = async (): Promise<WeeklyPredictions> => {
+    try {
+        const auth = useAuthStore.getState();
+        const response = await axios.get(`${base_url}/api/predictions/weekly/${auth.user_id}`,
+            {
+                headers: {
+                    "Authorization" : `Bearer ${auth.access_token}`
+                }
+            }
+        );
+
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+}
+
+export const apiFetchMonthlyPredictions = async (): Promise<MonthlyPredictions> => {
+    try {
+        const auth = useAuthStore.getState();
+        const response = await axios.get(`${base_url}/api/predictions/monthly/${auth.user_id}`,
             {
                 headers: {
                     "Authorization" : `Bearer ${auth.access_token}`

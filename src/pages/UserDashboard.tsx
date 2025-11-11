@@ -153,7 +153,7 @@ export const UserDashboard = () => {
                   <Button 
                     variant="outline" 
                     className="justify-between h-12"
-                    onClick={() => navigate('/predictions')}
+                    onClick={() => navigate('/user/predictions')}
                   >
                     <div className="flex items-center space-x-2">
                       <Brain className="h-4 w-4" />

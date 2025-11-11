@@ -1,4 +1,4 @@
-import { apiChangePassword, apiDeleteAccount, apiEditProfile, apiLogin, apiRegister, apiSalesSummary } from '@/api';
+import { apiChangePassword, apiDeleteAccount, apiEditProfile, apiLogin, apiRegister, apiSalesSummary, apiUploadSales } from '@/api';
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { useDataSummaryStore, useSummarizeData } from './DataSummaryStore';
@@ -9,6 +9,7 @@ export interface User {
     nama_lengkap: string;
     nama_toko: string;
     role: string;
+    csv_path: string;
 }
 
 interface AuthStore {
@@ -17,12 +18,14 @@ interface AuthStore {
     nama_lengkap: string;
     nama_toko: string;
     role: string;
+    csv_path: string;
     access_token: string;
     login: (email: string, password: string) => Promise<User>;
     register: (email: string, nama_lengkap: string, password: string, role: string) => Promise<User>;
     logout: () => void;
     edit_profile: (email: string, nama_lengkap: string, nama_toko: string, role: string) => Promise<User>;
     change_password: (old_password: string, new_password: string) => Promise<User>;
+    upload_file: (file: FormData) => Promise<User>;
     delete_account: () => Promise<any>;
     is_authenticated: () => boolean;
 }
@@ -35,6 +38,7 @@ export const useAuthStore = create<AuthStore>()(
             nama_lengkap: "",
             nama_toko: "",
             role: "",
+            csv_path: "",
             access_token: "",
             login: async (email, password) => {
                 const response = await apiLogin(email, password);
@@ -45,13 +49,15 @@ export const useAuthStore = create<AuthStore>()(
                     nama_lengkap: response.user_data.nama_lengkap,
                     nama_toko: response.user_data.nama_toko,
                     role: response.user_data.role,
-                    access_token: response.access_token
+                    csv_path: response.user_data.csv_path,
+                    access_token: response.access_token,
                 });
 
-                if(useDataSummaryStore.getState().data_summary?.total_transaksi != null){
-                    const summarize_data = useDataSummaryStore.getState().summarize_data;
-                    await summarize_data(get().user_id, get().access_token);
-                }
+                // if(useDataSummaryStore.getState().data_summary?.total_transaksi != null){
+                //     console.log("KUDANIL")
+                // }
+                const summarize_data = useDataSummaryStore.getState().summarize_data;
+                await summarize_data(get().user_id, get().access_token);
 
                 return response.user_data;
             },
@@ -74,6 +80,7 @@ export const useAuthStore = create<AuthStore>()(
                     nama_lengkap: "",
                     nama_toko: "",
                     role: "",
+                    csv_path: "",
                     access_token: "",
                 });
 
@@ -92,6 +99,13 @@ export const useAuthStore = create<AuthStore>()(
             },
             change_password: async (old_password, new_password) => {
                 const response = await apiChangePassword(get().user_id, get().email, old_password, new_password, get().access_token);
+                return response;
+            },
+            upload_file: async (file) => {
+                const response = await apiUploadSales(file);
+                set({
+                    csv_path: response.csv_path
+                });
                 return response;
             },
             delete_account: async () => {
@@ -114,11 +128,13 @@ export const useAuthEmail = () => useAuthStore((state) => state.email);
 export const useAuthNamaLengkap = () => useAuthStore((state) => state.nama_lengkap);
 export const useAuthNamaToko = () => useAuthStore((state) => state.nama_toko);
 export const useAuthRole = () => useAuthStore((state) => state.role);
+export const useAuthCsvPath = () => useAuthStore((state) => state.csv_path);
 export const useAuthToken = () => useAuthStore((state) => state.access_token);
 export const useAuthLogin = () => useAuthStore((state) => state.login);
 export const useAuthRegister = () => useAuthStore((state) => state.register);
 export const useAuthLogout = () => useAuthStore((state) => state.logout);
 export const useAuthEditProfile = () => useAuthStore((state) => state.edit_profile);
 export const useAuthChangePassword = () => useAuthStore((state) => state.change_password);
+export const useAuthUploadFile = () => useAuthStore((state) => state.upload_file);
 export const useAuthDeleteAccount = () => useAuthStore((state) => state.delete_account);
 export const useAuthIsAuthenticated = () => useAuthStore((state) => state.is_authenticated);

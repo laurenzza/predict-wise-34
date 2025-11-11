@@ -1,20 +1,32 @@
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { PredictionComparisonBase, PredictionComparisons } from "@/hooks/usePredictions";
 
-const predictionData = [
-  { day: 1, arima: 220215, lstm: 218500, actual: 220000 },
-  { day: 2, arima: 220131, lstm: 218200, actual: 219800 },
-  { day: 3, arima: 219943, lstm: 217950, actual: 219500 },
-  { day: 4, arima: 219676, lstm: 217700, actual: 219200 },
-  { day: 5, arima: 219364, lstm: 217450, actual: 218900 },
-  { day: 6, arima: 218986, lstm: 217200, actual: 218600 },
-  { day: 7, arima: 218831, lstm: 216950, actual: 218300 },
-  { day: 8, arima: 218354, lstm: 216700, actual: 218000 },
-  { day: 9, arima: 217867, lstm: 216450, actual: 217700 },
-  { day: 10, arima: 217493, lstm: 216200, actual: 217400 },
-];
+// const predictionData = [
+//   { day: 1, arima: 220215, lstm: 218500, actual: 220000 },
+//   { day: 2, arima: 220131, lstm: 218200, actual: 219800 },
+//   { day: 3, arima: 219943, lstm: 217950, actual: 219500 },
+//   { day: 4, arima: 219676, lstm: 217700, actual: 219200 },
+//   { day: 5, arima: 219364, lstm: 217450, actual: 218900 },
+//   { day: 6, arima: 218986, lstm: 217200, actual: 218600 },
+//   { day: 7, arima: 218831, lstm: 216950, actual: 218300 },
+//   { day: 8, arima: 218354, lstm: 216700, actual: 218000 },
+//   { day: 9, arima: 217867, lstm: 216450, actual: 217700 },
+//   { day: 10, arima: 217493, lstm: 216200, actual: 217400 },
+// ];
 
-export const PredictionChart = () => {
+export const PredictionChart = ({ data }: { data: PredictionComparisonBase[] }) => {
+  const predictionData = []
+
+  data.forEach((row) => {
+    predictionData.push({
+      day: row.hari,
+      arima: row.hasil_total_penjualan_arima,
+      lstm: row.hasil_total_penjualan_lstm,
+      actual: row.hasil_total_penjualan_aktual
+    })
+  })
+
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('id-ID', {
       style: 'currency',

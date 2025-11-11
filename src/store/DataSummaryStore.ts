@@ -29,7 +29,9 @@ export const useDataSummaryStore = create<DataSummaryStore>()(
             summarize_data: async (user_id, access_token) => {
                 const response = await apiSalesSummary(user_id, access_token);
 
-                set({ data_summary: response });
+                if(response != null){
+                    set({ data_summary: response });
+                }
             },
             format_date: (date) => {
                 const new_date = new Date(date);

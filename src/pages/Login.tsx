@@ -42,7 +42,7 @@ export const Login = () => {
       setIsLoading(false);
       toast({
         title: "Login Gagal",
-        description: `${error.response.data.detail}`
+        // description: `${error.response.data?.detail}`
       })
     }
 
