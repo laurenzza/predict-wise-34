@@ -15,15 +15,15 @@ import { PredictionComparisonBase, PredictionComparisons } from "@/hooks/usePred
 //   { day: 10, arima: 217493, lstm: 216200, actual: 217400 },
 // ];
 
-export const PredictionChart = ({ data }: { data: PredictionComparisonBase[] }) => {
+export const PredictionChart = ({ data }) => {
   const predictionData = []
 
   data.forEach((row) => {
     predictionData.push({
-      day: row.hari,
-      arima: row.hasil_total_penjualan_arima,
-      lstm: row.hasil_total_penjualan_lstm,
-      actual: row.hasil_total_penjualan_aktual
+      day: row["day"],
+      arima: row["arima_pred"],
+      lstm: row["lstm_pred"],
+      actual: row["actual"]
     })
   })
 
@@ -67,7 +67,7 @@ export const PredictionChart = ({ data }: { data: PredictionComparisonBase[] }) 
               <Tooltip 
                 formatter={(value: number, name: string) => [
                   formatCurrency(value), 
-                  name === 'arima' ? 'ARIMA' : name === 'lstm' ? 'LSTM' : 'Actual'
+                  name
                 ]}
                 labelFormatter={(label) => `Hari ${label}`}
                 contentStyle={{

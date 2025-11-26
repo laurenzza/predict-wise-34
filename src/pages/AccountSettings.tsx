@@ -11,7 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuthChangePassword, useAuthDeleteAccount, useAuthEditProfile, useAuthEmail, useAuthId, useAuthNamaLengkap, useAuthNamaToko, useAuthRole, useAuthToken, useAuthUploadFile } from "@/store/AuthStore";
 import { apiRunPrediction, apiSalesSummary, apiUploadSales } from "@/api";
 import { useSummarizeData } from "@/store/DataSummaryStore";
-import { PredictionComparisonBase, usePredictionComparisons, usePredictionMetrics, useTotalPredictions } from "@/hooks/usePredictions";
+import { PredictionComparisonBase, useCompare, usePredictionComparisons, usePredictionMetrics, useSevenDaysPrediction, useTotalPredictions } from "@/hooks/usePredictions";
 import * as XLSX from "xlsx";
 
 type UploadStatus = 'idle' | 'uploading' | 'success' | 'error';
@@ -176,8 +176,8 @@ export const AccountSettings = () => {
     }
   }
 
-  const { data: data_total, isLoading: is_loading_total, isError: is_error_total } = useTotalPredictions();
-  const { data: data_comparisons, isLoading: is_loading_comparisons, isError: is_error_comparisons } = usePredictionComparisons();
+  const { data: data_total, isLoading: is_loading_total, isError: is_error_total } = useSevenDaysPrediction(new Date().toISOString().split('T')[0]);
+  const { data: data_comparisons, isLoading: is_loading_comparisons, isError: is_error_comparisons } = useCompare();
   const { data: data_metrics, isLoading: is_loading_metrics, isError: is_error_metrics } = usePredictionMetrics();
 
   const nama_toko = useAuthNamaToko();
@@ -189,21 +189,21 @@ export const AccountSettings = () => {
     }
 
     // 1️⃣ Total Predictions Sheet
-    const totalSheetData = data_total.data.map((item: any, index: number) => ({
+    const totalSheetData = data_total["predictions"].map((item: any, index: number) => ({
       No: index + 1,
-      Tanggal: new Date(item.hasil_tanggal).toLocaleDateString("id-ID"),
-      "Total Penjualan ARIMA": item.hasil_total_penjualan_arima,
-      "Total Penjualan LSTM": item.hasil_total_penjualan_lstm,
-      "Selisih": Math.abs(item.hasil_total_penjualan_arima - item.hasil_total_penjualan_lstm)
+      Tanggal: new Date(item["date"]).toLocaleDateString("id-ID"),
+      "Total Penjualan ARIMA": item["ARIMA"]["value"],
+      "Total Penjualan LSTM": item["LSTM"]["value"],
+      "Selisih": Math.abs(item["ARIMA"]["value"] - item["LSTM"]["value"])
     }));
     const totalSheet = XLSX.utils.json_to_sheet(totalSheetData);
 
     // 2️⃣ Prediction Comparisons Sheet
-    const comparisonSheetData = data_comparisons.data.map((item: PredictionComparisonBase) => ({
-      Hari: item.hari,
-      Aktual: item.hasil_total_penjualan_aktual,
-      ARIMA: item.hasil_total_penjualan_arima,
-      LSTM: item.hasil_total_penjualan_lstm,
+    const comparisonSheetData = data_comparisons["data"].map((item: PredictionComparisonBase) => ({
+      Hari: item["day"],
+      Aktual: item["actual"],
+      ARIMA: item["arima_pred"],
+      LSTM: item["lstm_pred"],
     }));
     const comparisonSheet = XLSX.utils.json_to_sheet(comparisonSheetData);
 
@@ -301,10 +301,10 @@ export const AccountSettings = () => {
                   <Label htmlFor="company">Nama Toko</Label>
                   <Input id="company" placeholder="Loa Kim Jong" value={namaTokoForm} onChange={(e) => setNamaTokoForm(e.target.value)} />
                 </div>
-                <div className="space-y-2">
+                {/* <div className="space-y-2">
                   <Label htmlFor="role">Role</Label>
                   <Input id="role" value={roleForm} disabled />
-                </div>
+                </div> */}
                 <Button variant="ml" onClick={handleProfileSubmit}>Simpan Perubahan</Button>
               </CardContent>
             </Card>
@@ -403,11 +403,11 @@ export const AccountSettings = () => {
               <CardHeader>
                 <CardTitle>Manajemen Data</CardTitle>
                 <CardDescription>
-                  Upload dan kelola data penjualan Anda
+                  Download data penjualan Anda
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="p-4 bg-ml-primary/5 border border-ml-primary/20 rounded-lg space-y-3">
+                {/* <div className="p-4 bg-ml-primary/5 border border-ml-primary/20 rounded-lg space-y-3">
                   <h4 className="font-medium flex items-center gap-2">
                     <Upload className="h-5 w-5 text-ml-primary" />
                     Upload Data Penjualan
@@ -435,7 +435,7 @@ export const AccountSettings = () => {
                   <p className="text-xs text-muted-foreground">
                     Data akan langsung diproses dan digunakan untuk prediksi real-time
                   </p>
-                </div>
+                </div> */}
                 
                 <div className="p-4 bg-muted/50 rounded-lg space-y-3">
                   <h4 className="font-medium">Export Data</h4>

@@ -411,3 +411,60 @@ export const apiFetchMonthlyPredictions = async (): Promise<MonthlyPredictions> 
         throw error;
     }
 }
+
+export const apiPredictSingleDay = async (date: string): Promise<any> => {
+    try {
+        const auth = useAuthStore.getState();
+        const response = await axios.post(`${base_url}/api/predict/single_day`,
+            {
+                target_date: date
+            },
+            {
+                headers: {
+                    "Authorization" : `Bearer ${auth.access_token}`
+                }
+            }
+        );
+
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+}
+
+export const apiPredictSevenDays = async (date: string): Promise<any> => {
+    try {
+        const auth = useAuthStore.getState();
+        const response = await axios.post(`${base_url}/api/predictions/predict/seven_days`,
+            {
+                target_date: date
+            },
+            {
+                headers: {
+                    "Authorization" : `Bearer ${auth.access_token}`
+                }
+            }
+        );
+
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+}
+
+export const apiCompare = async (): Promise<any> => {
+    try {
+        const auth = useAuthStore.getState();
+        const response = await axios.get(`${base_url}/api/compare/last_10_days`,
+            {
+                headers: {
+                    "Authorization" : `Bearer ${auth.access_token}`
+                }
+            }
+        );
+
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+}

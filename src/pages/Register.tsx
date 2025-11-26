@@ -19,7 +19,7 @@ export const Register = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const [role, setRole] = useState<"ADMIN" | "DEVELOPER">("DEVELOPER");
+  const [role, setRole] = useState<"ADMIN" | "DEVELOPER">("ADMIN");
   const [namaLengkap, setNamaLengkap] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -60,7 +60,7 @@ export const Register = () => {
           title: "Registrasi Berhasil",
           description: "Silakan upload data penjualan untuk memulai.",
         });
-        navigate("/account-settings?tab=data");
+        navigate("/user/dashboard");
       }, 2000);
     } catch (error) {
       console.error(error);
@@ -193,9 +193,9 @@ export const Register = () => {
                 </div>
               </div>
 
-              <div className="space-y-2">
+              {/* <div className="space-y-2">
                 <Label>Role</Label>
-                <RadioGroup value={role} onValueChange={(value) => setRole(value as "ADMIN" | "DEVELOPER")}>
+                <RadioGroup value={role} onValueChange={(value) => setRole(value as "ADMIN" | "DEVELOPER")} hidden>
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="ADMIN" id="ADMIN" />
                     <Label htmlFor="ADMIN" className="font-normal cursor-pointer">Admin</Label>
@@ -205,7 +205,7 @@ export const Register = () => {
                     <Label htmlFor="DEVELOPER" className="font-normal cursor-pointer">Developer</Label>
                   </div>
                 </RadioGroup>
-              </div>
+              </div> */}
 
               <Button 
                 type="submit" 

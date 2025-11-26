@@ -1,4 +1,4 @@
-import { apiFetchDailyPredictions, apiFetchMonthlyPredictions, apiFetchPredictionComparisons, apiFetchPredictionMetrics, apiFetchTotalPredictions, apiFetchWeeklyPredictions } from "@/api"
+import { apiCompare, apiFetchDailyPredictions, apiFetchMonthlyPredictions, apiFetchPredictionComparisons, apiFetchPredictionMetrics, apiFetchTotalPredictions, apiFetchWeeklyPredictions, apiPredictSevenDays, apiPredictSingleDay } from "@/api"
 import { useQuery } from "@tanstack/react-query"
 
 interface PredictionMetricsBase {
@@ -118,5 +118,26 @@ export const useMonthlyPredictions = () => {
     return useQuery({
         queryKey: ["monthly_predictions"],
         queryFn: () => apiFetchMonthlyPredictions()
+    })
+}
+
+export const useSingleDayPrediction = (date: string) => {
+    return useQuery({
+        queryKey: ["single_day_prediction", date],
+        queryFn: () => apiPredictSingleDay(date)
+    })
+}
+
+export const useSevenDaysPrediction = (date: string) => {
+    return useQuery({
+        queryKey: ["seven_days_prediction", date],
+        queryFn: () => apiPredictSevenDays(date)
+    })
+}
+
+export const useCompare = () => {
+    return useQuery({
+        queryKey: ["compare_predictions"],
+        queryFn: () => apiCompare()
     })
 }

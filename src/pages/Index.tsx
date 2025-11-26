@@ -122,8 +122,26 @@ const Index = () => {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="flex justify-center">
             {/* For Store Owners */}
+            <div className="bg-card p-6 rounded-xl border border-ml-primary/20 shadow-neural w-full max-w-2xl">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="p-3 rounded-lg bg-gradient-ml">
+                  <Target className="h-6 w-6 text-white" />
+                </div>
+                <h3 className="text-xl font-semibold">Untuk Pemilik Toko</h3>
+              </div>
+              <div className="space-y-3">
+                {userAdvantages.map((advantage, index) => (
+                  <div key={index} className="flex items-start space-x-3">
+                    <CheckCircle2 className="h-5 w-5 text-success flex-shrink-0 mt-0.5" />
+                    <span className="text-muted-foreground">{advantage}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+          {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="bg-card p-6 rounded-xl border border-ml-primary/20 shadow-neural">
               <div className="flex items-center gap-3 mb-6">
                 <div className="p-3 rounded-lg bg-gradient-ml">
@@ -141,7 +159,6 @@ const Index = () => {
               </div>
             </div>
 
-            {/* For Developers */}
             <div className="bg-card p-6 rounded-xl border border-ml-secondary/20 shadow-neural">
               <div className="flex items-center gap-3 mb-6">
                 <div className="p-3 rounded-lg bg-gradient-ml">
@@ -158,7 +175,7 @@ const Index = () => {
                 ))}
               </div>
             </div>
-          </div>
+          </div> */}
         </div>
       </section>
 

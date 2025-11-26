@@ -34,17 +34,15 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route element={<ProtectedRoutes/>}>
-            <Route element={<DashboardMiddleware/>}>
+            {/* <Route element={<DashboardMiddleware/>}> */}
               <Route path="/user/dashboard" element={<UserDashboard />} />
               <Route path="/user/period" element={<UserPeriod />} />
               <Route path="/user/dataset" element={<UserDataset />} />
               <Route path="/user/statistics" element={<UserStatistics />} />
               <Route path="/user/top-products" element={<UserTopProducts />} />
               <Route path="/user/info" element={<UserInfo />} />
-              <Route element={<DeveloperOnly/>}>
-                <Route path="/user/predictions" element={<Predictions />} />
-              </Route>
-            </Route>
+              <Route path="/user/predictions" element={<Predictions />} />
+            {/* </Route> */}
             <Route path="/account-settings" element={<AccountSettings />} />
             {/* <Route path="/developer/dashboard" element={<DeveloperDashboard />} /> */}
             {/* <Route path="/dataset" element={<Dataset />} /> */}

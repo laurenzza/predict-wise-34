@@ -34,7 +34,7 @@ export const Login = () => {
           title: "Login Berhasil",
           description: "Selamat datang di Sales Predictor!",
         });
-        navigate("/account-settings?tab=data");
+        navigate("/user/dashboard");
       }, 1500);
       
     } catch (error) {

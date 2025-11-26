@@ -27,7 +27,7 @@ import {
   CircleX
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { PredictionComparisonBase, usePredictionComparisons, usePredictionMetrics, useTotalPredictions } from "@/hooks/usePredictions";
+import { PredictionComparisonBase, useCompare, usePredictionComparisons, usePredictionMetrics, useSevenDaysPrediction, useTotalPredictions } from "@/hooks/usePredictions";
 import * as XLSX from "xlsx";
 import { useAuthNamaToko } from "@/store/AuthStore";
 
@@ -35,8 +35,8 @@ export const Predictions = () => {
   const navigate = useNavigate();
   const [isGenerating, setIsGenerating] = useState(false);
 
-  const { data: data_total, isLoading: is_loading_total, isError: is_error_total } = useTotalPredictions();
-  const { data: data_comparisons, isLoading: is_loading_comparisons, isError: is_error_comparisons } = usePredictionComparisons();
+  const { data: data_total, isLoading: is_loading_total, isError: is_error_total } = useSevenDaysPrediction(new Date().toISOString().split('T')[0]);
+  const { data: data_comparisons, isLoading: is_loading_comparisons, isError: is_error_comparisons } = useCompare();
   const { data: data_metrics, isLoading: is_loading_metrics, isError: is_error_metrics } = usePredictionMetrics();
 
   const nama_toko = useAuthNamaToko();
@@ -55,6 +55,10 @@ export const Predictions = () => {
       minimumFractionDigits: 0,
     }).format(amount);
   };
+
+  const formatNumberId = (num: number) => {
+    return new Intl.NumberFormat('id-ID').format(num);
+  }
 
   const formatNumber = (num: number) => {
     return new Intl.NumberFormat('id-ID', {
@@ -76,21 +80,21 @@ export const Predictions = () => {
     }
 
     // 1️⃣ Total Predictions Sheet
-    const totalSheetData = data_total.data.map((item: any, index: number) => ({
+    const totalSheetData = data_total["predictions"].map((item: any, index: number) => ({
       No: index + 1,
-      Tanggal: new Date(item.hasil_tanggal).toLocaleDateString("id-ID"),
-      "Total Penjualan ARIMA": item.hasil_total_penjualan_arima,
-      "Total Penjualan LSTM": item.hasil_total_penjualan_lstm,
-      "Selisih": Math.abs(item.hasil_total_penjualan_arima - item.hasil_total_penjualan_lstm)
+      Tanggal: new Date(item["date"]).toLocaleDateString("id-ID"),
+      "Total Penjualan ARIMA": item["ARIMA"]["value"],
+      "Total Penjualan LSTM": item["LSTM"]["value"],
+      "Selisih": Math.abs(item["ARIMA"]["value"] - item["LSTM"]["value"])
     }));
     const totalSheet = XLSX.utils.json_to_sheet(totalSheetData);
 
     // 2️⃣ Prediction Comparisons Sheet
-    const comparisonSheetData = data_comparisons.data.map((item: PredictionComparisonBase) => ({
-      Hari: item.hari,
-      Aktual: item.hasil_total_penjualan_aktual,
-      ARIMA: item.hasil_total_penjualan_arima,
-      LSTM: item.hasil_total_penjualan_lstm,
+    const comparisonSheetData = data_comparisons["data"].map((item: PredictionComparisonBase) => ({
+      Hari: item["day"],
+      Aktual: item["actual"],
+      ARIMA: item["arima_pred"],
+      LSTM: item["lstm_pred"],
     }));
     const comparisonSheet = XLSX.utils.json_to_sheet(comparisonSheetData);
 
@@ -159,7 +163,7 @@ export const Predictions = () => {
         </div>
 
           {
-            data_total?.job_status === 'running' || is_loading_total ?
+            is_loading_total ?
             (
               <main className="flex-grow flex items-center justify-center">
                 <div className="text-center grid grid-cols-1 gap-6">
@@ -172,7 +176,7 @@ export const Predictions = () => {
             ) :
             <>
               { 
-                (data_total?.job_status === 'failed' || data_total?.job_status === undefined) ?
+                is_error_total ?
                 (
                     <div className="text-center grid grid-cols-1 gap-6">
                       <div className="text-center p-4 bg-muted/20 rounded-lg">
@@ -193,7 +197,7 @@ export const Predictions = () => {
                   {/* Prediction Chart */}
                   <div className="mb-8">
                     {
-                      !is_loading_comparisons && <PredictionChart data={data_comparisons.data} />
+                      !is_loading_comparisons && <PredictionChart data={data_comparisons["data"]} />
                     }
                   </div>
 
@@ -227,18 +231,18 @@ export const Predictions = () => {
                                 is_loading_comparisons ? (
                                   <p>Loading...</p>
                                 ) : (
-                                  data_total?.data?.slice(0, 7).map((result, index) => (
+                                  data_total['predictions'].slice(0, 7).map((result, index) => (
                                     <TableRow key={index} className="hover:bg-muted/50">
                                       <TableCell className="font-medium">{index+1}</TableCell>
-                                      <TableCell>{(new Date(result.hasil_tanggal)).toLocaleString('id-ID', { day: 'numeric', month: 'numeric', year: 'numeric' })}</TableCell>
+                                      <TableCell>{(new Date(result['date'])).toLocaleString('id-ID', { day: 'numeric', month: 'numeric', year: 'numeric' })}</TableCell>
                                       <TableCell className="text-right font-mono">
-                                        {formatCurrency(result.hasil_total_penjualan_arima)}
+                                        {formatCurrency(result["ARIMA"]["value"])}
                                       </TableCell>
                                       <TableCell className="text-right font-mono font-semibold text-lstm">
-                                        {formatCurrency(result.hasil_total_penjualan_lstm)}
+                                        {formatCurrency(result["LSTM"]["value"])}
                                       </TableCell>
                                       <TableCell className="text-right">
-                                        {formatCurrency(Math.abs(result.hasil_total_penjualan_arima - result.hasil_total_penjualan_lstm))}
+                                        {formatCurrency(Math.abs(result["ARIMA"]["value"] - result["LSTM"]["value"]))}
                                       </TableCell>
                                       {/* <TableCell>
                                         <Badge className="bg-success/10 text-success border-success/20">
@@ -292,13 +296,13 @@ export const Predictions = () => {
                                   <div className="grid grid-cols-2 gap-4">
                                     <div className="text-center p-3 bg-arima/5 border border-arima/20 rounded">
                                       <div className="text-lg font-semibold text-arima">
-                                        {formatNumber(data_metrics.data.arima_mae)}
+                                        {formatNumberId(data_metrics.data.arima_mae)}
                                       </div>
                                       <div className="text-xs text-muted-foreground">ARIMA</div>
                                     </div>
                                     <div className="text-center p-3 bg-lstm/5 border border-lstm/20 rounded">
                                       <div className="text-lg font-semibold text-lstm">
-                                        {formatNumber(data_metrics.data.lstm_mae)}
+                                        {formatNumberId(data_metrics.data.lstm_mae)}
                                       </div>
                                       <div className="text-xs text-muted-foreground">LSTM</div>
                                     </div>
