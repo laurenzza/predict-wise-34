@@ -128,9 +128,9 @@ export const UserDashboard = () => {
               ) : (
                 <MetricCard
                   title="Prediksi Hari Ini"
-                  // value={predictionToday}
-                  value="Rp40000"
+                  // value="Rp40000"
                   // change={`${growthData["isPositive"] == 0 ? "" : growthData["isPositive"] == 1 ? "+" : "-"}${growthData["percent"]}% dari kemarin`}
+                  value={predictionToday}
                   change={`${growthData["percent"]}% dari kemarin`}
                   changeType={growthData["isPositive"] == 0 ? "neutral" : growthData["isPositive"] == 1 ? "positive" : "negative"}
                   icon={<TrendingUp className="h-4 w-4 text-ml-primary" />}
