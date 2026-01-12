@@ -51,7 +51,8 @@ export const apiRegister = async (email: string, nama_lengkap: string, password:
             }
         );
 
-        return await apiLogin(email, password);
+        // return await apiLogin(email, password);
+        return response.data;
     } catch (error) {
         throw error;
     }
@@ -95,6 +96,44 @@ export const apiChangePassword = async (user_id: number, email: string, old_pass
                 }
             }
         )
+
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+}
+
+export const apiPendingUsers = async (): Promise<User[]> => {
+    const auth = useAuthStore.getState()
+    try {
+        const response = await axios.get(`${base_url}/api/auth/pending-users/${auth.user_id}`,
+            {
+                headers: {
+                    "Authorization": `Bearer ${auth.access_token}`
+                }
+            }
+        );
+
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+}
+
+export const apiUserActivation = async (user_id: number, approve: boolean): Promise<User> => {
+    const auth = useAuthStore.getState()
+    try {
+        const response = await axios.put(`${base_url}/api/auth/update-activation-status/${auth.user_id}`,
+            {
+                user_id: user_id,
+                approve: approve
+            },
+            {
+                headers: {
+                    "Authorization": `Bearer ${auth.access_token}`
+                }
+            }
+        );
 
         return response.data;
     } catch (error) {

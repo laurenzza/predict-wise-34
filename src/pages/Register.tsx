@@ -19,7 +19,7 @@ export const Register = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const [role, setRole] = useState<"ADMIN" | "DEVELOPER">("ADMIN");
+  const [role, setRole] = useState<"OWNER" | "EMPLOYEE">("OWNER");
   const [namaLengkap, setNamaLengkap] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -53,21 +53,20 @@ export const Register = () => {
       // const response = await apiRegister(email, namaLengkap, password, role);
       const response = await register(email, namaLengkap, password, role);
       
-      // Simulate registration process
-      setTimeout(() => {
-        setIsLoading(false);
-        toast({
-          title: "Registrasi Berhasil",
-          description: "Silakan upload data penjualan untuk memulai.",
-        });
-        navigate("/user/dashboard");
-      }, 2000);
+      toast({
+        title: "Registrasi Berhasil",
+        description: "Silakan hubungi pemilik toko untuk mengaktivasi akun anda",
+        variant: "success"
+      });
+      
+      navigate("/login");
     } catch (error) {
       console.error(error);
       if(error.response?.status == 409){
         toast({
           title: "Registrasi Gagal!",
-          description: "Email sudah digunakan, silakan gunakan email lain"
+          description: "Email sudah digunakan, silakan gunakan email lain",
+          variant: "destructive",
         })
       }
       setIsLoading(false);
@@ -193,19 +192,19 @@ export const Register = () => {
                 </div>
               </div>
 
-              {/* <div className="space-y-2">
+              <div className="space-y-2">
                 <Label>Role</Label>
-                <RadioGroup value={role} onValueChange={(value) => setRole(value as "ADMIN" | "DEVELOPER")} hidden>
+                <RadioGroup value={role} onValueChange={(value) => setRole(value as "OWNER" | "EMPLOYEE")} hidden>
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="ADMIN" id="ADMIN" />
-                    <Label htmlFor="ADMIN" className="font-normal cursor-pointer">Admin</Label>
+                    <RadioGroupItem value="OWNER" id="OWNER" />
+                    <Label htmlFor="OWNER" className="font-normal cursor-pointer">Pemilik</Label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="DEVELOPER" id="DEVELOPER" />
-                    <Label htmlFor="DEVELOPER" className="font-normal cursor-pointer">Developer</Label>
+                    <RadioGroupItem value="EMPLOYEE" id="EMPLOYEE" />
+                    <Label htmlFor="EMPLOYEE" className="font-normal cursor-pointer">Karyawan</Label>
                   </div>
                 </RadioGroup>
-              </div> */}
+              </div>
 
               <Button 
                 type="submit" 

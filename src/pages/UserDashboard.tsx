@@ -12,13 +12,15 @@ import {
   Info,
   Clock,
   ArrowRight,
-  Brain
+  Brain,
+  Hourglass
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuthId, useAuthNamaToko, useAuthRole, useAuthToken } from "@/store/AuthStore";
 import { useDataSummary, useFormatDate, useSummarizeData } from "@/store/DataSummaryStore";
 import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useSingleDayPrediction } from "@/hooks/usePredictions";
 
 export const UserDashboard = () => {
   const navigate = useNavigate();
@@ -36,6 +38,48 @@ export const UserDashboard = () => {
   const ds = useDataSummary();
   const format_date = useFormatDate();
 
+  const date = new Date();
+  const today: string = date.toISOString().split('T')[0];
+  date.setDate(date.getDate() - 1);
+  const yesterday: string = date.toISOString().split('T')[0];
+  const { data: predictionToday, isLoading: isLoadingPredictionToday, error: predictionErrorToday } = useSingleDayPrediction(today);
+  const { data: predictionYesterday, isLoading: isLoadingPredictionYesterday, error: predictionErrorYesterday } = useSingleDayPrediction(yesterday);
+
+  const getChange = (today: number, yesterday: number) => {
+    const result = ((today-yesterday)/yesterday)*100;
+    return {
+      percent: Math.abs(result).toFixed(2),
+      isPositive: result > 0 ? 1 : result < 0 ? 2 : 0,
+    };
+  }
+
+  const getDurationText = (startStr: string, endStr: string) => {
+    const startDate = new Date(startStr);
+    const endDate = new Date(endStr);
+
+    let years = endDate.getFullYear() - startDate.getFullYear();
+    let months = endDate.getMonth() - startDate.getMonth();
+
+    // Koreksi jika bulan negatif (misal: Jan 2024 - Des 2022)
+    if (months < 0) {
+      years--;
+      months += 12;
+    }
+
+    if (years > 0) {
+      return `${years} tahun${months > 0 ? ` ${months} bulan` : ''} data`;
+    }
+    
+    if (months > 0) {
+      return `${months} bulan data`;
+    }
+
+    // Jika kurang dari 1 bulan, tampilkan hari
+    const diffTime = Math.abs(endDate.getTime() - startDate.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+    return `${diffDays} hari data`;
+  };
+
   const upcomingPredictions = [
     { 
       period: "7 Hari Mendatang", 
@@ -48,6 +92,10 @@ export const UserDashboard = () => {
       totalSales: "Rp 6,420,000" 
     },
   ];
+
+  const growthData = predictionToday && predictionYesterday 
+    ? getChange(predictionToday, predictionYesterday) 
+    : { percent: "0", isPositive: 0 };
 
   return (
     <div className="min-h-screen bg-gradient-hero">
@@ -68,14 +116,28 @@ export const UserDashboard = () => {
 
           {/* Quick Stats */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <MetricCard
-              title="Prediksi Hari Ini"
-              value="Rp 220,215"
-              change="+2.1% dari kemarin"
-              changeType="positive"
-              icon={<TrendingUp className="h-4 w-4 text-ml-primary" />}
-              gradient
-              />
+            {
+              isLoadingPredictionToday || isLoadingPredictionYesterday ? (
+                <MetricCard
+                  title="Prediksi Hari Ini"
+                  value={<Hourglass className="h-8 w-8 text-ml-accent mx-auto mb-2 animate-spin" />}
+                  changeType="neutral"
+                  icon={<TrendingUp className="h-4 w-4 text-ml-primary" />}
+                  gradient
+                  />
+              ) : (
+                <MetricCard
+                  title="Prediksi Hari Ini"
+                  // value={predictionToday}
+                  value="Rp40000"
+                  // change={`${growthData["isPositive"] == 0 ? "" : growthData["isPositive"] == 1 ? "+" : "-"}${growthData["percent"]}% dari kemarin`}
+                  change={`${growthData["percent"]}% dari kemarin`}
+                  changeType={growthData["isPositive"] == 0 ? "neutral" : growthData["isPositive"] == 1 ? "positive" : "negative"}
+                  icon={<TrendingUp className="h-4 w-4 text-ml-primary" />}
+                  gradient
+                />
+              )
+            }
             <button className="text-left" onClick={() => navigate("/user/dataset#products")}>
               <MetricCard
                 title="Total Produk"
@@ -95,7 +157,7 @@ export const UserDashboard = () => {
             <MetricCard
               title="Periode Data"
               value={`${format_date(ds.periode_awal)} - ${format_date(ds.periode_akhir)}`}
-              description="4+ tahun data"
+              description={getDurationText(ds.periode_awal, ds.periode_akhir)}
               icon={<Clock className="h-4 w-4 text-ml-accent" />}
               />
           </div>

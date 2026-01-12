@@ -1,10 +1,11 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TrendingUp, TrendingDown } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { ReactNode } from "react";
 
 interface MetricCardProps {
   title: string;
-  value: string;
+  value: string | ReactNode;
   change?: string;
   changeType?: "positive" | "negative" | "neutral";
   icon?: React.ReactNode;

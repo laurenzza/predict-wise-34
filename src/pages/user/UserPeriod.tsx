@@ -248,19 +248,42 @@ export const UserPeriod = () => {
                           </div>
                         </div>
 
-                        {/* Top Products */}
+                        {/* Top Products / Product Details */}
                         <div className="space-y-3">
-                          <h4 className="font-semibold text-lg">Produk yang Diprediksi Terjual</h4>
+                          <h4 className="font-semibold text-lg">Rincian Produk Terjual</h4>
                           <div className="grid gap-3">
-                            {predictionData["top_5_products"].map((product, idx) => (
-                              <div key={idx} className="flex items-center space-x-3 p-3 bg-muted/20 rounded-lg hover:bg-muted/30 transition-colors">
+                            {(predictionData["top_5_products"])?.map((product: any, idx: number) => (
+                              <div key={idx} className="flex items-center space-x-3 p-3 bg-muted/20 rounded-lg hover:bg-muted/30 transition-colors border border-transparent hover:border-ml-primary/10">
+                                
+                                {/* Icon */}
                                 <div className="flex-shrink-0">
-                                  <Package className="h-5 w-5 text-ml-accent" />
+                                  <div className="bg-background p-2 rounded-full shadow-sm">
+                                    <Package className="h-5 w-5 text-ml-accent" />
+                                  </div>
                                 </div>
-                                <div className="flex-grow">
-                                  <p className="font-medium">{product["product_name"]}</p>
+
+                                {/* Product Info */}
+                                <div className="flex-grow min-w-0">
+                                  <p className="font-medium text-sm md:text-base truncate">
+                                    {product["product_name"]}
+                                  </p>
+                                  
+                                  {/* Baris Baru: Qty dan Harga */}
+                                  <div className="flex items-center gap-3 mt-1.5">
+                                    {/* Badge Qty */}
+                                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300">
+                                      {product["estimated_qty"]} Pcs
+                                    </span>
+                                    
+                                    {/* Total Sales Price */}
+                                    <span className="text-xs font-bold text-ml-primary">
+                                      {product["estimated_sales_idr"]}
+                                    </span>
+                                  </div>
                                 </div>
-                                <Badge variant="outline" className="text-xs">
+
+                                {/* Rank Badge */}
+                                <Badge variant="secondary" className="text-xs shrink-0 h-fit">
                                   #{idx + 1}
                                 </Badge>
                               </div>

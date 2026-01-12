@@ -6,10 +6,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { User, Lock, Database, Eye, EyeOff, Upload } from "lucide-react";
+import { User, Lock, Database, Eye, EyeOff, Upload, UserCheck } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuthChangePassword, useAuthDeleteAccount, useAuthEditProfile, useAuthEmail, useAuthId, useAuthNamaLengkap, useAuthNamaToko, useAuthRole, useAuthToken, useAuthUploadFile } from "@/store/AuthStore";
-import { apiRunPrediction, apiSalesSummary, apiUploadSales } from "@/api";
+import { apiPendingUsers, apiRunPrediction, apiSalesSummary, apiUploadSales, apiUserActivation } from "@/api";
 import { useSummarizeData } from "@/store/DataSummaryStore";
 import { PredictionComparisonBase, useCompare, usePredictionComparisons, usePredictionMetrics, useSevenDaysPrediction, useTotalPredictions } from "@/hooks/usePredictions";
 import * as XLSX from "xlsx";
@@ -22,7 +22,7 @@ export const AccountSettings = () => {
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [activeTab, setActiveTab] = useState<string>("profile");
+  const [activeTab, setActiveTab] = useState("profile");
   const { toast } = useToast();
 
   const user_id = useAuthId();
@@ -31,6 +31,7 @@ export const AccountSettings = () => {
   const email = useAuthEmail();
   const namaToko = useAuthNamaToko();
   const role = useAuthRole();
+  
   const edit_profile = useAuthEditProfile();
   const change_password = useAuthChangePassword();
   const upload_file = useAuthUploadFile();
@@ -41,15 +42,78 @@ export const AccountSettings = () => {
   const [emailForm, setEmailForm] = useState(email);
   const [namaTokoForm, setNamaTokoForm] = useState(namaToko);
   const [roleForm, setRoleForm] = useState(role);
-
   const [oldPasswordForm, setOldPasswordForm] = useState("");
   const [newPasswordForm, setNewPasswordForm] = useState("");
   const [confirmPasswordForm, setConfirmPasswordForm] = useState("");
-
   const [hapusAkunForm, setHapusAkunForm] = useState("");
-
   const [file, setFile] = useState<File | null>(null);
   const [status, setStatus] = useState<UploadStatus>('idle');
+  
+  // State untuk konfirmasi akun
+  const [pendingUsers, setPendingUsers] = useState<any[]>([]);
+  const [loadingConfirm, setLoadingConfirm] = useState<{ [key: string]: boolean }>({});
+
+  useEffect(() => {
+    const tab = searchParams.get("tab");
+    if (tab) {
+      setActiveTab(tab);
+    }
+    
+    // Fetch pending users jika role adalah OWNER
+    if (role === "OWNER") {
+      fetchPendingUsers();
+    }
+  }, [searchParams, role]);
+
+  const fetchPendingUsers = async () => {
+    try {
+      // TODO: Ganti dengan endpoint API Anda yang sebenarnya
+      const response = await apiPendingUsers();
+      setPendingUsers(response || []);
+    } catch (error) {
+      console.error("Error fetching pending users:", error);
+    }
+  };
+
+  const handleConfirmUser = async (userId: number, approve: boolean) => {
+    setLoadingConfirm({ ...loadingConfirm, [userId]: true });
+    try {
+      // TODO: Ganti dengan endpoint API Anda yang sebenarnya
+      // const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/confirm-user`, {
+      //   method: 'POST',
+      //   headers: {
+      //     'Authorization': `Bearer ${access_token}`,
+      //     'Content-Type': 'application/json'
+      //   },
+      //   body: JSON.stringify({ user_id: userId, approve })
+      // });
+      
+      // const data = await response.json();
+
+      console.log(userId)
+      const response = await apiUserActivation(userId, approve);
+      console.log(response)
+      
+      toast({
+        title: approve ? "Akun Diaktivasi" : "Akun Ditolak",
+        description: approve 
+          ? "Pengguna dapat login sekarang" 
+          : "Akun pengguna telah ditolak"
+      });
+      
+      // Refresh daftar pending users
+      fetchPendingUsers();
+    } catch (error) {
+      console.error("Error confirming user:", error);
+      toast({
+        title: "Gagal Memproses",
+        description: "Terjadi kesalahan saat memproses konfirmasi",
+        variant: "destructive"
+      });
+    } finally {
+      setLoadingConfirm({ ...loadingConfirm, [userId]: false });
+    }
+  };
 
   useEffect(() => {
     const tab = searchParams.get("tab");
@@ -248,19 +312,40 @@ export const AccountSettings = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-hero">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       <Navbar />
-      
-      <div className="container mx-auto max-w-4xl px-4 py-8">
+      <div className="container mx-auto px-4 py-8 max-w-4xl">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">Pengaturan Akun</h1>
-          <p className="text-muted-foreground">
-            Kelola informasi akun dan preferensi Anda
-          </p>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Pengaturan Akun</h1>
+          <p className="text-gray-600">Kelola informasi akun dan preferensi Anda</p>
         </div>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
+          <TabsList className={`grid w-full ${role === "OWNER" ? "grid-cols-5" : "grid-cols-4"}`}>
+            <TabsTrigger value="profile" className="gap-2 data-[state=active]:bg-ml-primary/10 data-[state=active]:text-ml-primary">
+              <User className="w-4 h-4" />
+              Profil
+            </TabsTrigger>
+            <TabsTrigger value="security" className="gap-2 data-[state=active]:bg-ml-primary/10 data-[state=active]:text-ml-primary">
+              <Lock className="w-4 h-4" />
+              Keamanan
+            </TabsTrigger>
+            <TabsTrigger value="data" className="gap-2 data-[state=active]:bg-ml-primary/10 data-[state=active]:text-ml-primary">
+              <Database className="w-4 h-4" />
+              Data
+            </TabsTrigger>
+            {role === "OWNER" && (
+              <TabsTrigger value="confirm" className="gap-2 data-[state=active]:bg-ml-primary/10 data-[state=active]:text-ml-primary">
+                <UserCheck className="w-4 h-4" />
+                Konfirmasi
+              </TabsTrigger>
+            )}
+            <TabsTrigger value="delete" className="gap-2 data-[state=active]:bg-destructive/10 data-[state=active]:text-destructive">
+              <User className="w-4 h-4" />
+              Hapus Akun
+            </TabsTrigger>
+          </TabsList>
+          {/* <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="profile" className="gap-2 data-[state=active]:bg-ml-primary/10 data-[state=active]:text-ml-primary">
               <User className="h-4 w-4" />
               Profil
@@ -277,7 +362,7 @@ export const AccountSettings = () => {
               <User className="h-4 w-4" />
               Hapus Akun
             </TabsTrigger>
-          </TabsList>
+          </TabsList> */}
 
           {/* Profile Tab */}
           <TabsContent value="profile">
@@ -301,10 +386,10 @@ export const AccountSettings = () => {
                   <Label htmlFor="company">Nama Toko</Label>
                   <Input id="company" placeholder="Loa Kim Jong" value={namaTokoForm} onChange={(e) => setNamaTokoForm(e.target.value)} />
                 </div>
-                {/* <div className="space-y-2">
+                <div className="space-y-2">
                   <Label htmlFor="role">Role</Label>
                   <Input id="role" value={roleForm} disabled />
-                </div> */}
+                </div>
                 <Button variant="ml" onClick={handleProfileSubmit}>Simpan Perubahan</Button>
               </CardContent>
             </Card>
@@ -407,7 +492,7 @@ export const AccountSettings = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                {/* <div className="p-4 bg-ml-primary/5 border border-ml-primary/20 rounded-lg space-y-3">
+                <div className="p-4 bg-ml-primary/5 border border-ml-primary/20 rounded-lg space-y-3">
                   <h4 className="font-medium flex items-center gap-2">
                     <Upload className="h-5 w-5 text-ml-primary" />
                     Upload Data Penjualan
@@ -435,7 +520,7 @@ export const AccountSettings = () => {
                   <p className="text-xs text-muted-foreground">
                     Data akan langsung diproses dan digunakan untuk prediksi real-time
                   </p>
-                </div> */}
+                </div>
                 
                 <div className="p-4 bg-muted/50 rounded-lg space-y-3">
                   <h4 className="font-medium">Export Data</h4>
@@ -447,6 +532,94 @@ export const AccountSettings = () => {
               </CardContent>
             </Card>
           </TabsContent>
+
+          {/* Tab Konfirmasi Akun - Hanya untuk OWNER */}
+          {role === "OWNER" && (
+            <TabsContent value="confirm" className="space-y-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Konfirmasi Akun Karyawan</CardTitle>
+                  <CardDescription>
+                    Setujui atau tolak pendaftaran akun karyawan baru
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {pendingUsers.length === 0 ? (
+                    <div className="text-center py-8 text-muted-foreground">
+                      <UserCheck className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                      <p>Tidak ada akun yang menunggu konfirmasi</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      {pendingUsers.map((user) => (
+                        <Card key={user.user_id} className="border-2">
+                          <CardContent className="pt-6">
+                            <div className="flex items-start justify-between">
+                              <div className="space-y-1 flex-1">
+                                <div className="flex items-center gap-2">
+                                  <User className="w-4 h-4 text-muted-foreground" />
+                                  <h4 className="font-semibold">{user.nama_lengkap || 'N/A'}</h4>
+                                </div>
+                                <p className="text-sm text-muted-foreground">{user.email}</p>
+                                <div className="flex gap-4 text-sm mt-2">
+                                  {/* <span className="text-muted-foreground">
+                                    <strong>Nama Toko:</strong> {user.nama_toko || 'N/A'}
+                                  </span> */}
+                                  <span className="text-muted-foreground">
+                                    <strong>Role:</strong> {user.role}
+                                  </span>
+                                </div>
+                                {/* <p className="text-xs text-muted-foreground mt-1">
+                                  Didaftarkan: {new Date(user.created_at).toLocaleDateString('id-ID', {
+                                    day: 'numeric',
+                                    month: 'long',
+                                    year: 'numeric',
+                                    hour: '2-digit',
+                                    minute: '2-digit'
+                                  })}
+                                </p> */}
+                              </div>
+                              {
+                                user.role === "OWNER" ? (
+                                    <Button
+                                      // onClick={() => handleConfirmUser(user.user_id, true)}
+                                      size="sm"
+                                      className="bg-gray-600"
+                                      disabled
+                                      >
+                                      Hubungi developer
+                                    </Button>
+                                ) : (
+                                  <div className="flex gap-2 ml-4">
+                                    <Button
+                                      onClick={() => handleConfirmUser(user.user_id, true)}
+                                      disabled={loadingConfirm[user.user_id]}
+                                      size="sm"
+                                      className="bg-green-600 hover:bg-green-700"
+                                    >
+                                      {loadingConfirm[user.user_id] ? 'Memproses...' : 'Setujui'}
+                                    </Button>
+                                    <Button
+                                      onClick={() => handleConfirmUser(user.user_id, false)}
+                                      disabled={loadingConfirm[user.user_id]}
+                                      variant="destructive"
+                                      size="sm"
+                                    >
+                                      {loadingConfirm[user.user_id] ? 'Memproses...' : 'Tolak'}
+                                    </Button>
+                                  </div>
+                                )
+                              }
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
+          )}
 
           {/* Delete Account Tab */}
           <TabsContent value="delete">

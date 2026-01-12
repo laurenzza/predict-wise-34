@@ -54,7 +54,7 @@ export const useAuthStore = create<AuthStore>()(
                 });
 
                 // if(useDataSummaryStore.getState().data_summary?.total_transaksi != null){
-                //     console.log("KUDANIL")
+                //     console.log("TESTING")
                 // }
                 const summarize_data = useDataSummaryStore.getState().summarize_data;
                 await summarize_data(get().user_id, get().access_token);
@@ -63,14 +63,14 @@ export const useAuthStore = create<AuthStore>()(
             },
             register: async (email, nama_lengkap, password, role) => {
                 const response = await apiRegister(email, nama_lengkap, password, role);
-                set({
-                    user_id: response.user_data.user_id,
-                    email: response.user_data.email,
-                    nama_lengkap: response.user_data.nama_lengkap,
-                    nama_toko: response.user_data.nama_toko,
-                    role: response.user_data.role,
-                    access_token: response.access_token
-                });
+                // set({
+                //     user_id: response.user_data.user_id,
+                //     email: response.user_data.email,
+                //     nama_lengkap: response.user_data.nama_lengkap,
+                //     nama_toko: response.user_data.nama_toko,
+                //     role: response.user_data.role,
+                //     access_token: response.access_token
+                // });
                 return response.user_data;
             },
             logout: () => {
