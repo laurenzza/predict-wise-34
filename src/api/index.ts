@@ -157,11 +157,28 @@ export const apiDeleteAccount = async (user_id: number, access_token: string): P
     }
 }
 
-export const apiUploadSales = async (file: FormData): Promise<User> => {
+export const apiUploadSales = async (formData: FormData): Promise<User> => {
     const auth = useAuthStore.getState()
     try {
         const response = await axios.post(`${base_url}/api/sales/upload`,
-            file,
+            formData,
+            {
+                headers: {
+                    "Authorization": `Bearer ${auth.access_token}`
+                }
+            }
+        );
+
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+}
+
+export const apiDeleteSales = async (): Promise<User> => {
+    const auth = useAuthStore.getState()
+    try {
+        const response = await axios.post(`${base_url}/api/sales/upload`,
             {
                 headers: {
                     "Authorization": `Bearer ${auth.access_token}`

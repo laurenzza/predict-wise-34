@@ -168,7 +168,7 @@ export const Predictions = () => {
               <main className="flex-grow flex items-center justify-center">
                 <div className="text-center grid grid-cols-1 gap-6">
                   <div className="text-center p-4 bg-muted/20 rounded-lg">
-                    <Hourglass className="h-8 w-8 text-ml-accent mx-auto mb-2" />
+                    <Hourglass className="h-8 w-8 text-ml-accent mx-auto mb-2 animate-spin" />
                     <h4 className="font-semibold mb-1">Data anda sedang diproses, mohon tunggu</h4>
                   </div>
                 </div>

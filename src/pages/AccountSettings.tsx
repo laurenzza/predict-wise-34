@@ -6,15 +6,18 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { User, Lock, Database, Eye, EyeOff, Upload, UserCheck } from "lucide-react";
+// Added new icons: Play, RefreshCw, Trash2, AlertTriangle, FileText, PlusCircle
+import { User, Lock, Database, Eye, EyeOff, Upload, UserCheck, Play, RefreshCw, Trash2, AlertTriangle, FileText, PlusCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuthChangePassword, useAuthDeleteAccount, useAuthEditProfile, useAuthEmail, useAuthId, useAuthNamaLengkap, useAuthNamaToko, useAuthRole, useAuthToken, useAuthUploadFile } from "@/store/AuthStore";
-import { apiPendingUsers, apiRunPrediction, apiSalesSummary, apiUploadSales, apiUserActivation } from "@/api";
+// Added apiDeleteSales
+import { apiPendingUsers, apiRunPrediction, apiSalesSummary, apiUploadSales, apiUserActivation, apiDeleteSales } from "@/api";
 import { useSummarizeData } from "@/store/DataSummaryStore";
 import { PredictionComparisonBase, useCompare, usePredictionComparisons, usePredictionMetrics, useSevenDaysPrediction, useTotalPredictions } from "@/hooks/usePredictions";
 import * as XLSX from "xlsx";
 
 type UploadStatus = 'idle' | 'uploading' | 'success' | 'error';
+type UploadMode = 'replace' | 'append';
 
 export const AccountSettings = () => {
   const navigate = useNavigate();
@@ -49,6 +52,12 @@ export const AccountSettings = () => {
   const [file, setFile] = useState<File | null>(null);
   const [status, setStatus] = useState<UploadStatus>('idle');
   
+  // --- NEW STATE ---
+  const [isTraining, setIsTraining] = useState(false);
+  const [uploadMode, setUploadMode] = useState<UploadMode>('replace');
+  const [isDeletingData, setIsDeletingData] = useState(false);
+  // -----------------
+
   // State untuk konfirmasi akun
   const [pendingUsers, setPendingUsers] = useState<any[]>([]);
   const [loadingConfirm, setLoadingConfirm] = useState<{ [key: string]: boolean }>({});
@@ -212,6 +221,7 @@ export const AccountSettings = () => {
     }
   }
 
+  // --- MODIFIED: Handle File Upload with Mode ---
   const handleFileUpload = async (e: React.FormEvent) => {
     if(!file) return;
 
@@ -219,16 +229,21 @@ export const AccountSettings = () => {
 
     const formData = new FormData();
     formData.append('file', file);
+    formData.append('mode', uploadMode); // Append selected mode
 
     try {
-      const response = await upload_file(formData);
-      const response2 = await apiRunPrediction();
+      await upload_file(formData);
       await summarize_data(user_id, access_token);
+      // Removed automatic prediction run:
+      // const response2 = await apiRunPrediction();
+      // await summarize_data(user_id, access_token);
 
       setStatus("success");
+      
+      const actionText = uploadMode === 'replace' ? "diganti" : "ditambahkan";
       toast({
         title: "Berhasil Upload File",
-        description: "Data sedang diproses"
+        description: `Data berhasil ${actionText}. Silakan klik 'Mulai Training' untuk update prediksi.`
       })
     } catch (error) {
       console.error(error);
@@ -237,6 +252,61 @@ export const AccountSettings = () => {
         title: "Upload Gagal",
         description: "Perhatikan format file dan coba lagi"
       })
+    }
+  }
+
+  // --- NEW: Handle Training Manually ---
+  const handleRunTraining = async () => {
+    setIsTraining(true);
+    try {
+      await apiRunPrediction();
+      await summarize_data(user_id, access_token);
+      toast({
+        title: "Training Dalam Proses",
+        description: "Model prediksi sedang diperbarui.",
+        className: "bg-green-600 text-white"
+      });
+    } catch (error) {
+      console.error("Training Error:", error);
+      toast({
+        title: "Training Gagal",
+        description: "Terjadi kesalahan saat memproses model.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsTraining(false);
+    }
+  };
+
+  // --- NEW: Handle Delete All Data ---
+  const handleDeleteAllData = async () => {
+    if(!confirm("PERINGATAN: Apakah Anda yakin ingin menghapus SEMUA data penjualan? Tindakan ini tidak bisa dibatalkan.")) {
+      return;
+    }
+
+    setIsDeletingData(true);
+    try {
+      // Calls the API endpoint to clear data
+      await apiDeleteSales(); 
+
+      toast({
+        title: "Data Dihapus",
+        description: "Semua data penjualan telah dibersihkan dari database.",
+        variant: "destructive"
+      });
+      
+      // Optional: Refresh page
+      // window.location.reload(); 
+      
+    } catch (error) {
+      console.error("Error deleting data:", error);
+      toast({
+        title: "Gagal Menghapus Data",
+        description: "Terjadi kesalahan server.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsDeletingData(false);
     }
   }
 
@@ -482,7 +552,7 @@ export const AccountSettings = () => {
             </Card>
           </TabsContent>
 
-          {/* Data Tab */}
+          {/* Data Tab - MODIFIED */}
           <TabsContent value="data">
             <Card>
               <CardHeader>
@@ -492,6 +562,8 @@ export const AccountSettings = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
+                
+                {/* 1. Upload Section (Modified with Radio Buttons) */}
                 <div className="p-4 bg-ml-primary/5 border border-ml-primary/20 rounded-lg space-y-3">
                   <h4 className="font-medium flex items-center gap-2">
                     <Upload className="h-5 w-5 text-ml-primary" />
@@ -500,6 +572,41 @@ export const AccountSettings = () => {
                   <p className="text-sm text-muted-foreground">
                     Upload file CSV dengan kolom: Tanggal Pembayaran, Status Terakhir, Nama Produk, Jumlah Produk Dibeli, Harga Jual, Total Penjualan
                   </p>
+
+                   {/* Mode Upload Selection */}
+                   <div className="bg-white p-3 rounded border space-y-2">
+                        <Label className="text-xs font-bold uppercase text-gray-500">Pilih Metode Upload:</Label>
+                        <div className="flex flex-col sm:flex-row gap-4">
+                            <label className={`flex items-center gap-2 p-3 rounded cursor-pointer border transition-all ${uploadMode === 'replace' ? 'bg-red-50 border-red-200 ring-1 ring-red-400' : 'hover:bg-gray-50'}`}>
+                                <input 
+                                    type="radio" 
+                                    name="uploadMode" 
+                                    checked={uploadMode === 'replace'} 
+                                    onChange={() => setUploadMode('replace')}
+                                    className="accent-red-500 w-4 h-4"
+                                />
+                                <div className="flex flex-col">
+                                    <span className="font-semibold text-sm flex items-center gap-1"><FileText className="w-3 h-3"/> Rewrite (Tulis Ulang)</span>
+                                    <span className="text-xs text-muted-foreground">Hapus semua data lama, ganti dengan file ini.</span>
+                                </div>
+                            </label>
+
+                            <label className={`flex items-center gap-2 p-3 rounded cursor-pointer border transition-all ${uploadMode === 'append' ? 'bg-blue-50 border-blue-200 ring-1 ring-blue-400' : 'hover:bg-gray-50'}`}>
+                                <input 
+                                    type="radio" 
+                                    name="uploadMode" 
+                                    checked={uploadMode === 'append'} 
+                                    onChange={() => setUploadMode('append')}
+                                    className="accent-blue-500 w-4 h-4"
+                                />
+                                <div className="flex flex-col">
+                                    <span className="font-semibold text-sm flex items-center gap-1"><PlusCircle className="w-3 h-3"/> Append (Tambahkan)</span>
+                                    <span className="text-xs text-muted-foreground">Simpan data lama, tambahkan data baru ini.</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
                   <div className="flex flex-col gap-2">
                     <Input 
                       type="file" 
@@ -509,26 +616,65 @@ export const AccountSettings = () => {
                     {
                       file && status !== 'uploading' ?
                       <Button variant="ml" className="w-full" onClick={handleFileUpload}>
-                        Upload & Perbarui Data
+                         Upload ({uploadMode === 'replace' ? 'Rewrite' : 'Append'})
                       </Button>
                       :
                       <Button variant="ml" className="w-full" disabled>
-                        Upload & Perbarui Data
+                        {status === 'uploading' ? 'Sedang Upload...' : 'Upload & Perbarui Data'}
                       </Button>
                     }
                   </div>
-                  <p className="text-xs text-muted-foreground">
-                    Data akan langsung diproses dan digunakan untuk prediksi real-time
-                  </p>
+                </div>
+
+                {/* 2. Training Section (NEW) */}
+                <div className="p-4 bg-purple-50 border border-purple-200 rounded-lg space-y-3">
+                    <h4 className="font-medium flex items-center gap-2 text-purple-700">
+                    <RefreshCw className={`h-5 w-5 ${isTraining ? 'animate-spin' : ''}`} />
+                    Proses Prediksi (Training)
+                    </h4>
+                    <p className="text-sm text-muted-foreground">
+                    Jalankan algoritma ARIMA & LSTM untuk memperbarui prediksi. Training direkomendasikan setiap kali data berubah.
+                    </p>
+                    <Button 
+                    className="w-full bg-purple-600 hover:bg-purple-700 text-white" 
+                    onClick={handleRunTraining}
+                    disabled={isTraining}
+                    >
+                    {isTraining ? 'Sedang Melatih Model...' : 'Mulai Training Data'}
+                    </Button>
                 </div>
                 
+                {/* 3. Export Section */}
                 <div className="p-4 bg-muted/50 rounded-lg space-y-3">
                   <h4 className="font-medium">Export Data</h4>
                   <p className="text-sm text-muted-foreground">
                     Download semua data prediksi dan analisis Anda
                   </p>
-                  <Button variant="outline" onClick={handleExportExcel}>Export ke CSV</Button>
+                  <Button variant="outline" className="w-full" onClick={handleExportExcel}>Export ke CSV</Button>
                 </div>
+
+                {/* 4. Delete Data (NEW) */}
+                {/* <div className="p-4 border border-red-200 bg-red-50/30 rounded-lg flex items-center justify-between">
+                    <div className="space-y-1">
+                        <h4 className="font-medium text-red-900 flex items-center gap-2">
+                            <AlertTriangle className="h-4 w-4" /> Danger Zone
+                        </h4>
+                        <p className="text-xs text-red-600/80 max-w-md">
+                            Hapus semua data penjualan dari database. Riwayat prediksi akan hilang.
+                        </p>
+                    </div>
+                    <Button 
+                        variant="destructive" 
+                        size="sm" 
+                        onClick={handleDeleteAllData}
+                        disabled={isDeletingData}
+                    >
+                        {isDeletingData ? 'Menghapus...' : (
+                            <span className="flex items-center gap-2"><Trash2 className="w-4 h-4" /> Hapus Data</span>
+                        )}
+                    </Button>
+                </div> */}
+
               </CardContent>
             </Card>
           </TabsContent>
@@ -586,7 +732,7 @@ export const AccountSettings = () => {
                                       size="sm"
                                       className="bg-gray-600"
                                       disabled
-                                      >
+                                    >
                                       Hubungi developer
                                     </Button>
                                 ) : (
