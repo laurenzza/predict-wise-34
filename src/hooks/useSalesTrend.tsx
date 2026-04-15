@@ -41,7 +41,7 @@ export const useTransactionAnalysis = () => {
 
 export const useTemporalPattern = () => {
     return useQuery({
-        queryKey: ["tempora_pattern"],
+        queryKey: ["temporal_pattern"],
         queryFn: () => apiFetchTemporalPattern()
     })
 }

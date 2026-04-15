@@ -562,96 +562,107 @@ export const AccountSettings = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                
-                {/* 1. Upload Section (Modified with Radio Buttons) */}
-                <div className="p-4 bg-ml-primary/5 border border-ml-primary/20 rounded-lg space-y-3">
-                  <h4 className="font-medium flex items-center gap-2">
-                    <Upload className="h-5 w-5 text-ml-primary" />
-                    Upload Data Penjualan
-                  </h4>
-                  <p className="text-sm text-muted-foreground">
-                    Upload file CSV dengan kolom: Tanggal Pembayaran, Status Terakhir, Nama Produk, Jumlah Produk Dibeli, Harga Jual, Total Penjualan
-                  </p>
+                {
+                  role == "EMPLOYEE" && (
+                    <>  
+                      {/* 1. Upload Section (Modified with Radio Buttons) */}
+                      <div className="p-4 bg-ml-primary/5 border border-ml-primary/20 rounded-lg space-y-3">
+                        <h4 className="font-medium flex items-center gap-2">
+                          <Upload className="h-5 w-5 text-ml-primary" />
+                          Upload Data Penjualan
+                        </h4>
+                        <p className="text-sm text-muted-foreground">
+                          Upload file CSV dengan kolom: Tanggal Pembayaran, Status Terakhir, Nama Produk, Jumlah Produk Dibeli, Harga Jual, Total Penjualan
+                        </p>
 
-                   {/* Mode Upload Selection */}
-                   <div className="bg-white p-3 rounded border space-y-2">
-                        <Label className="text-xs font-bold uppercase text-gray-500">Pilih Metode Upload:</Label>
-                        <div className="flex flex-col sm:flex-row gap-4">
-                            <label className={`flex items-center gap-2 p-3 rounded cursor-pointer border transition-all ${uploadMode === 'replace' ? 'bg-red-50 border-red-200 ring-1 ring-red-400' : 'hover:bg-gray-50'}`}>
-                                <input 
-                                    type="radio" 
-                                    name="uploadMode" 
-                                    checked={uploadMode === 'replace'} 
-                                    onChange={() => setUploadMode('replace')}
-                                    className="accent-red-500 w-4 h-4"
-                                />
-                                <div className="flex flex-col">
-                                    <span className="font-semibold text-sm flex items-center gap-1"><FileText className="w-3 h-3"/> Rewrite (Tulis Ulang)</span>
-                                    <span className="text-xs text-muted-foreground">Hapus semua data lama, ganti dengan file ini.</span>
-                                </div>
-                            </label>
+                        {/* Mode Upload Selection */}
+                        <div className="bg-white p-3 rounded border space-y-2">
+                              <Label className="text-xs font-bold uppercase text-gray-500">Pilih Metode Upload:</Label>
+                              <div className="flex flex-col sm:flex-row gap-4">
+                                  <label className={`flex items-center gap-2 p-3 rounded cursor-pointer border transition-all ${uploadMode === 'replace' ? 'bg-red-50 border-red-200 ring-1 ring-red-400' : 'hover:bg-gray-50'}`}>
+                                      <input 
+                                          type="radio" 
+                                          name="uploadMode" 
+                                          checked={uploadMode === 'replace'} 
+                                          onChange={() => setUploadMode('replace')}
+                                          className="accent-red-500 w-4 h-4"
+                                      />
+                                      <div className="flex flex-col">
+                                          <span className="font-semibold text-sm flex items-center gap-1"><FileText className="w-3 h-3"/> Rewrite (Tulis Ulang)</span>
+                                          <span className="text-xs text-muted-foreground">Hapus semua data lama, ganti dengan file ini.</span>
+                                      </div>
+                                  </label>
 
-                            <label className={`flex items-center gap-2 p-3 rounded cursor-pointer border transition-all ${uploadMode === 'append' ? 'bg-blue-50 border-blue-200 ring-1 ring-blue-400' : 'hover:bg-gray-50'}`}>
-                                <input 
-                                    type="radio" 
-                                    name="uploadMode" 
-                                    checked={uploadMode === 'append'} 
-                                    onChange={() => setUploadMode('append')}
-                                    className="accent-blue-500 w-4 h-4"
-                                />
-                                <div className="flex flex-col">
-                                    <span className="font-semibold text-sm flex items-center gap-1"><PlusCircle className="w-3 h-3"/> Append (Tambahkan)</span>
-                                    <span className="text-xs text-muted-foreground">Simpan data lama, tambahkan data baru ini.</span>
-                                </div>
-                            </label>
+                                  <label className={`flex items-center gap-2 p-3 rounded cursor-pointer border transition-all ${uploadMode === 'append' ? 'bg-blue-50 border-blue-200 ring-1 ring-blue-400' : 'hover:bg-gray-50'}`}>
+                                      <input 
+                                          type="radio" 
+                                          name="uploadMode" 
+                                          checked={uploadMode === 'append'} 
+                                          onChange={() => setUploadMode('append')}
+                                          className="accent-blue-500 w-4 h-4"
+                                      />
+                                      <div className="flex flex-col">
+                                          <span className="font-semibold text-sm flex items-center gap-1"><PlusCircle className="w-3 h-3"/> Append (Tambahkan)</span>
+                                          <span className="text-xs text-muted-foreground">Simpan data lama, tambahkan data baru ini.</span>
+                                      </div>
+                                  </label>
+                              </div>
+                          </div>
+
+                        <div className="flex flex-col gap-2">
+                          <Input 
+                            type="file" 
+                            accept=".csv"
+                            onChange={handleFileChange}
+                          />
+                          {
+                            file && status !== 'uploading' ?
+                            <Button variant="ml" className="w-full" onClick={handleFileUpload}>
+                              Upload ({uploadMode === 'replace' ? 'Rewrite' : 'Append'})
+                            </Button>
+                            :
+                            <Button variant="ml" className="w-full" disabled>
+                              {status === 'uploading' ? 'Sedang Upload...' : 'Upload & Perbarui Data'}
+                            </Button>
+                          }
                         </div>
-                    </div>
+                      </div>
 
-                  <div className="flex flex-col gap-2">
-                    <Input 
-                      type="file" 
-                      accept=".csv"
-                      onChange={handleFileChange}
-                    />
-                    {
-                      file && status !== 'uploading' ?
-                      <Button variant="ml" className="w-full" onClick={handleFileUpload}>
-                         Upload ({uploadMode === 'replace' ? 'Rewrite' : 'Append'})
-                      </Button>
-                      :
-                      <Button variant="ml" className="w-full" disabled>
-                        {status === 'uploading' ? 'Sedang Upload...' : 'Upload & Perbarui Data'}
-                      </Button>
-                    }
-                  </div>
-                </div>
-
-                {/* 2. Training Section (NEW) */}
-                <div className="p-4 bg-purple-50 border border-purple-200 rounded-lg space-y-3">
-                    <h4 className="font-medium flex items-center gap-2 text-purple-700">
-                    <RefreshCw className={`h-5 w-5 ${isTraining ? 'animate-spin' : ''}`} />
-                    Proses Prediksi (Training)
-                    </h4>
-                    <p className="text-sm text-muted-foreground">
-                    Jalankan algoritma ARIMA & LSTM untuk memperbarui prediksi. Training direkomendasikan setiap kali data berubah.
-                    </p>
-                    <Button 
-                    className="w-full bg-purple-600 hover:bg-purple-700 text-white" 
-                    onClick={handleRunTraining}
-                    disabled={isTraining}
-                    >
-                    {isTraining ? 'Sedang Melatih Model...' : 'Mulai Training Data'}
-                    </Button>
-                </div>
-                
-                {/* 3. Export Section */}
-                <div className="p-4 bg-muted/50 rounded-lg space-y-3">
-                  <h4 className="font-medium">Export Data</h4>
-                  <p className="text-sm text-muted-foreground">
-                    Download semua data prediksi dan analisis Anda
-                  </p>
-                  <Button variant="outline" className="w-full" onClick={handleExportExcel}>Export ke CSV</Button>
-                </div>
+                      {/* 2. Training Section (NEW) */}
+                      <div className="p-4 bg-purple-50 border border-purple-200 rounded-lg space-y-3">
+                          <h4 className="font-medium flex items-center gap-2 text-purple-700">
+                          <RefreshCw className={`h-5 w-5 ${isTraining ? 'animate-spin' : ''}`} />
+                          Proses Prediksi (Training)
+                          </h4>
+                          <p className="text-sm text-muted-foreground">
+                          Jalankan algoritma ARIMA & LSTM untuk memperbarui prediksi. Training direkomendasikan setiap kali data berubah.
+                          </p>
+                          <Button 
+                          className="w-full bg-purple-600 hover:bg-purple-700 text-white" 
+                          onClick={handleRunTraining}
+                          disabled={isTraining}
+                          >
+                          {isTraining ? 'Sedang Melatih Model...' : 'Mulai Training Data'}
+                          </Button>
+                      </div>
+                    </>
+                  )
+                }
+                  
+                {
+                  role == "OWNER" && (
+                    <>
+                      {/* 3. Export Section */}
+                      <div className="p-4 bg-muted/50 rounded-lg space-y-3">
+                        <h4 className="font-medium">Export Data</h4>
+                        <p className="text-sm text-muted-foreground">
+                          Download semua data prediksi dan analisis Anda
+                        </p>
+                        <Button variant="outline" className="w-full" onClick={handleExportExcel}>Export ke CSV</Button>
+                      </div>
+                    </>
+                  )
+                }  
 
                 {/* 4. Delete Data (NEW) */}
                 {/* <div className="p-4 border border-red-200 bg-red-50/30 rounded-lg flex items-center justify-between">

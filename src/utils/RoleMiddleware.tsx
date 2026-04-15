@@ -1,12 +1,15 @@
+import Unauthorized from "@/pages/Unauthorized";
 import { useAuthIsAuthenticated, useAuthRole } from "@/store/AuthStore";
 import { Navigate, Outlet } from "react-router-dom";
 
-export const AdminOnly = () => {
+export const OwnerOnly = () => {
     const role = useAuthRole();
-    return role == "ADMIN" ? <Outlet/> : <Navigate to={"/not-found"}/>
+    return role == "OWNER" ? <Outlet/> : <Unauthorized/>
+    // return role == "OWNER" ? <Outlet/> : <Navigate to={"/not-found"}/>
 }
 
-export const DeveloperOnly = () => {
+export const EmployeeOnly = () => {
     const role = useAuthRole();
-    return role == "DEVELOPER" ? <Outlet/> : <Navigate to={"/not-found"}/>
+    return role == "EMPLOYEE" ? <Outlet/> : <Unauthorized/>
+    // return role == "EMPLOYEE" ? <Outlet/> : <Navigate to={"/not-found"}/>
 }

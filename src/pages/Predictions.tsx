@@ -29,7 +29,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { PredictionComparisonBase, useCompare, usePredictionComparisons, usePredictionMetrics, useSevenDaysPrediction, useTotalPredictions } from "@/hooks/usePredictions";
 import * as XLSX from "xlsx";
-import { useAuthNamaToko } from "@/store/AuthStore";
+import { useAuthNamaToko, useAuthRole } from "@/store/AuthStore";
 
 export const Predictions = () => {
   const navigate = useNavigate();
@@ -40,6 +40,7 @@ export const Predictions = () => {
   const { data: data_metrics, isLoading: is_loading_metrics, isError: is_error_metrics } = usePredictionMetrics();
 
   const nama_toko = useAuthNamaToko();
+  const role = useAuthRole();
 
   const metric = [
     "Mean Absolute Error (MAE)",
@@ -186,13 +187,18 @@ export const Predictions = () => {
                     </div>
                 ) : (
                   <>
-                  {/* Action Buttons */}
-                  <div className="flex flex-wrap gap-4 mb-8">
-                    <Button variant="ml" className="border-ml-primary/30 hover:bg-ml-primary/10" onClick={handleExportExcel}>
-                      <Download className="h-4 w-4 mr-2" />
-                      Export Results
-                    </Button>
-                  </div>
+                  {
+                    role == "OWNER" &&
+                    <>
+                      {/* Action Buttons */}
+                      <div className="flex flex-wrap gap-4 mb-8">
+                        <Button variant="ml" className="border-ml-primary/30 hover:bg-ml-primary/10" onClick={handleExportExcel}>
+                          <Download className="h-4 w-4 mr-2" />
+                          Export Results
+                        </Button>
+                      </div>
+                    </>
+                  }
 
                   {/* Prediction Chart */}
                   <div className="mb-8">
