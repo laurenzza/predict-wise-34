@@ -56,13 +56,13 @@ export const UserPeriod = () => {
       return;
     }
 
-    const maxDate = new Date();
-    maxDate.setDate(maxDate.getDate() + 90);
+    // const maxDate = new Date();
+    // maxDate.setDate(maxDate.getDate() + 90);
 
-    if (selected > maxDate) {
-      setDateError("Prediksi maksimal 90 hari ke depan");
-      return;
-    }
+    // if (selected > maxDate) {
+    //   setDateError("Prediksi maksimal 90 hari ke depan");
+    //   return;
+    // }
 
     setDateError("");
 
@@ -165,7 +165,7 @@ export const UserPeriod = () => {
               Pilih Tanggal Prediksi
             </CardTitle>
             <CardDescription>
-              Pilih tanggal untuk melihat prediksi penjualan (maksimal 90 hari ke depan)
+              Pilih tanggal untuk melihat prediksi penjualan
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -176,7 +176,7 @@ export const UserPeriod = () => {
                 type="date"
                 value={selectedDate}
                 min={getMinDate()}
-                max={getMaxDate()}
+                // max={getMaxDate()}
                 onChange={handleSelectDate}
                 className="w-full max-w-md"
               />
