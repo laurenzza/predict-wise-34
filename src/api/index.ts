@@ -8,11 +8,11 @@ import { usePaginationStore } from '@/store/PaginationStore';
 import { SalesData } from '@/store/SalesDataStore';
 import axios from 'axios';
 
-const base_url = "http://localhost:8000"
+const base_url = ""
 
 export const apiLogin = async (email: string, password: string): Promise<any> => {
     try {
-        const token = await axios.post(`${base_url}/token`,
+        const token = await axios.post(`${base_url}/api/token`,
             {
                 username: email,
                 password: password

@@ -138,7 +138,7 @@ export const UserDashboard = () => {
                 />
               )
             }
-            <button className="text-left" onClick={() => navigate("/user/dataset#products")}>
+            <button className="text-left" onClick={() => {if(role == "OWNER") navigate("/user/dataset#products")}}>
               <MetricCard
                 title="Total Produk"
                 value={ds.total_produk.toLocaleString('id-ID')}
@@ -146,7 +146,7 @@ export const UserDashboard = () => {
                 icon={<Package className="h-4 w-4 text-ml-accent" />}
                 />
             </button>
-            <button className="text-left" onClick={() => navigate("/user/dataset#dataset")}>
+            <button className="text-left" onClick={() => {if(role == "OWNER") navigate("/user/dataset#dataset")}}>
               <MetricCard
                 title="Data Points"
                 value={ds.total_transaksi.toLocaleString('id-ID')}
