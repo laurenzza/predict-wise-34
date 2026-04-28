@@ -15,6 +15,7 @@ import { apiPendingUsers, apiRunPrediction, apiSalesSummary, apiUploadSales, api
 import { useSummarizeData } from "@/store/DataSummaryStore";
 import { PredictionComparisonBase, useCompare, usePredictionComparisons, usePredictionMetrics, useSevenDaysPrediction, useTotalPredictions } from "@/hooks/usePredictions";
 import * as XLSX from "xlsx";
+import { useQueryClient } from "@tanstack/react-query";
 
 type UploadStatus = 'idle' | 'uploading' | 'success' | 'error';
 type UploadMode = 'replace' | 'append';
@@ -27,6 +28,8 @@ export const AccountSettings = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [activeTab, setActiveTab] = useState("profile");
   const { toast } = useToast();
+
+  const queryClient = useQueryClient();
 
   const user_id = useAuthId();
   const access_token = useAuthToken();
@@ -260,6 +263,7 @@ export const AccountSettings = () => {
     setIsTraining(true);
     try {
       await apiRunPrediction();
+      queryClient.invalidateQueries({ queryKey: ["predictions"] });
       await summarize_data(user_id, access_token);
       toast({
         title: "Training Dalam Proses",

@@ -471,7 +471,7 @@ export const apiFetchMonthlyPredictions = async (): Promise<MonthlyPredictions> 
 export const apiPredictSingleDay = async (date: string): Promise<any> => {
     try {
         const auth = useAuthStore.getState();
-        const response = await axios.post(`${base_url}/api/predict/single_day`,
+        const response = await axios.post(`${base_url}/api/predict/single_day/${auth.user_id}`,
             {
                 target_date: date
             },
@@ -491,7 +491,7 @@ export const apiPredictSingleDay = async (date: string): Promise<any> => {
 export const apiPredictSevenDays = async (date: string): Promise<any> => {
     try {
         const auth = useAuthStore.getState();
-        const response = await axios.post(`${base_url}/api/predictions/predict/seven_days`,
+        const response = await axios.post(`${base_url}/api/predictions/predict/seven_days/${auth.user_id}`,
             {
                 target_date: date
             },

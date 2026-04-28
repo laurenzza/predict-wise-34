@@ -1,5 +1,5 @@
-import { apiCompare, apiFetchDailyPredictions, apiFetchMonthlyPredictions, apiFetchPredictionComparisons, apiFetchPredictionMetrics, apiFetchTotalPredictions, apiFetchWeeklyPredictions, apiPredictSevenDays, apiPredictSingleDay } from "@/api"
-import { useQuery } from "@tanstack/react-query"
+import { apiCompare, apiFetchDailyPredictions, apiFetchMonthlyPredictions, apiFetchPredictionComparisons, apiFetchPredictionMetrics, apiFetchTotalPredictions, apiFetchWeeklyPredictions, apiPredictSevenDays, apiPredictSingleDay, apiRunPrediction } from "@/api"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 
 interface PredictionMetricsBase {
     prediction_metric_id: number
@@ -81,63 +81,85 @@ export interface MonthlyPredictions {
 
 export const usePredictionMetrics = () => {
     return useQuery({
-        queryKey: ["prediction_metrics"],
+        queryKey: ["predictions","prediction_metrics"],
         queryFn: () => apiFetchPredictionMetrics()
     })
 }
 
 export const usePredictionComparisons = () => {
     return useQuery({
-        queryKey: ["prediction_comparisons"],
+        queryKey: ["predictions","prediction_comparisons"],
         queryFn: () => apiFetchPredictionComparisons()
     })
 }
 
 export const useTotalPredictions = () => {
     return useQuery({
-        queryKey: ["total_predictions"],
+        queryKey: ["predictions","total_predictions"],
         queryFn: () => apiFetchTotalPredictions()
     })
 }
 
 export const useDailyPredictions = () => {
     return useQuery({
-        queryKey: ["daily_predictions"],
+        queryKey: ["predictions","daily_predictions"],
         queryFn: () => apiFetchDailyPredictions()
     })
 }
 
 export const useWeeklyPredictions = () => {
     return useQuery({
-        queryKey: ["weekly_predictions"],
+        queryKey: ["predictions","weekly_predictions"],
         queryFn: () => apiFetchWeeklyPredictions()
     })
 }
 
 export const useMonthlyPredictions = () => {
     return useQuery({
-        queryKey: ["monthly_predictions"],
+        queryKey: ["predictions","monthly_predictions"],
         queryFn: () => apiFetchMonthlyPredictions()
     })
 }
 
 export const useSingleDayPrediction = (date: string) => {
     return useQuery({
-        queryKey: ["single_day_prediction", date],
+        queryKey: ["predictions","single_day_prediction", date],
         queryFn: () => apiPredictSingleDay(date)
     })
 }
 
 export const useSevenDaysPrediction = (date: string) => {
     return useQuery({
-        queryKey: ["seven_days_prediction", date],
+        queryKey: ["predictions","seven_days_prediction", date],
         queryFn: () => apiPredictSevenDays(date)
     })
 }
 
 export const useCompare = () => {
     return useQuery({
-        queryKey: ["compare_predictions"],
+        queryKey: ["predictions","compare_predictions"],
         queryFn: () => apiCompare()
     })
 }
+
+export const useRunPrediction = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    // 1. The function that actually makes the API call
+    mutationFn: () => apiRunPrediction(),
+    
+    // 2. What happens AFTER a successful call
+    onSuccess: () => {
+      // Because we used hierarchical keys (starting with "predictions"),
+      // this one line forces all related queries to refetch!
+      queryClient.invalidateQueries({ queryKey: ["predictions"] });
+    },
+    
+    // Optional: What happens if it fails
+    onError: (error) => {
+      console.error("Failed to run prediction:", error);
+      // You could trigger a toast notification here
+    }
+  });
+};
