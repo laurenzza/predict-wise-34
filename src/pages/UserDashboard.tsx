@@ -117,7 +117,7 @@ export const UserDashboard = () => {
           {/* Quick Stats */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             {
-              isLoadingPredictionToday || isLoadingPredictionYesterday ? (
+              isLoadingPredictionToday || isLoadingPredictionYesterday || predictionToday["job_status"] != "success" ? (
                 <MetricCard
                   title="Prediksi Hari Ini"
                   value={<Hourglass className="h-8 w-8 text-ml-accent mx-auto mb-2 animate-spin" />}
