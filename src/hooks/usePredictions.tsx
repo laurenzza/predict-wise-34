@@ -1,4 +1,4 @@
-import { apiCompare, apiFetchDailyPredictions, apiFetchMonthlyPredictions, apiFetchPredictionComparisons, apiFetchPredictionMetrics, apiFetchTotalPredictions, apiFetchWeeklyPredictions, apiPredictSevenDays, apiPredictSingleDay, apiRunPrediction } from "@/api"
+import { apiCompare, apiCompareMonths, apiFetchTop10NextMonth, apiFetchDailyPredictions, apiFetchMonthlyPredictions, apiFetchPredictionComparisons, apiFetchPredictionMetrics, apiFetchTotalPredictions, apiFetchWeeklyPredictions, apiPredictSevenDays, apiPredictSingleDay, apiRunPrediction } from "@/api"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 
 interface PredictionMetricsBase {
@@ -139,6 +139,20 @@ export const useCompare = () => {
     return useQuery({
         queryKey: ["predictions","compare_predictions"],
         queryFn: () => apiCompare()
+    })
+}
+
+export const useCompareMonths = () => {
+    return useQuery({
+        queryKey: ["predictions","compare_predictions_months"],
+        queryFn: () => apiCompareMonths()
+    })
+}
+
+export const useTop10NextMonth = () => {
+    return useQuery({
+        queryKey: ["predictions","top_10_next_month"],
+        queryFn: () => apiFetchTop10NextMonth()
     })
 }
 

@@ -20,7 +20,7 @@ import { useAuthId, useAuthNamaToko, useAuthRole, useAuthToken } from "@/store/A
 import { useDataSummary, useFormatDate, useSummarizeData } from "@/store/DataSummaryStore";
 import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { useSingleDayPrediction } from "@/hooks/usePredictions";
+import { useSingleDayPrediction, useTop10NextMonth } from "@/hooks/usePredictions";
 
 export const UserDashboard = () => {
   const navigate = useNavigate();
@@ -38,20 +38,13 @@ export const UserDashboard = () => {
   const ds = useDataSummary();
   const format_date = useFormatDate();
 
-  const date = new Date();
-  const today: string = date.toISOString().split('T')[0];
-  date.setDate(date.getDate() - 1);
-  const yesterday: string = date.toISOString().split('T')[0];
-  const { data: predictionToday, isLoading: isLoadingPredictionToday, error: predictionErrorToday } = useSingleDayPrediction(today);
-  const { data: predictionYesterday, isLoading: isLoadingPredictionYesterday, error: predictionErrorYesterday } = useSingleDayPrediction(yesterday);
+  const { data: predictionNextMonth, isLoading: isLoadingPredictionNextMonth } = useTop10NextMonth();
 
-  const getChange = (today: number, yesterday: number) => {
-    const result = ((today-yesterday)/yesterday)*100;
-    return {
-      percent: Math.abs(result).toFixed(2),
-      isPositive: result > 0 ? 1 : result < 0 ? 2 : 0,
-    };
-  }
+  const formatCurrency = (value: number) => {
+    return new Intl.NumberFormat('id-ID', {
+      style: 'currency', currency: 'IDR', minimumFractionDigits: 0, maximumFractionDigits: 0,
+    }).format(value);
+  };
 
   const getDurationText = (startStr: string, endStr: string) => {
     const startDate = new Date(startStr);
@@ -80,23 +73,6 @@ export const UserDashboard = () => {
     return `${diffDays} hari data`;
   };
 
-  const upcomingPredictions = [
-    { 
-      period: "7 Hari Mendatang", 
-      products: ["Kapasitor 1.5UF", "AS Dinamo Kipas Angin", "Bushing Bearing"], 
-      totalSales: "Rp 1,580,000" 
-    },
-    { 
-      period: "30 Hari Mendatang", 
-      products: ["Kapasitor 2UF", "AS Exsos Kipas", "Kapasitor Pompa Air"], 
-      totalSales: "Rp 6,420,000" 
-    },
-  ];
-  // console.log(isLoadingPredictionToday)
-  const growthData = predictionToday && predictionYesterday 
-    ? getChange(Number(predictionToday["prediction_summary"]["total_sales_forecast"].replace(/Rp|\s|\./g, '')), Number(predictionYesterday["prediction_summary"]["total_sales_forecast"].replace(/Rp|\s|\./g, '')))
-    : { percent: "0", isPositive: 0 };
-
   return (
     <div className="min-h-screen bg-gradient-hero">
       <Navbar />
@@ -117,9 +93,9 @@ export const UserDashboard = () => {
           {/* Quick Stats */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             {
-              isLoadingPredictionToday || isLoadingPredictionYesterday || predictionToday["job_status"] != "success" ? (
+              isLoadingPredictionNextMonth ? (
                 <MetricCard
-                  title="Prediksi Hari Ini"
+                  title="Prediksi Bulan Depan"
                   value={<Hourglass className="h-8 w-8 text-ml-accent mx-auto mb-2 animate-spin" />}
                   changeType="neutral"
                   icon={<TrendingUp className="h-4 w-4 text-ml-primary" />}
@@ -128,12 +104,10 @@ export const UserDashboard = () => {
               ) : (
                 // <></>
                 <MetricCard
-                  title="Prediksi Hari Ini"
-                  // value="Rp40000"
-                  // change={`${growthData["isPositive"] == 0 ? "" : growthData["isPositive"] == 1 ? "+" : "-"}${growthData["percent"]}% dari kemarin`}
-                  value={predictionToday["prediction_summary"]["total_sales_forecast"]}
-                  change={`${growthData["percent"]}% dari kemarin`}
-                  changeType={growthData["isPositive"] == 0 ? "neutral" : growthData["isPositive"] == 1 ? "positive" : "negative"}
+                  title="Prediksi Bulan Depan"
+                  value={formatCurrency(predictionNextMonth.total_revenue)}
+                  change={`Total Penjualan`}
+                  changeType={"positive"}
                   icon={<TrendingUp className="h-4 w-4 text-ml-primary" />}
                   gradient
                 />

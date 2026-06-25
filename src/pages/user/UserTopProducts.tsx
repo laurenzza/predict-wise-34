@@ -125,7 +125,7 @@ export const UserTopProducts = () => {
             Produk <span className="bg-gradient-ml bg-clip-text text-transparent">Terlaris</span>
           </h1>
           <p className="text-muted-foreground text-lg">
-            Top 10 produk dengan penjualan tertinggi
+            Urutan penjualan produk terlaris
           </p>
         </div>
 
@@ -137,7 +137,7 @@ export const UserTopProducts = () => {
                 <DollarSign className="h-6 w-6 text-ml-primary" />
               </div>
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Total Penjualan Top 10</p>
+                <p className="text-sm font-medium text-muted-foreground">Total Penjualan</p>
                 {
                   isLoadingSummary ? (
                     <p className="text-2xl font-bold">Loading...</p>
@@ -188,7 +188,7 @@ export const UserTopProducts = () => {
               Daftar Produk Terlaris
             </CardTitle>
             <CardDescription>
-              10 produk dengan performa penjualan terbaik
+              Diurutkan berdasarkan performa penjualan terbaik
             </CardDescription>
           </CardHeader>
           <CardContent>

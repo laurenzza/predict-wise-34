@@ -1,148 +1,158 @@
+import React from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, ArrowLeft, TrendingUp, BarChart3, Package, Hourglass, CircleX } from "lucide-react";
-import { useEffect, useState } from "react";
-import { useDailyPredictions, useSingleDayPrediction, useTotalPredictions } from "@/hooks/usePredictions";
-import { useDataSummary } from "@/store/DataSummaryStore";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { ArrowLeft, Hourglass, CircleX, TrendingUp, Package, LayoutList } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
-import { apiPredictSingleDay } from "@/api";
+import { 
+  ResponsiveContainer, 
+  BarChart, 
+  Bar, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  Legend, 
+  LabelList, 
+  ReferenceArea 
+} from 'recharts';
+import { useTop10NextMonth } from "@/hooks/usePredictions";
+import { useNavigate } from "react-router-dom";
 
+// ============================================================================
+// 1. KOMPONEN CUSTOM UNTUK LABEL Y-AXIS
+// ============================================================================
+interface CustomYAxisTickProps {
+  x?: number;
+  y?: number;
+  payload?: {
+    value: string;
+  };
+}
+
+const CustomYAxisTick = (props: any) => {
+  const { x, y, payload } = props;
+  
+  // Recharts membutuhkan elemen SVG yang valid, jadi kembalikan <g> kosong jika tidak ada data
+  if (!payload || !payload.value) return <g></g>;
+
+  const [name, rank] = payload.value.split("||");
+  const isTop3 = parseInt(rank) <= 3;
+  
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <text x={0} y={0} dy={4} textAnchor="end" fill="#374151" fontSize={12} fontFamily="sans-serif">
+        {name.length > 22 ? `${name.substring(0, 22)}...` : name} 
+        <tspan fill={isTop3 ? "#ef4444" : "#9ca3af"} fontWeight="bold" dx={5}>
+          #{rank}
+        </tspan>
+      </text>
+    </g>
+  );
+};
+
+// ============================================================================
+// 2. KOMPONEN GRAFIK TOP 10 (Recharts)
+// ============================================================================
+const Top10PredictionChart = ({ data }: { data: any[] }) => {
+  const chartData = data.map((item) => ({
+    ...item,
+    id: `${item.name}||${item.rank}`,
+    revLabel: `Rp${(item.revenue / 1000).toFixed(0)}rb`,
+    qtyLabel: `${item.qty} pcs`
+  }));
+
+  const formatCurrency = (value: number) => {
+    return new Intl.NumberFormat('id-ID', {
+      style: 'currency', currency: 'IDR', minimumFractionDigits: 0, maximumFractionDigits: 0,
+    }).format(value);
+  };
+
+  return (
+    <Card className="shadow-neural border-ml-primary/20 mb-8">
+      <CardHeader className="text-center pb-4 border-b border-slate-100 mb-4">
+        <CardTitle className="text-xl font-bold text-slate-800 flex items-center justify-center gap-2">
+          <TrendingUp className="h-5 w-5 text-ml-primary" />
+          Top 10 Produk Prediksi Terjual
+        </CardTitle>
+        <CardDescription className="text-sm font-semibold text-slate-600 mt-1">
+          Toko Loa Kim Jong
+        </CardDescription>
+      </CardHeader>
+      
+      <CardContent>
+        <div className="h-[600px] w-full">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={chartData}
+              layout="vertical"
+              margin={{ top: 20, right: 80, left: 10, bottom: 20 }}
+              barGap={2}
+              barSize={16}
+            >
+              <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={true} opacity={0.3} />
+              
+              {chartData.length >= 3 && (
+                <ReferenceArea y1={chartData[0].id} y2={chartData[2].id} fill="#f0f9ff" opacity={0.6} />
+              )}
+
+              <XAxis type="number" xAxisId="rev" orientation="bottom" tickFormatter={(val) => `Rp${val / 1000}rb`} tick={{ fontSize: 12, fill: '#6b7280' }} axisLine={{ stroke: '#d1d5db' }} tickLine={false} />
+              <XAxis type="number" xAxisId="qty" orientation="top" hide={true} />
+              <YAxis 
+                type="category" 
+                dataKey="id" 
+                width={210} 
+                tick={(tickProps: any) => <CustomYAxisTick {...tickProps} />} 
+                axisLine={{ stroke: '#d1d5db' }} 
+                tickLine={false} 
+              />
+              
+              <Tooltip 
+                formatter={(value: number, name: string) => [
+                  name === "revenue" ? formatCurrency(value) : `${value} pcs`, 
+                  name === "revenue" ? "Prediksi pendapatan" : "Prediksi qty terjual"
+                ]}
+                labelFormatter={(label: string) => label.split("||")[0]}
+                contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+              />
+              <Legend verticalAlign="bottom" height={36} iconType="square" formatter={(value) => <span className="text-slate-600 text-sm font-medium ml-1">{value}</span>} />
+              
+              <Bar dataKey="revenue" xAxisId="rev" fill="#4a90e2" name="Prediksi pendapatan (Rp)" radius={[0, 4, 4, 0]}>
+                <LabelList dataKey="revLabel" position="right" fill="#4a90e2" fontSize={12} fontWeight="bold" />
+              </Bar>
+              <Bar dataKey="qty" xAxisId="qty" fill="#43b78d" name="Prediksi qty terjual (pcs)" radius={[0, 4, 4, 0]}>
+                <LabelList dataKey="qtyLabel" position="right" fill="#43b78d" fontSize={12} />
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
+// ============================================================================
+// 3. HALAMAN UTAMA (USER PERIOD)
+// ============================================================================
 export const UserPeriod = () => {
-  const handleBack = () => {
-    window.history.back();
+  const navigate = useNavigate();
+
+  const { data: responseData, isLoading, error } = useTop10NextMonth();
+
+  const formatCurrency = (value: number) => {
+    return new Intl.NumberFormat('id-ID', {
+      style: 'currency', currency: 'IDR', minimumFractionDigits: 0, maximumFractionDigits: 0,
+    }).format(value);
   };
-  
-  const ds = useDataSummary();
-  
-  const mini = new Date(ds.periode_akhir);
-  mini.setDate(mini.getDate() + 1);
-  const [selectedDate, setSelectedDate] = useState<string>(mini.toISOString().split('T')[0]);
-  console.log(selectedDate);
-  const [dateError, setDateError] = useState<string>("");
-
-  // const { data: data_total, isLoading: is_loading_total } = useTotalPredictions();
-  // const { data: data_daily } = useDailyPredictions();
-  
-  // const [dataDaily, setDataDaily] = useState<Map<number, string[]> | null>(null);
-  // const [selectedPrediction, setSelectedPrediction] = useState<number | null>(null);
-  // const [selectedDayIndex, setSelectedDayIndex] = useState<number | null>(null);
-
-  // Fetch prediction by date using React Query
-  // const [predictionData, setPredictionData] = useState<any>(null);
-  // const [isLoadingPrediction, setIsLoadingPrediction] = useState<boolean>(false);
-  // const [predictionError, setPredictionError] = useState<Error>();
-  const { data: predictionData, isLoading: isLoadingPrediction, error: predictionError, refetch } = useSingleDayPrediction(selectedDate);
-
-  // Set default date to tomorrow when component mounts
-  // useEffect(() => {
-  //   const tomorrow = new Date();
-  //   tomorrow.setDate(tomorrow.getDate() + 1);
-  //   setSelectedDate(tomorrow.toISOString().split('T')[0]);
-  // }, []);
-
-  // Validate selected date
-  useEffect(() => {
-    if (!selectedDate) return;
-
-    const selected = new Date(selectedDate);
-    const limit = new Date(ds.periode_akhir);
-    limit.setHours(0, 0, 0, 0);
-
-    if (selected <= limit) {
-      setDateError("Tanggal tidak boleh sebelum tanggal data train terakhir");
-      return;
-    }
-
-    // const maxDate = new Date();
-    // maxDate.setDate(maxDate.getDate() + 90);
-
-    // if (selected > maxDate) {
-    //   setDateError("Prediksi maksimal 90 hari ke depan");
-    //   return;
-    // }
-
-    setDateError("");
-
-    // refetch();
-  }, [selectedDate]);
-
-  // Calculate prediction for selected date
-  // useEffect(() => {
-  //   if (!selectedDate || dateError || data_total?.job_status !== "success") {
-  //     setSelectedPrediction(null);
-  //     setSelectedDayIndex(null);
-  //     return;
-  //   }
-
-  //   const selected = new Date(selectedDate);
-  //   const today = new Date();
-  //   today.setHours(0, 0, 0, 0);
-
-  //   const dayIndex = Math.ceil((selected.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-
-  //   if (dayIndex < 0 || dayIndex >= data_total.data.length) {
-  //     setSelectedPrediction(null);
-  //     setSelectedDayIndex(null);
-  //     return;
-  //   }
-
-  //   setSelectedDayIndex(dayIndex);
-  //   setSelectedPrediction(data_total.data[dayIndex].hasil_total_penjualan_lstm);
-  // }, [selectedDate, dateError, data_total]);
-
-  // Process daily data
-  // useEffect(() => {
-  //   if (!data_daily || data_daily.job_status !== "success") return;
-
-  //   const temp = new Map<number, string[]>();
-  //   data_daily.data.forEach((row) => {
-  //     const current = temp.get(row.hari) || [];
-  //     current.push(row.hasil_nama_produk_lstm);
-  //     temp.set(row.hari, current);
-  //   });
-
-  //   setDataDaily(temp);
-  // }, [data_daily]);
-
-  const getTodayDate = () => {
-    const today = new Date();
-    return today.toISOString().split('T')[0];
-  };
-
-  const getTomorrowDate = () => {
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    return tomorrow.toISOString().split('T')[0];
-  };
-
-  const getMinDate = () => {
-    const minDate = new Date(ds.periode_akhir);
-    minDate.setDate(minDate.getDate() + 1);
-    return minDate.toISOString().split('T')[0];
-  }
-
-  const getMaxDate = () => {
-    const maxDate = new Date();
-    maxDate.setDate(maxDate.getDate() + 90);
-    return maxDate.toISOString().split('T')[0];
-  };
-
-  const handleSelectDate = async (e) => {
-    setSelectedDate(e.target.value);
-    console.log(predictionData);
-  }
 
   return (
     <div className="flex flex-col min-h-screen bg-gradient-hero">
       <div className="container mx-auto px-4 py-8 max-w-7xl flex flex-col flex-grow">
-        {/* Header */}
+        {/* Header (Judul Utama) */}
         <div className="mb-8">
           <Button 
             variant="ghost" 
-            onClick={handleBack}
+            onClick={() => navigate(-1)}
             className="mb-4"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
@@ -150,260 +160,108 @@ export const UserPeriod = () => {
           </Button>
           
           <h1 className="text-3xl md:text-4xl font-bold mb-2">
-            Prediksi <span className="bg-gradient-ml bg-clip-text text-transparent">Penjualan</span>
+            Prediksi <span className="bg-gradient-ml bg-clip-text text-transparent">Penjualan Bulanan</span>
           </h1>
           <p className="text-muted-foreground text-lg">
-            Pilih tanggal untuk melihat prediksi penjualan harian
+            {isLoading 
+              ? "Menyiapkan prediksi untuk bulan berikutnya..." 
+              : `Hasil kalkulasi prediksi penjualan untuk ${responseData?.target_month || "Bulan Depan"}`}
           </p>
         </div>
 
-        {/* Date Picker */}
-        <Card className="shadow-neural border-ml-primary/20 mb-6">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Calendar className="h-5 w-5 text-ml-primary" />
-              Pilih Tanggal Prediksi
-            </CardTitle>
-            <CardDescription>
-              Pilih tanggal untuk melihat prediksi penjualan
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              <Label htmlFor="prediction-date">Tanggal Prediksi</Label>
-              <Input
-                id="prediction-date"
-                type="date"
-                value={selectedDate}
-                min={getMinDate()}
-                // max={getMaxDate()}
-                onChange={handleSelectDate}
-                className="w-full max-w-md"
-              />
-              {dateError && (
-                <p className="text-sm text-red-500">{dateError}</p>
-              )}
-              {!dateError && selectedDate && (
-                <p className="text-sm text-muted-foreground">
-                  Prediksi untuk: {new Date(selectedDate).toLocaleDateString('id-ID', { 
-                    weekday: 'long', 
-                    year: 'numeric', 
-                    month: 'long', 
-                    day: 'numeric' 
-                  })}
-                </p>
-              )}
+        {/* State Loading & Error */}
+        {isLoading ? (
+          <div className="flex-grow flex items-center justify-center">
+            <div className="text-center p-8 bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+              <Hourglass className="h-10 w-10 text-ml-primary mx-auto mb-4 animate-spin" />
+              <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-1">Memuat Prediksi...</h3>
+              <p className="text-sm text-slate-500">Menghitung alokasi hasil ensemble ARIMA & LSTM...</p>
             </div>
-          </CardContent>
-        </Card>
-        {
-          isLoadingPrediction ? (
-            <div className="text-center grid grid-cols-1 gap-6">
-              <div className="text-center p-4 bg-muted/20 rounded-lg">
-                <Hourglass className="h-8 w-8 text-ml-accent mx-auto mb-2 animate-spin" />
-                <h4 className="font-semibold mb-1">
-                  {isLoadingPrediction ? 'Memuat prediksi...' : 'Data anda sedang diproses, mohon tunggu'}
-                </h4>
-              </div>
+          </div>
+        ) : error ? (
+          <div className="flex-grow flex items-center justify-center">
+            <div className="text-center p-8 bg-red-50/50 dark:bg-red-950/20 backdrop-blur-sm rounded-xl border border-red-100 dark:border-red-900 shadow-sm max-w-md">
+              <CircleX className="h-12 w-12 text-red-500 mx-auto mb-4" />
+              <h3 className="text-lg font-semibold text-red-700 dark:text-red-400 mb-2">Gagal Memuat Data</h3>
+              <p className="text-sm text-red-600 dark:text-red-300">{error instanceof Error ? error.message : "Terjadi kesalahan sistem."}</p>
+              <Button variant="outline" className="mt-6 border-red-200 text-red-600 hover:bg-red-50" onClick={() => window.location.reload()}>
+                Coba Lagi
+              </Button>
             </div>
-          ) :
-          <>
-          {(predictionError) ? (
-            <main className="flex-grow flex items-center justify-center">
-              <div className="text-center grid grid-cols-1 gap-6">
-                <div className="text-center p-4 bg-muted/20 rounded-lg">
-                  <CircleX className="h-8 w-8 text-red-500 mx-auto mb-2" />
-                  <h4 className="font-semibold mb-1">Data anda gagal diproses</h4>
-                </div>
-              </div>
-            </main>
-          ) : (
-            <>
-              {
-              predictionData["job_status"] == "running" ? (
-                <div className="text-center grid grid-cols-1 gap-6">
-                <div className="text-center p-4 bg-muted/20 rounded-lg">
-                  <Hourglass className="h-8 w-8 text-ml-accent mx-auto mb-2 animate-spin" />
-                  <h4 className="font-semibold mb-1">
-                    Data anda dalam proses training, mohon tunggu
-                  </h4>
-                </div>
-              </div>
-              ) : (
-                <>
-                  {/* Prediction Display */}
-                  {!predictionError && !dateError && (
-                    <Card className="shadow-neural border-ml-primary/20 mb-8">
-                      <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                          <TrendingUp className="h-5 w-5 text-ml-primary" />
-                          Hasil Prediksi
-                        </CardTitle>
-                        <CardDescription>
-                          Prediksi penjualan untuk {new Date(selectedDate).toLocaleDateString('id-ID', { 
-                            weekday: 'long', 
-                            year: 'numeric', 
-                            month: 'long', 
-                            day: 'numeric' 
-                          })}
-                        </CardDescription>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="space-y-6">
-                          {/* Total Sales Prediction */}
-                          <div className="p-6 bg-gradient-to-br from-ml-primary/10 to-ml-accent/10 rounded-lg border border-ml-primary/20">
-                            <div className="text-center">
-                              <p className="text-sm text-muted-foreground mb-2">Estimasi Total Penjualan</p>
-                              <p className="text-3xl md:text-4xl font-bold text-ml-primary">
-                                {predictionData["prediction_summary"]["total_sales_forecast"].toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })}
-                              </p>
-                            </div>
+          </div>
+        ) : (
+          <div className="w-full animate-in fade-in duration-500 space-y-6">
+            
+            {/* 1. Header Nama Bulan & Estimasi Total Pendapatan */}
+            <div className="p-6 md:p-8 bg-gradient-to-br from-ml-primary/10 to-ml-accent/10 rounded-xl border border-ml-primary/20 flex flex-col items-center justify-center text-center shadow-sm">
+              <Badge className="mb-4 bg-ml-primary/20 text-ml-primary hover:bg-ml-primary/30 border-none px-4 py-1 text-sm">
+                Target: {responseData.target_month}
+              </Badge>
+              <p className="text-sm md:text-base text-muted-foreground mb-2 font-medium">Estimasi Total Penjualan Keseluruhan</p>
+              <p className="text-4xl md:text-5xl font-extrabold text-slate-800 dark:text-slate-100 tracking-tight">
+                {formatCurrency(responseData.total_revenue)}
+              </p>
+            </div>
+
+            {/* 2. Grafik Top 10 Produk */}
+            <Top10PredictionChart data={responseData.top_10 || []} />
+
+            {/* 3. Daftar Sisa Produk (Others) */}
+            {responseData.others && responseData.others.length > 0 && (
+              <Card className="shadow-neural border-ml-primary/20">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <LayoutList className="h-5 w-5 text-ml-primary" />
+                    Rincian Prediksi Produk Lainnya
+                  </CardTitle>
+                  <CardDescription>
+                    Estimasi penjualan untuk produk di luar daftar Top 10
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid gap-3">
+                    {responseData.others.map((product: any, idx: number) => (
+                      <div key={idx} className="flex items-center space-x-3 p-3 bg-muted/20 rounded-lg hover:bg-muted/30 transition-colors border border-transparent hover:border-ml-primary/10">
+                        
+                        {/* Ikon */}
+                        <div className="flex-shrink-0">
+                          <div className="bg-background p-2 rounded-full shadow-sm">
+                            <Package className="h-5 w-5 text-slate-400" />
                           </div>
+                        </div>
 
-                          {/* Top Products / Product Details */}
-                          <div className="space-y-3">
-                            <h4 className="font-semibold text-lg">Rincian Produk Terjual</h4>
-                            <div className="grid gap-3">
-                              {(predictionData["top_5_products"])?.map((product: any, idx: number) => (
-                                <div key={idx} className="flex items-center space-x-3 p-3 bg-muted/20 rounded-lg hover:bg-muted/30 transition-colors border border-transparent hover:border-ml-primary/10">
-                                  
-                                  {/* Icon */}
-                                  <div className="flex-shrink-0">
-                                    <div className="bg-background p-2 rounded-full shadow-sm">
-                                      <Package className="h-5 w-5 text-ml-accent" />
-                                    </div>
-                                  </div>
-
-                                  {/* Product Info */}
-                                  <div className="flex-grow min-w-0">
-                                    <p className="font-medium text-sm md:text-base truncate">
-                                      {product["product_name"]}
-                                    </p>
-                                    
-                                    {/* Baris Baru: Qty dan Harga */}
-                                    <div className="flex items-center gap-3 mt-1.5">
-                                      {/* Badge Qty */}
-                                      <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300">
-                                        {product["estimated_qty"]} Pcs
-                                      </span>
-                                      
-                                      {/* Total Sales Price */}
-                                      <span className="text-xs font-bold text-ml-primary">
-                                        {product["estimated_sales_idr"]}
-                                      </span>
-                                    </div>
-                                  </div>
-
-                                  {/* Rank Badge */}
-                                  <Badge variant="secondary" className="text-xs shrink-0 h-fit">
-                                    #{idx + 1}
-                                  </Badge>
-                                </div>
-                              )) || (
-                                <p className="text-sm text-muted-foreground text-center py-4">
-                                  Data produk tidak tersedia untuk tanggal ini
-                                </p>
-                              )}
-                            </div>
+                        {/* Info Produk */}
+                        <div className="flex-grow min-w-0">
+                          <p className="font-medium text-sm md:text-base text-slate-700 dark:text-slate-200 truncate">
+                            {product.name}
+                          </p>
+                          
+                          <div className="flex items-center gap-3 mt-1.5">
+                            {/* Badge Qty */}
+                            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-300">
+                              {product.qty} Pcs
+                            </span>
+                            
+                            {/* Total Estimasi Harga */}
+                            <span className="text-xs font-bold text-slate-600 dark:text-slate-400">
+                              {formatCurrency(product.revenue)}
+                            </span>
                           </div>
-
-                          {/* Display API Response Data */}
-                          {/* {predictionData && (
-                            <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-950/20 rounded-lg">
-                              <h4 className="font-semibold text-sm text-blue-700 dark:text-blue-400 mb-2">
-                                Data dari API:
-                              </h4>
-                              <pre className="text-xs overflow-auto">
-                                {JSON.stringify(predictionData, null, 2)}
-                              </pre>
-                            </div>
-                          )} */}
                         </div>
-                      </CardContent>
-                    </Card>
-                  )}
 
-                  {/* Error State */}
-                  {predictionError && (
-                    <Card className="shadow-neural border-red-500/20 mb-8">
-                      <CardContent className="py-8">
-                        <div className="text-center">
-                          <CircleX className="h-12 w-12 text-red-500 mx-auto mb-4" />
-                          <h3 className="text-lg font-semibold mb-2">Gagal Memuat Prediksi</h3>
-                          <p className="text-muted-foreground">
-                            {predictionError instanceof Error ? predictionError.message : 'Terjadi kesalahan saat memuat data'}
-                          </p>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  )}
+                        {/* Badge Ranking */}
+                        <Badge variant="secondary" className="text-xs shrink-0 h-fit bg-slate-100 text-slate-500">
+                          #{product.rank}
+                        </Badge>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
-                  {/* Empty State */}
-                  {/* {!dateError && selectedDate && selectedPrediction === null && (
-                    <Card className="shadow-neural border-ml-primary/20 mb-8">
-                      <CardContent className="py-12">
-                        <div className="text-center">
-                          <Calendar className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                          <h3 className="text-lg font-semibold mb-2">Pilih Tanggal</h3>
-                          <p className="text-muted-foreground">
-                            Pilih tanggal di atas untuk melihat prediksi penjualan
-                          </p>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  )} */}
-
-                  {/* Data Range Information */}
-                </>
-              )}
-            </>
-          )}
-          </>
-        }
-        
-        <Card className="shadow-neural border-ml-primary/20">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <BarChart3 className="h-5 w-5 text-ml-primary" />
-              Informasi Data Training
-            </CardTitle>
-            <CardDescription>
-              Periode data yang digunakan untuk melatih model prediksi
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <div className="text-center p-4 bg-muted/20 rounded-lg">
-                <Calendar className="h-8 w-8 text-ml-accent mx-auto mb-2" />
-                <h4 className="font-semibold mb-1">Mulai</h4>
-                <p className="text-sm text-muted-foreground">
-                  {new Date(ds.periode_awal).toLocaleString('id-ID', { month: "long", year: "numeric" })}
-                </p>
-              </div>
-              <div className="text-center p-4 bg-muted/20 rounded-lg">
-                <Calendar className="h-8 w-8 text-ml-accent mx-auto mb-2" />
-                <h4 className="font-semibold mb-1">Berakhir</h4>
-                <p className="text-sm text-muted-foreground">
-                  {new Date(ds.periode_akhir).toLocaleString('id-ID', { month: "long", year: "numeric" })}
-                </p>
-              </div>
-              <div className="text-center p-4 bg-muted/20 rounded-lg">
-                <TrendingUp className="h-8 w-8 text-ml-accent mx-auto mb-2" />
-                <h4 className="font-semibold mb-1">Total Hari</h4>
-                <p className="text-sm text-muted-foreground">
-                  {Math.round((new Date(ds.periode_akhir).getTime() - new Date(ds.periode_awal).getTime()) / (1000 * 60 * 60 * 24)).toLocaleString('id-ID')} hari
-                </p>
-              </div>
-              <div className="text-center p-4 bg-muted/20 rounded-lg">
-                <BarChart3 className="h-8 w-8 text-ml-accent mx-auto mb-2" />
-                <h4 className="font-semibold mb-1">Total Transaksi</h4>
-                <p className="text-sm text-muted-foreground">
-                  {ds.total_transaksi.toLocaleString('id-ID')}
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+          </div>
+        )}
       </div>
     </div>
   );

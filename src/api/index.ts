@@ -542,3 +542,37 @@ export const apiCompare = async (): Promise<any> => {
         throw error;
     }
 }
+
+export const apiCompareMonths = async (): Promise<any> => {
+    try {
+        const auth = useAuthStore.getState();
+        const response = await axios.get(`${base_url}/api/compare/last_6_months`,
+            {
+                headers: {
+                    "Authorization" : `Bearer ${auth.access_token}`
+                }
+            }
+        );
+
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+}
+
+export const apiFetchTop10NextMonth = async (): Promise<any> => {
+    try {
+        const auth = useAuthStore.getState();
+        const response = await axios.get(`${base_url}/api/predict/top10_next_month`,
+            {
+                headers: {
+                    "Authorization" : `Bearer ${auth.access_token}`
+                }
+            }
+        );
+
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+}

@@ -28,10 +28,10 @@ type TransactionHeader = {
 };
 
 type ProductItem = {
-  id: string; // Unique identifier for mapping
+  id: string;
   nama_produk: string;
-  jumlah_produk_dibeli: number;
-  harga_jual: number;
+  jumlah_produk_dibeli: number | string; // <--- Izinkan string
+  harga_jual_idr: number | string;           // <--- Izinkan string
 };
 
 export const UserDataManagement = () => {
@@ -65,8 +65,8 @@ export const UserDataManagement = () => {
   const generateEmptyProduct = (): ProductItem => ({
     id: crypto.randomUUID ? crypto.randomUUID() : Date.now().toString() + Math.random().toString(),
     nama_produk: "",
-    jumlah_produk_dibeli: 1,
-    harga_jual: 0,
+    jumlah_produk_dibeli: 1, 
+    harga_jual_idr: "", // <--- Ubah jadi string kosong
   });
 
   const [products, setProducts] = useState<ProductItem[]>([
@@ -75,7 +75,7 @@ export const UserDataManagement = () => {
 
   // Calculate Grand Total for all products in the invoice
   const grandTotalPenjualan = products.reduce((sum, item) => {
-    return sum + (item.jumlah_produk_dibeli * item.harga_jual);
+    return sum + ((Number(item.jumlah_produk_dibeli) || 0) * (Number(item.harga_jual_idr) || 0));
   }, 0);
 
   const { data: data_total } = useSevenDaysPrediction(new Date().toISOString().split('T')[0]);
@@ -171,12 +171,18 @@ export const UserDataManagement = () => {
     setProducts(prev => prev.filter(item => item.id !== id));
   };
 
-  const handleProductChange = (id: string, field: keyof ProductItem, value: string | number) => {
+  const handleProductChange = (id: string, field: keyof ProductItem, value: string) => {
     setProducts(prev => prev.map(item => {
       if (item.id === id) {
+        // Izinkan string kosong. Jika ada isinya, baru jadikan Number
+        let parsedValue: string | number = value;
+        if (field === 'jumlah_produk_dibeli' || field === 'harga_jual_idr') {
+          parsedValue = value === '' ? '' : Number(value);
+        }
+        
         return {
           ...item,
-          [field]: (field === 'jumlah_produk_dibeli' || field === 'harga_jual') ? Number(value) : value
+          [field]: parsedValue
         };
       }
       return item;
@@ -203,9 +209,9 @@ export const UserDataManagement = () => {
       tanggal_pembayaran: transactionHeader.tanggal_pembayaran,
       status_terakhir: transactionHeader.status_terakhir,
       nama_produk: prod.nama_produk,
-      jumlah_produk_dibeli: prod.jumlah_produk_dibeli,
-      harga_jual: prod.harga_jual,
-      total_penjualan: (prod.jumlah_produk_dibeli * prod.harga_jual)
+      jumlah_produk_dibeli: Number(prod.jumlah_produk_dibeli) || 0,
+      harga_jual_idr: Number(prod.harga_jual_idr) || 0,
+      total_penjualan_idr: (Number(prod.jumlah_produk_dibeli) || 0) * (Number(prod.harga_jual_idr) || 0)
     }));
 
     try {
@@ -406,7 +412,7 @@ export const UserDataManagement = () => {
                         </div>
 
                         {products.map((prod, index) => {
-                          const itemTotal = prod.jumlah_produk_dibeli * prod.harga_jual;
+                          const itemTotal = (Number(prod.jumlah_produk_dibeli) || 0) * (Number(prod.harga_jual_idr) || 0);
                           return (
                             <div key={prod.id} className="relative flex flex-col md:flex-row gap-3 p-3 bg-blue-50/30 border border-blue-100 rounded-md items-start md:items-end">
                               
@@ -437,8 +443,8 @@ export const UserDataManagement = () => {
                                   required
                                   type="number"
                                   min="0"
-                                  value={prod.harga_jual}
-                                  onChange={(e) => handleProductChange(prod.id, 'harga_jual', e.target.value)}
+                                  value={prod.harga_jual_idr}
+                                  onChange={(e) => handleProductChange(prod.id, 'harga_jual_idr', e.target.value)}
                                 />
                               </div>
 

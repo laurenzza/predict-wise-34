@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Navbar } from "@/components/layout/Navbar";
-import { PredictionChart } from "@/components/charts/PredictionChart";
+import { PredictionChart, PredictionChartMonthly } from "@/components/charts/PredictionChart";
 import { MetricCard } from "@/components/cards/MetricCard";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -27,7 +27,7 @@ import {
   CircleX
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { PredictionComparisonBase, useCompare, usePredictionComparisons, usePredictionMetrics, useSevenDaysPrediction, useTotalPredictions } from "@/hooks/usePredictions";
+import { PredictionComparisonBase, useCompare, useCompareMonths, usePredictionComparisons, usePredictionMetrics, useSevenDaysPrediction, useTotalPredictions } from "@/hooks/usePredictions";
 import * as XLSX from "xlsx";
 import { useAuthNamaToko, useAuthRole } from "@/store/AuthStore";
 
@@ -36,7 +36,7 @@ export const Predictions = () => {
   const [isGenerating, setIsGenerating] = useState(false);
 
   const { data: data_total, isLoading: is_loading_total, isError: is_error_total } = useSevenDaysPrediction(new Date().toISOString().split('T')[0]);
-  const { data: data_comparisons, isLoading: is_loading_comparisons, isError: is_error_comparisons } = useCompare();
+  const { data: data_comparisons, isLoading: is_loading_comparisons, isError: is_error_comparisons } = useCompareMonths();
   const { data: data_metrics, isLoading: is_loading_metrics, isError: is_error_metrics } = usePredictionMetrics();
 
   const nama_toko = useAuthNamaToko();
@@ -215,7 +215,8 @@ export const Predictions = () => {
                     {/* Prediction Chart */}
                     <div className="mb-8">
                       {
-                        !is_loading_comparisons && <PredictionChart data={data_comparisons["data"]} />
+                        !is_loading_comparisons && <PredictionChartMonthly data={data_comparisons["data"]} />
+                        // !is_loading_comparisons && <PredictionChart data={data_comparisons["data"]} />
                       }
                     </div>
 
