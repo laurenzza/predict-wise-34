@@ -64,7 +64,7 @@ export const PredictionChartMonthly = ({ data }) => {
           Tren Pendapatan Bulanan (6 Bulan + 1 Bulan Prediksi)
         </CardTitle>
         <CardDescription>
-          Visualisasi perbandingan aktual historis dengan prediksi model ARIMA, LSTM, dan Ensemble PNYB.
+          Visualisasi perbandingan aktual historis dengan prediksi model ARIMA, LSTM, dan Ensemble.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -122,7 +122,7 @@ export const PredictionChartMonthly = ({ data }) => {
                 strokeDasharray="7 7"
                 strokeWidth={3}
                 dot={{ fill: "#9370db", strokeWidth: 2, r: 4 }}
-                name="Ensemble (PNYB)"
+                name="Ensemble"
               />
 
               {/* Garis ARIMA */}
