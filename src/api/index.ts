@@ -175,6 +175,24 @@ export const apiUploadSales = async (formData: FormData): Promise<User> => {
     }
 }
 
+export const apiUploadSalesManual = async (payload): Promise<User> => {
+    const auth = useAuthStore.getState()
+    try {
+        const response = await axios.post(`${base_url}/api/sales/upload/manual`,
+            payload,
+            {
+                headers: {
+                    "Authorization": `Bearer ${auth.access_token}`
+                }
+            }
+        );
+
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+}
+
 export const apiDeleteSales = async (): Promise<User> => {
     const auth = useAuthStore.getState()
     try {

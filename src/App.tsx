@@ -22,6 +22,7 @@ import NotFound from "./pages/NotFound";
 import { ProtectedRoutes, UnprotectedRoutes } from "./utils/AuthMiddleware";
 import { DashboardMiddleware } from "./utils/DashboardMiddleware";
 import { EmployeeOnly, OwnerOnly } from "./utils/RoleMiddleware";
+import { UserDataManagement } from "./pages/user/UserDataManagement";
 
 const queryClient = new QueryClient();
 
@@ -40,6 +41,7 @@ const App = () => (
               <Route path="/user/statistics" element={<UserStatistics />} />
               <Route path="/user/top-products" element={<UserTopProducts />} />
               <Route path="/user/info" element={<UserInfo />} />
+              <Route path="/user/data-management" element={<UserDataManagement />} />
               <Route element={<OwnerOnly/>}>
                 <Route path="/user/dataset" element={<UserDataset />} />
                 <Route path="/user/predictions" element={<Predictions />} />
