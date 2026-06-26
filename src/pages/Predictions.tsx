@@ -35,7 +35,7 @@ export const Predictions = () => {
   const navigate = useNavigate();
   const [isGenerating, setIsGenerating] = useState(false);
 
-  const { data: data_total, isLoading: is_loading_total, isError: is_error_total } = useSevenDaysPrediction(new Date().toISOString().split('T')[0]);
+  // const { data: data_total, isLoading: is_loading_total, isError: is_error_total } = useSevenDaysPrediction(new Date().toISOString().split('T')[0]);
   const { data: data_comparisons, isLoading: is_loading_comparisons, isError: is_error_comparisons } = useCompareMonths();
   const { data: data_metrics, isLoading: is_loading_metrics, isError: is_error_metrics } = usePredictionMetrics();
 
@@ -75,24 +75,24 @@ export const Predictions = () => {
   };
 
   const handleExportExcel = () => {
-    if (!data_total || !data_comparisons || !data_metrics) {
+    if (!data_comparisons || !data_metrics) {
       alert("Data belum siap untuk diekspor!");
       return;
     }
 
     // 1️⃣ Total Predictions Sheet
-    const totalSheetData = data_total["predictions"].map((item: any, index: number) => ({
-      No: index + 1,
-      Tanggal: new Date(item["date"]).toLocaleDateString("id-ID"),
-      "Total Penjualan ARIMA": item["ARIMA"]["value"],
-      "Total Penjualan LSTM": item["LSTM"]["value"],
-      "Selisih": Math.abs(item["ARIMA"]["value"] - item["LSTM"]["value"])
-    }));
-    const totalSheet = XLSX.utils.json_to_sheet(totalSheetData);
+    // const totalSheetData = data_total["predictions"].map((item: any, index: number) => ({
+    //   No: index + 1,
+    //   Tanggal: new Date(item["date"]).toLocaleDateString("id-ID"),
+    //   "Total Penjualan ARIMA": item["ARIMA"]["value"],
+    //   "Total Penjualan LSTM": item["LSTM"]["value"],
+    //   "Selisih": Math.abs(item["ARIMA"]["value"] - item["LSTM"]["value"])
+    // }));
+    // const totalSheet = XLSX.utils.json_to_sheet(totalSheetData);
 
     // 2️⃣ Prediction Comparisons Sheet
     const comparisonSheetData = data_comparisons["data"].map((item: PredictionComparisonBase) => ({
-      Hari: item["day"],
+      Bulan: item["period"],
       Aktual: item["actual"],
       ARIMA: item["arima_pred"],
       LSTM: item["lstm_pred"],
@@ -126,7 +126,7 @@ export const Predictions = () => {
 
     // 4️⃣ Buat workbook
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, totalSheet, "Total Predictions");
+    // XLSX.utils.book_append_sheet(workbook, totalSheet, "Total Predictions");
     XLSX.utils.book_append_sheet(workbook, comparisonSheet, "Prediction Comparisons");
     XLSX.utils.book_append_sheet(workbook, metricSheet, "Prediction Metrics");
 
@@ -163,7 +163,7 @@ export const Predictions = () => {
           </p>
         </div>
           {
-            is_loading_total ?
+            is_loading_comparisons ?
               (
                 <main className="flex-grow flex items-center justify-center">
                   <div className="text-center grid grid-cols-1 gap-6">
@@ -176,7 +176,7 @@ export const Predictions = () => {
               ) :
             <>
             {
-              is_error_total ?
+              is_error_comparisons ?
               (
                   <div className="text-center grid grid-cols-1 gap-6">
                     <div className="text-center p-4 bg-muted/20 rounded-lg">
@@ -188,7 +188,7 @@ export const Predictions = () => {
                 
               <>
                 { 
-                  data_total['job_status'] == "running" ? (
+                  data_comparisons['job_status'] == "running" ? (
                     <main className="flex-grow flex items-center justify-center">
                       <div className="text-center grid grid-cols-1 gap-6">
                         <div className="text-center p-4 bg-muted/20 rounded-lg">
@@ -221,63 +221,6 @@ export const Predictions = () => {
                     </div>
 
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                      {/* Prediction Results Table */}
-                      <Card className="shadow-neural border-ml-primary/20 lg:col-span-2">
-                        <CardHeader>
-                          <CardTitle className="flex items-center gap-2">
-                            <Calendar className="h-5 w-5 text-ml-primary" />
-                            Hasil Prediksi 7 Hari Mendatang
-                          </CardTitle>
-                          <CardDescription>
-                            Perbandingan prediksi penjualan ARIMA vs LSTM
-                          </CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                          <div className="rounded-md border overflow-x-auto">
-                            <Table>
-                              <TableHeader>
-                                <TableRow>
-                                  <TableHead>Periode</TableHead>
-                                  <TableHead>Tanggal</TableHead>
-                                  <TableHead className="text-right">ARIMA</TableHead>
-                                  <TableHead className="text-right">LSTM</TableHead>
-                                  <TableHead className="text-right">Selisih</TableHead>
-                                  {/* <TableHead>Akurasi</TableHead> */}
-                                </TableRow>
-                              </TableHeader>
-                              <TableBody>
-                                {
-                                  is_loading_comparisons ? (
-                                    <p>Loading...</p>
-                                  ) : (
-                                    data_total['predictions'].slice(0, 7).map((result, index) => (
-                                      <TableRow key={index} className="hover:bg-muted/50">
-                                        <TableCell className="font-medium">{index+1}</TableCell>
-                                        <TableCell>{(new Date(result['date'])).toLocaleString('id-ID', { day: 'numeric', month: 'numeric', year: 'numeric' })}</TableCell>
-                                        <TableCell className="text-right font-mono">
-                                          {formatCurrency(result["ARIMA"]["value"])}
-                                        </TableCell>
-                                        <TableCell className="text-right font-mono font-semibold text-lstm">
-                                          {formatCurrency(result["LSTM"]["value"])}
-                                        </TableCell>
-                                        <TableCell className="text-right">
-                                          {formatCurrency(Math.abs(result["ARIMA"]["value"] - result["LSTM"]["value"]))}
-                                        </TableCell>
-                                        {/* <TableCell>
-                                          <Badge className="bg-success/10 text-success border-success/20">
-                                          {result.accuracy}
-                                          </Badge>
-                                        </TableCell> */}
-                                      </TableRow>
-                                    ))
-                                  )
-                                }
-                              </TableBody>
-                            </Table>
-                          </div>
-                        </CardContent>
-                      </Card>
-
                       {/* Model Comparison */}
                       <Card className="shadow-neural border-ml-primary/20 lg:col-span-2">
                         <CardHeader>

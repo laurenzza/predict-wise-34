@@ -546,7 +546,7 @@ export const apiCompare = async (): Promise<any> => {
 export const apiCompareMonths = async (): Promise<any> => {
     try {
         const auth = useAuthStore.getState();
-        const response = await axios.get(`${base_url}/api/compare/last_6_months`,
+        const response = await axios.get(`${base_url}/api/compare/last_9_months/${auth.user_id}`,
             {
                 headers: {
                     "Authorization" : `Bearer ${auth.access_token}`

@@ -61,7 +61,7 @@ export const PredictionChartMonthly = ({ data }) => {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <div className="h-3 w-3 rounded-full bg-gradient-ml animate-ml-pulse"></div>
-          Tren Pendapatan Bulanan (6 Bulan + 1 Bulan Prediksi)
+          Tren Pendapatan Bulanan (9 Bulan + 1 Bulan Prediksi)
         </CardTitle>
         <CardDescription>
           Visualisasi perbandingan aktual historis dengan prediksi model ARIMA, LSTM, dan Ensemble.

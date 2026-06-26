@@ -14,7 +14,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
 import { apiRunPrediction, apiDeleteSales, apiUploadSalesManual } from "@/api";
 // import { apiUploadBulkManualSales } from "@/api"; 
-import { PredictionComparisonBase, useCompare, usePredictionMetrics, useSevenDaysPrediction } from "@/hooks/usePredictions";
+import { PredictionComparisonBase, useCompare, useCompareMonths, usePredictionMetrics, useSevenDaysPrediction } from "@/hooks/usePredictions";
 import * as XLSX from "xlsx";
 
 type UploadStatus = 'idle' | 'uploading' | 'success' | 'error';
@@ -78,8 +78,8 @@ export const UserDataManagement = () => {
     return sum + ((Number(item.jumlah_produk_dibeli) || 0) * (Number(item.harga_jual_idr) || 0));
   }, 0);
 
-  const { data: data_total } = useSevenDaysPrediction(new Date().toISOString().split('T')[0]);
-  const { data: data_comparisons } = useCompare();
+  // const { data: data_total } = useSevenDaysPrediction(new Date().toISOString().split('T')[0]);
+  const { data: data_comparisons } = useCompareMonths();
   const { data: data_metrics } = usePredictionMetrics();
 
   useEffect(() => {
@@ -248,22 +248,22 @@ export const UserDataManagement = () => {
   };
 
   const handleExportExcel = () => {
-    if (!data_total || !data_comparisons || !data_metrics) {
+    if (!data_comparisons || !data_metrics) {
       alert("Data belum siap untuk diekspor! Harap tunggu atau jalankan prediksi.");
       return;
     }
 
-    const totalSheetData = data_total["predictions"].map((item: any, index: number) => ({
-      No: index + 1,
-      Tanggal: new Date(item["date"]).toLocaleDateString("id-ID"),
-      "Total Penjualan ARIMA": item["ARIMA"]["value"],
-      "Total Penjualan LSTM": item["LSTM"]["value"],
-      "Selisih": Math.abs(item["ARIMA"]["value"] - item["LSTM"]["value"])
-    }));
-    const totalSheet = XLSX.utils.json_to_sheet(totalSheetData);
+    // const totalSheetData = data_total["predictions"].map((item: any, index: number) => ({
+    //   No: index + 1,
+    //   Tanggal: new Date(item["date"]).toLocaleDateString("id-ID"),
+    //   "Total Penjualan ARIMA": item["ARIMA"]["value"],
+    //   "Total Penjualan LSTM": item["LSTM"]["value"],
+    //   "Selisih": Math.abs(item["ARIMA"]["value"] - item["LSTM"]["value"])
+    // }));
+    // const totalSheet = XLSX.utils.json_to_sheet(totalSheetData);
 
     const comparisonSheetData = data_comparisons["data"].map((item: PredictionComparisonBase) => ({
-      Hari: item["day"],
+      Bulan: item["period"],
       Aktual: item["actual"],
       ARIMA: item["arima_pred"],
       LSTM: item["lstm_pred"],
@@ -295,7 +295,7 @@ export const UserDataManagement = () => {
     const metricSheet = XLSX.utils.json_to_sheet(metricSheetData);
 
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, totalSheet, "Total Predictions");
+    // XLSX.utils.book_append_sheet(workbook, totalSheet, "Total Predictions");
     XLSX.utils.book_append_sheet(workbook, comparisonSheet, "Prediction Comparisons");
     XLSX.utils.book_append_sheet(workbook, metricSheet, "Prediction Metrics");
 
