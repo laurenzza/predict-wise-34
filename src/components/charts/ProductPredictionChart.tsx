@@ -100,10 +100,17 @@ export const Top10PredictionChart = ({ data }: { data: any[] }) => {
               />
               
               <Tooltip 
-                formatter={(value: number, name: string) => [
-                  name === "revenue" ? formatCurrency(value) : `${value} pcs`, 
-                  name === "revenue" ? "Prediksi pendapatan" : "Prediksi qty terjual"
-                ]}
+                formatter={(value: number, name: string) => {
+                  // Cek apakah batang yang di-hover adalah batang pendapatan
+                  const isRevenue = name === "Prediksi pendapatan (Rp)";
+                  
+                  return [
+                    // Jika pendapatan, format ke Rupiah. Jika bukan, beri akhiran pcs.
+                    isRevenue ? formatCurrency(value) : `${value} pcs`, 
+                    // Kembalikan nama aslinya untuk label tooltip
+                    name 
+                  ];
+                }}
                 labelFormatter={(label: string) => label.split("||")[0]}
                 contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
               />
