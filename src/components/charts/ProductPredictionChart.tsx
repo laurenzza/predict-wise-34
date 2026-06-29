@@ -1,9 +1,6 @@
 import React from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Hourglass, CircleX, TrendingUp, Package, LayoutList } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
+import { TrendingUp } from "lucide-react";
 import { 
   ResponsiveContainer, 
   BarChart, 
@@ -16,16 +13,19 @@ import {
   LabelList, 
   ReferenceArea 
 } from 'recharts';
-import { useTop10NextMonth } from "@/hooks/usePredictions";
-import { useNavigate } from "react-router-dom";
 
 // ============================================================================
 // 1. KOMPONEN CUSTOM UNTUK LABEL Y-AXIS
 // ============================================================================
-const CustomYAxisTick = (props: any) => {
-  const { x, y, payload } = props;
-  
-  // Recharts membutuhkan elemen SVG yang valid, jadi kembalikan <g> kosong jika tidak ada data
+interface CustomYAxisTickProps {
+  x?: number;
+  y?: number;
+  payload?: {
+    value: string;
+  };
+}
+
+const CustomYAxisTick: React.FC<CustomYAxisTickProps> = ({ x, y, payload }) => {
   if (!payload || !payload.value) return <g></g>;
 
   const [name, rank] = payload.value.split("||");
@@ -46,7 +46,7 @@ const CustomYAxisTick = (props: any) => {
 // ============================================================================
 // 2. KOMPONEN GRAFIK TOP 10 (Recharts)
 // ============================================================================
-export const Top10PredictionChart = ({ data }: { data: any[] }) => {
+export const Top10PredictionChart = ({ data, sortBy }: { data: any[], sortBy: 'revenue' | 'qty' }) => {
   const chartData = data.map((item) => ({
     ...item,
     id: `${item.name}||${item.rank}`,
@@ -68,7 +68,7 @@ export const Top10PredictionChart = ({ data }: { data: any[] }) => {
           Top 10 Produk Prediksi Terjual
         </CardTitle>
         <CardDescription className="text-sm font-semibold text-slate-600 mt-1">
-          Toko Loa Kim Jong
+          Berdasarkan {sortBy === 'revenue' ? "Pendapatan (Revenue)" : "Kuantitas (Qty)"}
         </CardDescription>
       </CardHeader>
       
@@ -101,13 +101,9 @@ export const Top10PredictionChart = ({ data }: { data: any[] }) => {
               
               <Tooltip 
                 formatter={(value: number, name: string) => {
-                  // Cek apakah batang yang di-hover adalah batang pendapatan
                   const isRevenue = name === "Prediksi pendapatan (Rp)";
-                  
                   return [
-                    // Jika pendapatan, format ke Rupiah. Jika bukan, beri akhiran pcs.
                     isRevenue ? formatCurrency(value) : `${value} pcs`, 
-                    // Kembalikan nama aslinya untuk label tooltip
                     name 
                   ];
                 }}

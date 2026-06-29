@@ -1,17 +1,16 @@
-import React from "react";
+import { useState, useMemo } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Hourglass, CircleX, TrendingUp, Package, LayoutList } from "lucide-react";
-import { useTop10NextMonth } from "@/hooks/usePredictions";
+import { ArrowLeft, Hourglass, CircleX, Package, LayoutList, ArrowDownUp } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useTop10NextMonth } from "@/hooks/usePredictions";
 import { Top10PredictionChart } from "@/components/charts/ProductPredictionChart";
 
-// ============================================================================
-// 3. HALAMAN UTAMA (USER PERIOD)
-// ============================================================================
 export const UserPeriod = () => {
   const navigate = useNavigate();
+  // State untuk menyimpan pilihan filter user ('revenue' atau 'qty')
+  const [sortBy, setSortBy] = useState<'revenue' | 'qty'>('revenue');
 
   const { data: responseData, isLoading, error } = useTop10NextMonth();
 
@@ -20,6 +19,33 @@ export const UserPeriod = () => {
       style: 'currency', currency: 'IDR', minimumFractionDigits: 0, maximumFractionDigits: 0,
     }).format(value);
   };
+
+  // Memoization agar pengurutan hanya berjalan ketika data atau filter berubah
+  const { displayTop10, displayOthers } = useMemo(() => {
+    if (!responseData) return { displayTop10: [], displayOthers: [] };
+
+    // 1. Gabungkan semua produk dari API
+    const allProducts = [...(responseData.top_10 || []), ...(responseData.others || [])];
+
+    // 2. Sort ulang berdasarkan pilihan user
+    const sortedProducts = allProducts.sort((a, b) => {
+      if (sortBy === 'qty') {
+        // Jika jumlah qty sama, urutkan berdasarkan revenue sebagai tie-breaker
+        if (b.qty === a.qty) return b.revenue - a.revenue;
+        return b.qty - a.qty;
+      }
+      return b.revenue - a.revenue;
+    }).map((item, index) => ({
+      ...item,
+      rank: index + 1 // 3. Hitung ulang ranking (1, 2, 3...)
+    }));
+
+    // 4. Pecah kembali menjadi top 10 dan sisanya
+    return {
+      displayTop10: sortedProducts.slice(0, 10),
+      displayOthers: sortedProducts.slice(10)
+    };
+  }, [responseData, sortBy]);
 
   return (
     <div className="flex flex-col min-h-screen bg-gradient-hero">
@@ -71,19 +97,49 @@ export const UserPeriod = () => {
             {/* 1. Header Nama Bulan & Estimasi Total Pendapatan */}
             <div className="p-6 md:p-8 bg-gradient-to-br from-ml-primary/10 to-ml-accent/10 rounded-xl border border-ml-primary/20 flex flex-col items-center justify-center text-center shadow-sm">
               <Badge className="mb-4 bg-ml-primary/20 text-ml-primary hover:bg-ml-primary/30 border-none px-4 py-1 text-sm">
-                Target: {responseData.target_month}
+                Target: {responseData?.target_month || "Menyiapkan..."}
               </Badge>
               <p className="text-sm md:text-base text-muted-foreground mb-2 font-medium">Estimasi Total Penjualan Keseluruhan</p>
               <p className="text-4xl md:text-5xl font-extrabold text-slate-800 dark:text-slate-100 tracking-tight">
-                {formatCurrency(responseData.total_revenue)}
+                {formatCurrency(responseData?.total_revenue || 0)}
               </p>
             </div>
 
+            {/* Kontrol Toggle Filter/Sort */}
+            <div className="flex flex-col sm:flex-row items-center justify-between bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+              <div className="flex items-center gap-2 mb-3 sm:mb-0 text-slate-700 dark:text-slate-300">
+                <ArrowDownUp className="h-5 w-5 text-ml-primary" />
+                <span className="font-semibold text-sm">Urutkan Peringkat Berdasarkan:</span>
+              </div>
+              <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-lg w-full sm:w-auto">
+                <button
+                  onClick={() => setSortBy('revenue')}
+                  className={`flex-1 sm:flex-none px-4 py-2 text-sm font-medium rounded-md transition-all duration-200 ${
+                    sortBy === 'revenue' 
+                      ? 'bg-white dark:bg-slate-700 text-ml-primary shadow-sm ring-1 ring-slate-200/50' 
+                      : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
+                  }`}
+                >
+                  Pendapatan
+                </button>
+                <button
+                  onClick={() => setSortBy('qty')}
+                  className={`flex-1 sm:flex-none px-4 py-2 text-sm font-medium rounded-md transition-all duration-200 ${
+                    sortBy === 'qty' 
+                      ? 'bg-white dark:bg-slate-700 text-ml-primary shadow-sm ring-1 ring-slate-200/50' 
+                      : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
+                  }`}
+                >
+                  Kuantitas (Qty)
+                </button>
+              </div>
+            </div>
+
             {/* 2. Grafik Top 10 Produk */}
-            <Top10PredictionChart data={responseData.top_10 || []} />
+            <Top10PredictionChart data={displayTop10} sortBy={sortBy} />
 
             {/* 3. Daftar Sisa Produk (Others) */}
-            {responseData.others && responseData.others.length > 0 && (
+            {displayOthers && displayOthers.length > 0 && (
               <Card className="shadow-neural border-ml-primary/20">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
@@ -96,7 +152,7 @@ export const UserPeriod = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="grid gap-3">
-                    {responseData.others.map((product: any, idx: number) => (
+                    {displayOthers.map((product: any, idx: number) => (
                       <div key={idx} className="flex items-center space-x-3 p-3 bg-muted/20 rounded-lg hover:bg-muted/30 transition-colors border border-transparent hover:border-ml-primary/10">
                         
                         {/* Ikon */}
@@ -114,12 +170,12 @@ export const UserPeriod = () => {
                           
                           <div className="flex items-center gap-3 mt-1.5">
                             {/* Badge Qty */}
-                            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-300">
+                            <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-bold ${sortBy === 'qty' ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-700'}`}>
                               {product.qty} Pcs
                             </span>
                             
                             {/* Total Estimasi Harga */}
-                            <span className="text-xs font-bold text-slate-600 dark:text-slate-400">
+                            <span className={`text-xs font-bold ${sortBy === 'revenue' ? 'text-ml-primary' : 'text-slate-500'}`}>
                               {formatCurrency(product.revenue)}
                             </span>
                           </div>
