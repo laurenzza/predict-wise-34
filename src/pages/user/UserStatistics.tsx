@@ -129,38 +129,33 @@ export const UserStatistics = () => {
           </CardContent>
         </Card>
 
-        {
-          role == "OWNER" &&
-          <>
-            {/* Status Distribution */}
-            <Card className="shadow-neural border-ml-primary/20 mb-8">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Package className="h-5 w-5 text-ml-primary" />
-                  Distribusi Status Transaksi
-                </CardTitle>
-                <CardDescription>
-                  Breakdown status penyelesaian order dari total {ds.total_transaksi.toLocaleString('id-ID')} transaksi
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {statusDistribution.map((status, index) => (
-                    <div key={index} className="flex items-center justify-between p-4 bg-muted/20 rounded-lg">
-                      <div>
-                        <h4 className="font-medium">{status.status}</h4>
-                        <p className="text-sm text-muted-foreground">{status.count} transaksi</p>
-                      </div>
-                      <div className="text-right">
-                        <div className="text-2xl font-bold">{status.percentage}</div>
-                      </div>
-                    </div>
-                  ))}
+        {/* Status Distribution */}
+        <Card className="shadow-neural border-ml-primary/20 mb-8">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Package className="h-5 w-5 text-ml-primary" />
+              Distribusi Status Transaksi
+            </CardTitle>
+            <CardDescription>
+              Breakdown status penyelesaian order dari total {ds.total_transaksi.toLocaleString('id-ID')} transaksi
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {statusDistribution.map((status, index) => (
+                <div key={index} className="flex items-center justify-between p-4 bg-muted/20 rounded-lg">
+                  <div>
+                    <h4 className="font-medium">{status.status}</h4>
+                    <p className="text-sm text-muted-foreground">{status.count} transaksi</p>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-2xl font-bold">{status.percentage}</div>
+                  </div>
                 </div>
-              </CardContent>
-            </Card>
-          </>
-        }
+              ))}
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Key Insights */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -203,41 +198,36 @@ export const UserStatistics = () => {
             </CardContent>
           </Card>
 
-          {
-            role == "OWNER" &&
-            <>
-              <Card className="shadow-neural border-ml-primary/20">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Calendar className="h-5 w-5 text-ml-primary" />
-                    Pola Temporal
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {
-                    isLoadingTemporal ? (
-                      <p>Loading...</p>
-                    ) : (
-                      <div className="space-y-4">
-                        <div>
-                          <h4 className="font-semibold mb-2">Hari Terbaik</h4>
-                          <p className="text-sm text-muted-foreground">{(new Date(2025, 9, 26 + temporal_pattern.hari_transaksi)).toLocaleString('id-ID', { weekday: "long" })}: {((temporal_pattern.jumlah_transaksi_hari/ds.total_transaksi)*100).toFixed(1)}% dari total transaksi</p>
-                        </div>
-                        <div>
-                          <h4 className="font-semibold mb-2">Bulan Terbaik</h4>
-                          <p className="text-sm text-muted-foreground">{(new Date(2025, temporal_pattern.bulan_transaksi - 1, 26)).toLocaleString('id-ID', { month: "long" })}: {((temporal_pattern.jumlah_transaksi_bulan/ds.total_transaksi)*100).toFixed(1)}% dari total penjualan tahunan</p>
-                        </div>
-                        <div>
-                          <h4 className="font-semibold mb-2">Jam Tersibuk</h4>
-                          <p className="text-sm text-muted-foreground">{temporal_pattern.rentang_jam_transaksi}: {((temporal_pattern.jumlah_transaksi_jam/ds.total_transaksi)*100).toFixed(1)}% transaksi harian</p>
-                        </div>
-                      </div>
-                    )
-                  }
-                </CardContent>
-              </Card>
-            </>
-          }
+          <Card className="shadow-neural border-ml-primary/20">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Calendar className="h-5 w-5 text-ml-primary" />
+                Pola Temporal
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {
+                isLoadingTemporal ? (
+                  <p>Loading...</p>
+                ) : (
+                  <div className="space-y-4">
+                    <div>
+                      <h4 className="font-semibold mb-2">Hari Terbaik</h4>
+                      <p className="text-sm text-muted-foreground">{(new Date(2025, 9, 26 + temporal_pattern.hari_transaksi)).toLocaleString('id-ID', { weekday: "long" })}: {((temporal_pattern.jumlah_transaksi_hari/ds.total_transaksi)*100).toFixed(1)}% dari total transaksi</p>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold mb-2">Bulan Terbaik</h4>
+                      <p className="text-sm text-muted-foreground">{(new Date(2025, temporal_pattern.bulan_transaksi - 1, 26)).toLocaleString('id-ID', { month: "long" })}: {((temporal_pattern.jumlah_transaksi_bulan/ds.total_transaksi)*100).toFixed(1)}% dari total penjualan tahunan</p>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold mb-2">Jam Tersibuk</h4>
+                      <p className="text-sm text-muted-foreground">{temporal_pattern.rentang_jam_transaksi}: {((temporal_pattern.jumlah_transaksi_jam/ds.total_transaksi)*100).toFixed(1)}% transaksi harian</p>
+                    </div>
+                  </div>
+                )
+              }
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>
