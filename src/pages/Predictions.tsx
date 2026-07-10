@@ -4,6 +4,14 @@ import { PredictionChartMonthly } from "@/components/charts/PredictionChart";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { 
   Target, 
   Download,
@@ -12,14 +20,173 @@ import {
   CircleX,
   ArrowDownUp, 
   CalendarDays,
-  TrendingUp,
-  PackageOpen
+  LayoutList,
+  PackageOpen,
+  ChevronDown
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { PredictionComparisonBase, useCompareMonths, usePredictionMetrics } from "@/hooks/usePredictions";
 import * as XLSX from "xlsx";
 import { useAuthNamaToko, useAuthRole } from "@/store/AuthStore";
-import { ProductComparisonChart } from "@/components/charts/ProductComparisonChart";
+
+// ============================================================================
+// 1. KOMPONEN TABEL KOMPARASI (PREDIKSI VS AKTUAL BERDASARKAN NAMA)
+// ============================================================================
+export const ProductComparisonTable = ({ 
+  data = [], 
+  selectedMonth, 
+  setSelectedMonth, 
+  historicalMonths 
+}: { 
+  data?: any[], 
+  selectedMonth: string, 
+  setSelectedMonth: (val: string) => void, 
+  historicalMonths: any[] 
+}) => {
+  
+  const alignedData = useMemo(() => {
+    if (!data || data.length === 0) return [];
+
+    const preds: any[] = [];
+    const actuals: any[] = [];
+
+    data.forEach(d => {
+      if (d.pred_name && d.pred_name !== "-") preds.push({ name: d.pred_name, rev: d.pred_revenue, qty: d.pred_qty });
+      if (d.actual_name && d.actual_name !== "-") actuals.push({ name: d.actual_name, rev: d.actual_revenue, qty: d.actual_qty });
+    });
+
+    const predNames = preds.map(p => p.name);
+    const actualNames = actuals.map(a => a.name);
+    const commonNames = predNames.filter(name => actualNames.includes(name));
+
+    // Urutkan default berdasarkan Pendapatan
+    commonNames.sort((a, b) => {
+      const pA = preds.find(p => p.name === a)!;
+      const pB = preds.find(p => p.name === b)!;
+      return pB.rev - pA.rev;
+    });
+
+    const onlyPreds = preds.filter(p => !commonNames.includes(p.name)).sort((a, b) => b.rev - a.rev);
+    const onlyActuals = actuals.filter(a => !commonNames.includes(a.name)).sort((a, b) => b.rev - a.rev);
+
+    const rows = [];
+    commonNames.forEach(name => {
+      const p = preds.find(x => x.name === name)!;
+      const a = actuals.find(x => x.name === name)!;
+      rows.push({
+        pred_name: p.name, pred_val_rev: p.rev, pred_val_qty: p.qty,
+        actual_name: a.name, actual_val_rev: a.rev, actual_val_qty: a.qty
+      });
+    });
+
+    const maxRemaining = Math.max(onlyPreds.length, onlyActuals.length);
+    for (let i = 0; i < maxRemaining; i++) {
+      const p = onlyPreds[i] || { name: "-", rev: 0, qty: 0 };
+      const a = onlyActuals[i] || { name: "-", rev: 0, qty: 0 };
+      rows.push({
+        pred_name: p.name, pred_val_rev: p.rev, pred_val_qty: p.qty,
+        actual_name: a.name, actual_val_rev: a.rev, actual_val_qty: a.qty
+      });
+    }
+
+    return rows;
+  }, [data]);
+
+  const formatRev = (val: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(val);
+  const formatQty = (val: number) => new Intl.NumberFormat('id-ID').format(val);
+
+  return (
+    <Card className="shadow-neural border-ml-primary/20 mb-8 overflow-hidden">
+      <CardHeader className="text-center pb-4 border-b border-slate-200 bg-slate-50/50">
+        <CardTitle className="text-xl font-bold text-slate-800 flex items-center justify-center gap-2">
+          <LayoutList className="h-5 w-5 text-ml-primary" />
+          Rincian Produk: Prediksi vs Aktual
+        </CardTitle>
+        
+        {/* DROPDOWN FILTER PINDAH KE SINI */}
+        {/* DROPDOWN FILTER PINDAH KE SINI */}
+        <div className="flex justify-center items-center mt-3">
+          <div className="relative flex items-center gap-2 bg-white dark:bg-slate-800 pl-3 pr-2 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm transition-all hover:border-ml-primary/50 focus-within:ring-2 focus-within:ring-ml-primary/20">
+            <CalendarDays className="h-4 w-4 text-ml-primary" />
+            <select 
+              className="bg-transparent text-slate-700 dark:text-slate-200 border-none text-sm font-semibold outline-none cursor-pointer appearance-none pr-6 z-10 w-full"
+              value={selectedMonth}
+              onChange={(e) => setSelectedMonth(e.target.value)}
+            >
+              <option value="" disabled>-- Pilih Bulan --</option>
+              {historicalMonths.map((item: any) => {
+                const val = item.period; 
+                const [year, month] = val.split('-');
+                const monthName = new Date(2000, parseInt(month)-1, 1).toLocaleString('id-ID', {month: "long"});
+                const label = `${monthName} ${year}`;
+                
+                return <option key={val} value={val}>{label}</option>;
+              })}
+            </select>
+            {/* Ikon Chevron Custom */}
+            <ChevronDown className="h-4 w-4 text-slate-500 absolute right-2 pointer-events-none" />
+          </div>
+        </div>
+      </CardHeader>
+      
+      {(!data || data.length === 0) ? (
+        <CardContent className="flex flex-col items-center justify-center h-[300px] text-center">
+          <PackageOpen className="h-12 w-12 text-slate-300 mb-3" />
+          <p className="text-lg font-semibold text-slate-600">Belum Ada Rincian Produk</p>
+          <p className="text-sm text-slate-500">Silakan jalankan ulang prediksi agar data tabel diperbarui.</p>
+        </CardContent>
+      ) : (
+        <div className="overflow-x-auto max-h-[600px] relative">
+          <Table>
+            <TableHeader className="bg-slate-100 sticky top-0 z-10 shadow-sm">
+              <TableRow>
+                <TableHead colSpan={3} className="text-center border-r border-slate-300 font-bold text-blue-700 bg-blue-50/50 uppercase tracking-wider">Prediksi Model</TableHead>
+                <TableHead colSpan={3} className="text-center font-bold text-emerald-700 bg-emerald-50/50 uppercase tracking-wider">Data Aktual</TableHead>
+              </TableRow>
+              <TableRow className="bg-slate-100 shadow-sm border-b-2 border-slate-200 text-xs">
+                <TableHead className="w-[20%] font-semibold text-slate-700">Nama Produk</TableHead>
+                <TableHead className="w-[10%] font-semibold text-slate-700 text-right">Qty</TableHead>
+                <TableHead className="w-[20%] font-semibold text-slate-700 border-r border-slate-300 text-right">Pendapatan</TableHead>
+                <TableHead className="w-[20%] font-semibold text-slate-700">Nama Produk</TableHead>
+                <TableHead className="w-[10%] font-semibold text-slate-700 text-right">Qty</TableHead>
+                <TableHead className="w-[20%] font-semibold text-slate-700 text-right">Pendapatan</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {alignedData.map((row, idx) => {
+                const isMatch = row.pred_name !== '-' && row.actual_name !== '-' && row.pred_name === row.actual_name;
+
+                return (
+                  <TableRow key={idx} className={`transition-colors ${isMatch ? 'bg-white hover:bg-slate-50' : 'bg-slate-50/30 hover:bg-slate-100/50'}`}>
+                    <TableCell className={`font-medium ${row.pred_name !== '-' ? 'text-slate-800' : 'text-slate-400'}`}>
+                      {row.pred_name}
+                    </TableCell>
+                    <TableCell className={`text-right ${row.pred_name !== '-' ? 'text-blue-600 font-semibold' : 'text-slate-400'}`}>
+                      {row.pred_name !== '-' ? formatQty(row.pred_val_qty) : '-'}
+                    </TableCell>
+                    <TableCell className={`border-r border-slate-200 text-right ${row.pred_name !== '-' ? 'text-blue-600 font-semibold' : 'text-slate-400'}`}>
+                      {row.pred_name !== '-' ? formatRev(row.pred_val_rev) : '-'}
+                    </TableCell>
+                    
+                    <TableCell className={`font-medium ${row.actual_name !== '-' ? 'text-slate-800' : 'text-slate-400'}`}>
+                      {row.actual_name}
+                    </TableCell>
+                    <TableCell className={`text-right ${row.actual_name !== '-' ? 'text-emerald-600 font-semibold' : 'text-slate-400'}`}>
+                      {row.actual_name !== '-' ? formatQty(row.actual_val_qty) : '-'}
+                    </TableCell>
+                    <TableCell className={`text-right ${row.actual_name !== '-' ? 'text-emerald-600 font-semibold' : 'text-slate-400'}`}>
+                      {row.actual_name !== '-' ? formatRev(row.actual_val_rev) : '-'}
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+        </div>
+      )}
+    </Card>
+  );
+};
 
 // ============================================================================
 // HALAMAN UTAMA PREDICTIONS
@@ -27,8 +194,7 @@ import { ProductComparisonChart } from "@/components/charts/ProductComparisonCha
 export const Predictions = () => {
   const navigate = useNavigate();
 
-  // State Filter
-  const [compareSortBy, setCompareSortBy] = useState<'revenue' | 'qty'>('revenue');
+  // State Filter Komparasi Produk\
   const [selectedMonth, setSelectedMonth] = useState<string>("");
 
   const { data: data_comparisons, isLoading: is_loading_comparisons, isError: is_error_comparisons } = useCompareMonths();
@@ -37,7 +203,7 @@ export const Predictions = () => {
   const nama_toko = useAuthNamaToko();
   const role = useAuthRole();
 
-  // 1. FILTER BULAN HISTORIS SAJA (Sembunyikan Forecast)
+  // 1. FILTER BULAN HISTORIS SAJA (Sembunyikan Forecast dari opsi Tabel Rincian Aktual)
   const historicalMonths = useMemo(() => {
     if (!data_comparisons?.data) return [];
     return data_comparisons.data.filter((item: any) => 
@@ -53,27 +219,22 @@ export const Predictions = () => {
     }
   }, [historicalMonths, selectedMonth]);
 
-  // 3. Ekstrak data produk khusus untuk bulan yang dipilih
+  // 3. Ekstrak data produk khusus untuk bulan yang dipilih (Sesuai metrik)
   const currentMonthData = useMemo(() => {
     if (!data_comparisons?.data || !selectedMonth) return [];
-    
-    // Cari objek bulan yang cocok dengan dropdown
     const foundMonth = data_comparisons.data.find((item: any) => item.period === selectedMonth);
     if (!foundMonth) return [];
 
-    // Tentukan array mana yang dipanggil berdasarkan filter metrik
-    return compareSortBy === 'revenue' 
-      ? (foundMonth.product_breakdown_revenue || [])
-      : (foundMonth.product_breakdown_qty || []);
-      
-  }, [data_comparisons, selectedMonth, compareSortBy]); // <-- Pastikan compareSortBy masuk ke array dependency
+    // Langsung kembalikan array ini karena di dalamnya sudah terdapat Qty & Revenue
+    return foundMonth.product_breakdown_revenue || [];
+  }, [data_comparisons, selectedMonth]);
 
-  const selectedMonthLabel = useMemo(() => {
-    if (!selectedMonth) return "Memuat...";
-    const [year, month] = selectedMonth.split('-');
-    const monthName = new Date(2000, parseInt(month) - 1, 1).toLocaleString('id-ID', { month: "long" });
-    return `${monthName} ${year}`;
-  }, [selectedMonth]);
+  // const selectedMonthLabel = useMemo(() => {
+  //   if (!selectedMonth) return "Memuat...";
+  //   const [year, month] = selectedMonth.split('-');
+  //   const monthName = new Date(2000, parseInt(month) - 1, 1).toLocaleString('id-ID', { month: "long" });
+  //   return `${monthName} ${year}`;
+  // }, [selectedMonth]);
 
   const metric = [
     "Mean Absolute Error (MAE)",
@@ -192,74 +353,15 @@ export const Predictions = () => {
                     </div>
 
                     {/* ========================================================================= */}
-                    {/* FILTER & GRAFIK KOMPARASI BREAKDOWN PRODUK                                */}
+                    {/* TABEL KOMPARASI BREAKDOWN PRODUK                                          */}
                     {/* ========================================================================= */}
                     {!is_loading_comparisons && data_comparisons?.data && historicalMonths.length > 0 && (
-                      <div className="mb-8">
-                        <div className="flex flex-col md:flex-row items-start md:items-center justify-between bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm mb-6 gap-4">
-                          
-                          {/* Toggle Sortir (Revenue / Qty) */}
-                          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full md:w-auto">
-                            <div className="flex items-center gap-2 text-slate-700 dark:text-slate-300">
-                              <ArrowDownUp className="h-5 w-5 text-ml-primary" />
-                              <span className="font-semibold text-sm">Metrik Komparasi:</span>
-                            </div>
-                            <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-lg w-full sm:w-auto">
-                              <button
-                                onClick={() => setCompareSortBy('revenue')}
-                                className={`flex-1 sm:flex-none px-4 py-2 text-sm font-medium rounded-md transition-all duration-200 ${
-                                  compareSortBy === 'revenue' 
-                                    ? 'bg-white dark:bg-slate-700 text-ml-primary shadow-sm ring-1 ring-slate-200/50' 
-                                    : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
-                                }`}
-                              >
-                                Pendapatan
-                              </button>
-                              <button
-                                onClick={() => setCompareSortBy('qty')}
-                                className={`flex-1 sm:flex-none px-4 py-2 text-sm font-medium rounded-md transition-all duration-200 ${
-                                  compareSortBy === 'qty' 
-                                    ? 'bg-white dark:bg-slate-700 text-emerald-600 shadow-sm ring-1 ring-slate-200/50' 
-                                    : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
-                                }`}
-                              >
-                                Kuantitas
-                              </button>
-                            </div>
-                          </div>
-
-                          {/* Dropdown Filter Bulan (Hanya Bulan Historis) */}
-                          <div className="flex items-center gap-3 w-full md:w-auto">
-                            <div className="flex items-center gap-2 text-slate-700 dark:text-slate-300">
-                              <CalendarDays className="h-5 w-5 text-ml-primary" />
-                              <span className="font-semibold text-sm whitespace-nowrap">Pilih Bulan Aktual:</span>
-                            </div>
-                            <select 
-                              className="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-none text-sm font-medium rounded-lg px-4 py-2.5 outline-none focus:ring-2 focus:ring-ml-primary w-full cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
-                              value={selectedMonth}
-                              onChange={(e) => setSelectedMonth(e.target.value)}
-                            >
-                              <option value="" disabled>-- Pilih Bulan --</option>
-                              {historicalMonths.map((item: any) => {
-                                const val = item.period; 
-                                const [year, month] = val.split('-');
-                                const monthName = new Date(2000, parseInt(month)-1, 1).toLocaleString('id-ID', {month: "long"});
-                                const label = `${monthName} ${year}`;
-                                
-                                return <option key={val} value={val}>{label}</option>;
-                              })}
-                            </select>
-                          </div>
-
-                        </div>
-
-                        {/* Rendering Grafik (Terintegrasi ke currentMonthData dari Backend) */}
-                        <ProductComparisonChart 
-                          data={currentMonthData} 
-                          sortBy={compareSortBy} 
-                          monthLabel={selectedMonthLabel} 
-                        />
-                      </div>
+                      <ProductComparisonTable 
+                        data={currentMonthData} 
+                        selectedMonth={selectedMonth}
+                        setSelectedMonth={setSelectedMonth}
+                        historicalMonths={historicalMonths}
+                      />
                     )}
                     {/* ========================================================================= */}
 
