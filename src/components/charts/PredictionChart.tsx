@@ -24,7 +24,7 @@ export const PredictionChartMonthly = ({ data }) => {
       period: row["period"],
       arima: row["arima_pred"],
       lstm: row["lstm_pred"],
-      ensemble: row["ensemble_pred"],
+      // ensemble: row["ensemble_pred"],
       // Set actual ke null jika itu adalah bulan prediksi, agar garis terputus rapi
       actual: row["type"] === "Forecast" ? null : row["actual"]
     });
@@ -115,7 +115,7 @@ export const PredictionChartMonthly = ({ data }) => {
               />
               
               {/* PERBAIKAN: Garis Ensemble (Warna Lavender & Putus-putus) */}
-              <Line 
+              {/* <Line 
                 type="monotone" 
                 dataKey="ensemble" 
                 stroke="#9370db" 
@@ -123,7 +123,7 @@ export const PredictionChartMonthly = ({ data }) => {
                 strokeWidth={3}
                 dot={{ fill: "#9370db", strokeWidth: 2, r: 4 }}
                 name="Ensemble"
-              />
+              /> */}
 
               {/* Garis ARIMA */}
               <Line 

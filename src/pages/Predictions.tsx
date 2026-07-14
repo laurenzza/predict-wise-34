@@ -365,119 +365,6 @@ export const Predictions = () => {
                     )}
                     {/* ========================================================================= */}
 
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                      {/* Model Comparison */}
-                      <Card className="shadow-neural border-ml-primary/20 lg:col-span-2">
-                        <CardHeader>
-                          <CardTitle className="flex items-center gap-2">
-                            <Target className="h-5 w-5 text-ml-primary" />
-                            Perbandingan Detail Model
-                          </CardTitle>
-                          <CardDescription>
-                            Evaluasi performa algoritma ARIMA vs LSTM
-                          </CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                          <div className="space-y-4">
-                            {
-                              is_loading_metrics ? (
-                                <p>Loading...</p>
-                              ) : (
-                                <>
-                                  {/* MAE */}
-                                  <div className="p-4 bg-muted/20 rounded-lg">
-                                    <div className="flex justify-between items-center mb-2">
-                                      <span className="font-medium">{metric[0]}</span>
-                                      {Number(data_metrics.data.arima_mae) > Number(data_metrics.data.lstm_mae) ? (
-                                        <Badge className="bg-lstm/10 text-lstm border-lstm/20">LSTM Unggul</Badge>
-                                      ) : (
-                                        <Badge className="bg-arima/10 text-arima border-arima/20">ARIMA Unggul</Badge>
-                                      )}
-                                    </div>
-                                    <div className="grid grid-cols-2 gap-4">
-                                      <div className="text-center p-3 bg-arima/5 border border-arima/20 rounded">
-                                        <div className="text-lg font-semibold text-arima">{formatNumberId(data_metrics.data.arima_mae)}</div>
-                                        <div className="text-xs text-muted-foreground">ARIMA</div>
-                                      </div>
-                                      <div className="text-center p-3 bg-lstm/5 border border-lstm/20 rounded">
-                                        <div className="text-lg font-semibold text-lstm">{formatNumberId(data_metrics.data.lstm_mae)}</div>
-                                        <div className="text-xs text-muted-foreground">LSTM</div>
-                                      </div>
-                                    </div>
-                                  </div>
-
-                                  {/* RMSE */}
-                                  <div className="p-4 bg-muted/20 rounded-lg">
-                                    <div className="flex justify-between items-center mb-2">
-                                      <span className="font-medium">{metric[1]}</span>
-                                      {Number(data_metrics.data.arima_rmse) > Number(data_metrics.data.lstm_rmse) ? (
-                                        <Badge className="bg-lstm/10 text-lstm border-lstm/20">LSTM Unggul</Badge>
-                                      ) : (
-                                        <Badge className="bg-arima/10 text-arima border-arima/20">ARIMA Unggul</Badge>
-                                      )}
-                                    </div>
-                                    <div className="grid grid-cols-2 gap-4">
-                                      <div className="text-center p-3 bg-arima/5 border border-arima/20 rounded">
-                                        <div className="text-lg font-semibold text-arima">{formatNumber(data_metrics.data.arima_rmse)}</div>
-                                        <div className="text-xs text-muted-foreground">ARIMA</div>
-                                      </div>
-                                      <div className="text-center p-3 bg-lstm/5 border border-lstm/20 rounded">
-                                        <div className="text-lg font-semibold text-lstm">{formatNumber(data_metrics.data.lstm_rmse)}</div>
-                                        <div className="text-xs text-muted-foreground">LSTM</div>
-                                      </div>
-                                    </div>
-                                  </div>
-
-                                  {/* Waktu Train */}
-                                  <div className="p-4 bg-muted/20 rounded-lg">
-                                    <div className="flex justify-between items-center mb-2">
-                                      <span className="font-medium">{metric[2]}</span>
-                                      {Number(data_metrics.data.arima_waktu_train) > Number(data_metrics.data.lstm_waktu_train) ? (
-                                        <Badge className="bg-lstm/10 text-lstm border-lstm/20">LSTM Unggul</Badge>
-                                      ) : (
-                                        <Badge className="bg-arima/10 text-arima border-arima/20">ARIMA Unggul</Badge>
-                                      )}
-                                    </div>
-                                    <div className="grid grid-cols-2 gap-4">
-                                      <div className="text-center p-3 bg-arima/5 border border-arima/20 rounded">
-                                        <div className="text-lg font-semibold text-arima">{formatNumber(data_metrics.data.arima_waktu_train)} detik</div>
-                                        <div className="text-xs text-muted-foreground">ARIMA</div>
-                                      </div>
-                                      <div className="text-center p-3 bg-lstm/5 border border-lstm/20 rounded">
-                                        <div className="text-lg font-semibold text-lstm">{formatNumber(data_metrics.data.lstm_waktu_train)} detik</div>
-                                        <div className="text-xs text-muted-foreground">LSTM</div>
-                                      </div>
-                                    </div>
-                                  </div>
-
-                                  {/* Memori */}
-                                  <div className="p-4 bg-muted/20 rounded-lg">
-                                    <div className="flex justify-between items-center mb-2">
-                                      <span className="font-medium">{metric[3]}</span>
-                                      {Number(data_metrics.data.arima_memori) > Number(data_metrics.data.lstm_memori) ? (
-                                        <Badge className="bg-lstm/10 text-lstm border-lstm/20">LSTM Unggul</Badge>
-                                      ) : (
-                                        <Badge className="bg-arima/10 text-arima border-arima/20">ARIMA Unggul</Badge>
-                                      )}
-                                    </div>
-                                    <div className="grid grid-cols-2 gap-4">
-                                      <div className="text-center p-3 bg-arima/5 border border-arima/20 rounded">
-                                        <div className="text-lg font-semibold text-arima">{formatNumber(data_metrics.data.arima_memori)} MB</div>
-                                        <div className="text-xs text-muted-foreground">ARIMA</div>
-                                      </div>
-                                      <div className="text-center p-3 bg-lstm/5 border border-lstm/20 rounded">
-                                        <div className="text-lg font-semibold text-lstm">{formatNumber(data_metrics.data.lstm_memori)} MB</div>
-                                        <div className="text-xs text-muted-foreground">LSTM</div>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </>
-                              )
-                            }
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </div>
                     </>
                   )
                 }
@@ -489,3 +376,116 @@ export const Predictions = () => {
     </div>
   );
 };
+                    // <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    //   {/* Model Comparison */}
+                    //   <Card className="shadow-neural border-ml-primary/20 lg:col-span-2">
+                    //     <CardHeader>
+                    //       <CardTitle className="flex items-center gap-2">
+                    //         <Target className="h-5 w-5 text-ml-primary" />
+                    //         Perbandingan Detail Model
+                    //       </CardTitle>
+                    //       <CardDescription>
+                    //         Evaluasi performa algoritma ARIMA vs LSTM
+                    //       </CardDescription>
+                    //     </CardHeader>
+                    //     <CardContent>
+                    //       <div className="space-y-4">
+                    //         {
+                    //           is_loading_metrics ? (
+                    //             <p>Loading...</p>
+                    //           ) : (
+                    //             <>
+                    //               {/* MAE */}
+                    //               <div className="p-4 bg-muted/20 rounded-lg">
+                    //                 <div className="flex justify-between items-center mb-2">
+                    //                   <span className="font-medium">{metric[0]}</span>
+                    //                   {Number(data_metrics.data.arima_mae) > Number(data_metrics.data.lstm_mae) ? (
+                    //                     <Badge className="bg-lstm/10 text-lstm border-lstm/20">LSTM Unggul</Badge>
+                    //                   ) : (
+                    //                     <Badge className="bg-arima/10 text-arima border-arima/20">ARIMA Unggul</Badge>
+                    //                   )}
+                    //                 </div>
+                    //                 <div className="grid grid-cols-2 gap-4">
+                    //                   <div className="text-center p-3 bg-arima/5 border border-arima/20 rounded">
+                    //                     <div className="text-lg font-semibold text-arima">{formatNumberId(data_metrics.data.arima_mae)}</div>
+                    //                     <div className="text-xs text-muted-foreground">ARIMA</div>
+                    //                   </div>
+                    //                   <div className="text-center p-3 bg-lstm/5 border border-lstm/20 rounded">
+                    //                     <div className="text-lg font-semibold text-lstm">{formatNumberId(data_metrics.data.lstm_mae)}</div>
+                    //                     <div className="text-xs text-muted-foreground">LSTM</div>
+                    //                   </div>
+                    //                 </div>
+                    //               </div>
+
+                    //               {/* RMSE */}
+                    //               <div className="p-4 bg-muted/20 rounded-lg">
+                    //                 <div className="flex justify-between items-center mb-2">
+                    //                   <span className="font-medium">{metric[1]}</span>
+                    //                   {Number(data_metrics.data.arima_rmse) > Number(data_metrics.data.lstm_rmse) ? (
+                    //                     <Badge className="bg-lstm/10 text-lstm border-lstm/20">LSTM Unggul</Badge>
+                    //                   ) : (
+                    //                     <Badge className="bg-arima/10 text-arima border-arima/20">ARIMA Unggul</Badge>
+                    //                   )}
+                    //                 </div>
+                    //                 <div className="grid grid-cols-2 gap-4">
+                    //                   <div className="text-center p-3 bg-arima/5 border border-arima/20 rounded">
+                    //                     <div className="text-lg font-semibold text-arima">{formatNumber(data_metrics.data.arima_rmse)}</div>
+                    //                     <div className="text-xs text-muted-foreground">ARIMA</div>
+                    //                   </div>
+                    //                   <div className="text-center p-3 bg-lstm/5 border border-lstm/20 rounded">
+                    //                     <div className="text-lg font-semibold text-lstm">{formatNumber(data_metrics.data.lstm_rmse)}</div>
+                    //                     <div className="text-xs text-muted-foreground">LSTM</div>
+                    //                   </div>
+                    //                 </div>
+                    //               </div>
+
+                    //               {/* Waktu Train */}
+                    //               <div className="p-4 bg-muted/20 rounded-lg">
+                    //                 <div className="flex justify-between items-center mb-2">
+                    //                   <span className="font-medium">{metric[2]}</span>
+                    //                   {Number(data_metrics.data.arima_waktu_train) > Number(data_metrics.data.lstm_waktu_train) ? (
+                    //                     <Badge className="bg-lstm/10 text-lstm border-lstm/20">LSTM Unggul</Badge>
+                    //                   ) : (
+                    //                     <Badge className="bg-arima/10 text-arima border-arima/20">ARIMA Unggul</Badge>
+                    //                   )}
+                    //                 </div>
+                    //                 <div className="grid grid-cols-2 gap-4">
+                    //                   <div className="text-center p-3 bg-arima/5 border border-arima/20 rounded">
+                    //                     <div className="text-lg font-semibold text-arima">{formatNumber(data_metrics.data.arima_waktu_train)} detik</div>
+                    //                     <div className="text-xs text-muted-foreground">ARIMA</div>
+                    //                   </div>
+                    //                   <div className="text-center p-3 bg-lstm/5 border border-lstm/20 rounded">
+                    //                     <div className="text-lg font-semibold text-lstm">{formatNumber(data_metrics.data.lstm_waktu_train)} detik</div>
+                    //                     <div className="text-xs text-muted-foreground">LSTM</div>
+                    //                   </div>
+                    //                 </div>
+                    //               </div>
+
+                    //               {/* Memori */}
+                    //               <div className="p-4 bg-muted/20 rounded-lg">
+                    //                 <div className="flex justify-between items-center mb-2">
+                    //                   <span className="font-medium">{metric[3]}</span>
+                    //                   {Number(data_metrics.data.arima_memori) > Number(data_metrics.data.lstm_memori) ? (
+                    //                     <Badge className="bg-lstm/10 text-lstm border-lstm/20">LSTM Unggul</Badge>
+                    //                   ) : (
+                    //                     <Badge className="bg-arima/10 text-arima border-arima/20">ARIMA Unggul</Badge>
+                    //                   )}
+                    //                 </div>
+                    //                 <div className="grid grid-cols-2 gap-4">
+                    //                   <div className="text-center p-3 bg-arima/5 border border-arima/20 rounded">
+                    //                     <div className="text-lg font-semibold text-arima">{formatNumber(data_metrics.data.arima_memori)} MB</div>
+                    //                     <div className="text-xs text-muted-foreground">ARIMA</div>
+                    //                   </div>
+                    //                   <div className="text-center p-3 bg-lstm/5 border border-lstm/20 rounded">
+                    //                     <div className="text-lg font-semibold text-lstm">{formatNumber(data_metrics.data.lstm_memori)} MB</div>
+                    //                     <div className="text-xs text-muted-foreground">LSTM</div>
+                    //                   </div>
+                    //                 </div>
+                    //               </div>
+                    //             </>
+                    //           )
+                    //         }
+                    //       </div>
+                    //     </CardContent>
+                    //   </Card>
+                    // </div>
