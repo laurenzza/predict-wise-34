@@ -44,7 +44,7 @@ const App = () => (
               <Route path="/user/data-management" element={<UserDataManagement />} />
               <Route element={<OwnerOnly/>}>
                 <Route path="/user/dataset" element={<UserDataset />} />
-                <Route path="/user/predictions" element={<Predictions />} />
+                {/* <Route path="/user/predictions" element={<Predictions />} /> */}
               </Route>
             </Route>
             <Route path="/account-settings" element={<AccountSettings />} />

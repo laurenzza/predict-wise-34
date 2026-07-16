@@ -207,7 +207,7 @@ export const UserDashboard = () => {
                     <ArrowRight className="h-4 w-4" />
                   </Button>
 
-                  {
+                  {/* {
                     role == "OWNER" &&
                     <>
                       <Button 
@@ -222,7 +222,7 @@ export const UserDashboard = () => {
                         <ArrowRight className="h-4 w-4" />
                       </Button>
                     </>
-                  }
+                  } */}
 
                   <Button 
                     variant="outline" 
