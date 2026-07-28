@@ -7,7 +7,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { BrainCircuit, Eye, EyeOff, Mail, Lock } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiLogin } from "@/api";
-import { useAuthLogin } from "@/store/AuthStore";
+import { useAuthId, useAuthLogin, useAuthToken } from "@/store/AuthStore";
+import { useSummarizeData } from "@/store/DataSummaryStore";
 
 export const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -19,6 +20,9 @@ export const Login = () => {
   const [passwordForm, setPasswordForm] = useState("");
 
   const login = useAuthLogin();
+  const summarize_data = useSummarizeData();
+  const user_id = useAuthId();
+  const access_token = useAuthToken();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,6 +30,7 @@ export const Login = () => {
     
     try {
       const response = await login(emailForm, passwordForm);
+        await summarize_data(user_id, access_token);
       
       // Simulate login process
       setTimeout(() => {
