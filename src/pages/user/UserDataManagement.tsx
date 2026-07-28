@@ -121,7 +121,7 @@ export const UserDataManagement = () => {
       const actionText = uploadMode === 'replace' ? "diganti" : "ditambahkan";
       toast({
         title: "Berhasil Upload File",
-        description: `Data berhasil ${actionText}. Silakan klik 'Mulai Training' untuk update prediksi.`
+        description: `Data berhasil ${actionText}. Silakan klik 'Prediksi Ulang' untuk update prediksi.`
       })
     } catch (error) {
       console.error(error);
@@ -582,7 +582,7 @@ export const UserDataManagement = () => {
                       onClick={handleRunTraining}
                       disabled={isTraining}
                     >
-                      {isTraining ? 'Sedang Melatih Model...' : 'Mulai Training Data'}
+                      {isTraining ? 'Sedang Melatih Model...' : 'Prediksi Ulang'}
                     </Button>
                   </div>
                 </>
