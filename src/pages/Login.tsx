@@ -21,16 +21,17 @@ export const Login = () => {
 
   const login = useAuthLogin();
   const summarize_data = useSummarizeData();
-  const user_id = useAuthId();
-  const access_token = useAuthToken();
-
+  
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     
     try {
       const response = await login(emailForm, passwordForm);
-        await summarize_data(user_id, access_token);
+      
+      const user_id = useAuthId();
+      const access_token = useAuthToken();
+      await summarize_data(user_id, access_token);
       
       // Simulate login process
       setTimeout(() => {
