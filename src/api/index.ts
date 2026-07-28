@@ -8,7 +8,7 @@ import { usePaginationStore } from '@/store/PaginationStore';
 import { SalesData } from '@/store/SalesDataStore';
 import axios from 'axios';
 
-const base_url = "http://localhost:8000"
+const base_url = "https://backendpredict-production.up.railway.app"
 
 export const apiLogin = async (email: string, password: string): Promise<any> => {
     try {
